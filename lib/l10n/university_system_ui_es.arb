@@ -1,0 +1,11 @@
+{
+  "loginEmailHint" : "Correo electrónico",
+  "loginPasswordHint" : "Contraseña",
+  "loginButton": "Ingresar",
+  "loginError": "Correo o contraseña incorrecta",
+  "loginEmailError": "Correo inválido",
+  "loginServerError": "Ups! Algo salió mal. Por favor, inténtalo de nuevo más tarde.",
+  "sessionExpired": "Tu sesión ha expirado",
+  "sessionExpiredConfirmation": "OK",
+  "sessionExpiredMessage": "Por tu seguridad, por favor inicia sesión nuevamente"
+}

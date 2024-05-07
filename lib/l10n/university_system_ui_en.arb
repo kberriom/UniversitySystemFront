@@ -1,0 +1,11 @@
+{
+  "loginEmailHint" : "Email",
+  "loginPasswordHint" : "Password",
+  "loginButton": "Login",
+  "loginError": "Incorrect email or password",
+  "loginEmailError": "Invalid email",
+  "loginServerError": "Oops! Something went wrong. Please try again later",
+  "sessionExpired": "Your session has expired",
+  "sessionExpiredConfirmation": "OK",
+  "sessionExpiredMessage": "For safety reasons please log in again"
+}
