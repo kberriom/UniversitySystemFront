@@ -32,6 +32,10 @@ migrate_working_dir/
 .pub/
 /build/
 
+# Flutter generated files
+*.g.dart
+*.freezed.dart
+
 # Symbolication related
 app.*.symbols
 
