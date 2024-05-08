@@ -1,27 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/university_system_ui_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:university_system_front/Widget/login_widget.dart';
-import 'package:university_system_front/theme.dart';
+import 'package:university_system_front/Theme/theme.dart' as theme;
+
+import 'Provider/login_provider.dart';
+import 'Router/go_router_config.dart';
+import 'Util/provider_logger.dart';
 
 void main() {
-  runApp(const ProviderScope(child: UniversitySystemUi()));
+  runApp(ProviderScope(observers: [ProviderLogger()], child: const UniversitySystemUi()));
 }
-
-final _router = GoRouter(routes: [
-  GoRoute(path: '/', builder: (context, state) => const LoginWidget()),
-]);
 
 class UniversitySystemUi extends StatelessWidget {
   const UniversitySystemUi({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'University System UI',
-      theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
-      darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
-      routerConfig: _router,
+    return _LoginInitialization(
+      child: MaterialApp.router(
+        title: 'University System UI',
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: const [
+          Locale('en'),
+          Locale('es'),
+        ],
+        theme: const theme.MaterialTheme().light(),
+        darkTheme: const theme.MaterialTheme().dark(),
+        routerConfig: GoRouterConfig().router,
+      ),
     );
+  }
+}
+
+///This class initializes the login controller which checks secure storage for a previous JWT,
+///and sets up the redirection to login for expired or invalid jwt
+class _LoginInitialization extends ConsumerWidget {
+  final Widget child;
+
+  const _LoginInitialization({required this.child});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(loginProvider);
+    ref.watch(loginRedirectionProvider);
+    return child;
   }
 }
