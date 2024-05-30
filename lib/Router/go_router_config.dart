@@ -5,8 +5,8 @@ import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Provider/login_provider.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Widget/home_widget.dart';
-import 'package:university_system_front/Widget/token_expired_widget.dart';
 import 'package:university_system_front/Widget/login/login_widget.dart';
+import 'package:university_system_front/Widget/login/token_expired_widget.dart';
 
 part 'go_router_config.g.dart';
 
