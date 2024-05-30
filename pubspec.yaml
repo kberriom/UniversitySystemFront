@@ -33,6 +33,7 @@ dev_dependencies:
   riverpod_lint: ^2.3.10
   freezed: ^2.4.7
   json_serializable: ^6.7.1
+  flutter_native_splash: ^2.4.0
 
 flutter:
   generate: true
@@ -42,3 +43,18 @@ flutter:
     - assets/splash_logo.png #Splash image A
     - assets/logo.png #Splash image B
     - assets/logo_full_nobg_v1.png #Splash image C
+
+# To regenerate the splashScreen the following is needed:
+# -> Image A, splashScreen that follows the Android 12 requirements for app icon without an icon background
+#    see https://developer.android.com/develop/ui/views/launch/splash-screen
+# -> Image B, centered logo of "A" image in every pixel density following the exact size as the logo occupies in the "A" image
+# -> Image C, the logo in the final size
+flutter_native_splash:
+  color: "#404942"
+  image: assets/splash_logo.png #This is image A
+  android_12:
+   image: assets/splash_logo.png
+   color: "#404942"
+  ios: false
+  web: false
+  android_screen_orientation: portrait
