@@ -22,6 +22,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: any
+  simple_animations: ^5.0.2
 
 dev_dependencies:
   flutter_test:
