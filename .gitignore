@@ -63,3 +63,4 @@ google-services.json
 
 # Android Profiling
 *.hprof
+coverage/lcov.info
