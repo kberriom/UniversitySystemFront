@@ -23,6 +23,7 @@ dependencies:
     sdk: flutter
   intl: any
   simple_animations: ^5.0.2
+  get_it: ^7.7.0
 
 dev_dependencies:
   flutter_test:
@@ -35,6 +36,9 @@ dev_dependencies:
   freezed: ^2.4.7
   json_serializable: ^6.7.1
   flutter_native_splash: ^2.4.0
+  dart_jsonwebtoken: ^2.14.0
+  mockito: ^5.4.4
+  test:
 
 flutter:
   generate: true
