@@ -23,7 +23,7 @@ class SecureStorageAdapter {
     return _storage.write(key: key, value: value);
   }
 
-  void deleteValue(String key) async {
-    await _storage.delete(key: key);
+  Future<void> deleteValue(String key) async {
+     _storage.delete(key: key);
   }
 }
