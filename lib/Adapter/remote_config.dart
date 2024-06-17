@@ -1,31 +1,30 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:get_it/get_it.dart';
+import 'package:university_system_front/Adapter/remote_config_android_adapter.dart';
+import 'package:university_system_front/Adapter/remote_config_debug_adapter.dart';
+import 'package:university_system_front/Adapter/remote_config_windows_adapter.dart';
+
 abstract interface class RemoteConfig {
   String getServerAddress();
 
   int getRequestTimeoutSeconds();
 
   factory RemoteConfig() {
+    if (kDebugMode) {
+      if (GetIt.instance.isRegistered<DebugRemoteConfig>()) {
+        return GetIt.instance.get<DebugRemoteConfig>();
+      } else {
+        return GetIt.instance.registerSingleton<DebugRemoteConfig>(DebugRemoteConfig());
+      }
+    }
     if (Platform.isAndroid) {
-      //TODO: FIX
-      return DebugRemoteConfig();
+      return AndroidRemoteConfigAdapter();
     } else if (Platform.isWindows) {
-      //TODO: FIX
-      return DebugRemoteConfig();
+      return RemoteConfigWindowsAdapter();
     } else {
       throw Exception("Platform is not supported currently");
     }
-  }
-}
-
-final class DebugRemoteConfig implements RemoteConfig {
-  @override
-  String getServerAddress() {
-    return const String.fromEnvironment("ENV_ADR", defaultValue: "10.0.2.2:8080");
-  }
-
-  @override
-  int getRequestTimeoutSeconds() {
-    return const int.fromEnvironment("ENV_SERVER_TIMEOUT", defaultValue: 20);
   }
 }
