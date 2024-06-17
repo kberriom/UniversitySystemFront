@@ -52,17 +52,20 @@ class Login extends _$Login {
   }
 
   ///Get JWT from Server and store in secure storage
-  Future<bool> setJWT(LoginCredentials? credentials) async {
+  Future<bool> setJWT(LoginCredentials? credentials, {http.Client? httpClient}) async {
+    httpClient ??= http.Client();
     if (credentials != null && (credentials.email.isNotEmpty || credentials.password.isNotEmpty)) {
       final uri = Uri.http(RemoteConfig().getServerAddress(), "/auth/login");
       final jsonBody = const JsonEncoder().convert(credentials.toJson());
       Map<String, String> headers = {HttpHeaders.contentTypeHeader: "application/json"};
-      Future<http.Response> request = http.post(uri, body: jsonBody, headers: headers);
+      Future<http.Response> request =
+          httpClient.post(uri, body: jsonBody, headers: headers).whenComplete(() => httpClient!.close());
 
       final timeLimit = Duration(seconds: RemoteConfig().getRequestTimeoutSeconds());
-      http.Response? response = await request.timeout(timeLimit, onTimeout: () => throw Exception("TIMEOUT"));
+      http.Response? response =
+          await request.timeout(timeLimit, onTimeout: () => throw TimeoutException("setJWT_TIMEOUT"));
 
-      if (response.statusCode == HttpStatus.tooManyRequests) throw Exception("RATE_LIMIT");
+      if (response.statusCode == HttpStatus.tooManyRequests) throw const HttpException("${HttpStatus.tooManyRequests}");
 
       if (response.statusCode == HttpStatus.ok) {
         final BearerToken bearerToken = BearerToken.fromJson(const JsonDecoder().convert(response.body));
