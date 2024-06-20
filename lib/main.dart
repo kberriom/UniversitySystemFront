@@ -1,13 +1,21 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/university_system_ui_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:university_system_front/Theme/theme.dart' as theme;
+import 'package:window_manager/window_manager.dart';
 
 import 'Provider/login_provider.dart';
 import 'Router/go_router_config.dart';
 import 'Util/provider_logger.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isWindows) {
+    await WindowManager.instance.ensureInitialized();
+    WindowManager.instance.setMinimumSize(const Size(384, 782));
+  }
   runApp(ProviderScope(observers: [ProviderLogger()], child: const UniversitySystemUi()));
 }
 
