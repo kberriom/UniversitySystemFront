@@ -24,6 +24,7 @@ dependencies:
   intl: any
   simple_animations: ^5.0.2
   get_it: ^7.7.0
+  window_manager: ^0.3.9
 
 dev_dependencies:
   flutter_test:
