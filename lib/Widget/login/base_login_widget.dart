@@ -39,21 +39,27 @@ class BaseLoginWidget extends ConsumerWidget {
             SystemChannels.textInput.invokeMethod('TextInput.hide');
           },
           child: SingleChildScrollView(
-            child: SizedBox(
-              //This SizedBox keeps all widgets on the same place even on keyboard input
-              height: MediaQuery.of(context).size.height,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Center(
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: logoImageWidgetList,
-                    ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: SizedBox(
+                  //This SizedBox keeps all widgets on the same place even on keyboard input
+                  height: MediaQuery.of(context).size.height,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: logoImageWidgetList,
+                        ),
+                      ),
+                      const SizedBox(height: 33),
+                      loginWidgetForm,
+                    ],
                   ),
-                  loginWidgetForm,
-                ],
+                ),
               ),
             ),
           ),

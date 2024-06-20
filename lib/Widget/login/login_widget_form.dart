@@ -46,7 +46,6 @@ class _LoginWidgetFormState extends ConsumerState<LoginWidgetForm> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const SizedBox(height: 33),
         Padding(
           padding: const EdgeInsets.only(left: 16, right: 16, bottom: 85),
           child: Column(
