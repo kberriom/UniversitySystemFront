@@ -62,17 +62,18 @@ class Login extends _$Login {
           httpClient.post(uri, body: jsonBody, headers: headers).whenComplete(() => httpClient!.close());
 
       final timeLimit = Duration(seconds: RemoteConfig().getRequestTimeoutSeconds());
-      http.Response? response =
-          await request.timeout(timeLimit, onTimeout: () => throw TimeoutException("setJWT_TIMEOUT"));
-
-      if (response.statusCode == HttpStatus.tooManyRequests) throw const HttpException("${HttpStatus.tooManyRequests}");
+      http.Response? response = await request.timeout(timeLimit, onTimeout: () => throw TimeoutException("setJWT_timeout"));
 
       if (response.statusCode == HttpStatus.ok) {
         final BearerToken bearerToken = BearerToken.fromJson(const JsonDecoder().convert(response.body));
         await SecureStorageAdapter().writeValue(BearerTokenType.jwt.name, bearerToken.token);
         ref.invalidateSelf();
+        return true;
       }
-      return response.statusCode == HttpStatus.ok;
+      if (response.statusCode >= 400 && response.statusCode <= 499) {
+        return false;
+      }
+      throw HttpException("setJWT_serverError: ${response.statusCode}");
     }
     return false;
   }

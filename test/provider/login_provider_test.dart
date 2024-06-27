@@ -45,8 +45,7 @@ void main() {
       }, fireImmediately: true);
       await container.read(loginProvider.future);
 
-      expect(firstProviderValue, const AsyncLoading<BearerToken>(),
-          reason: 'Provider must be tested from initial state');
+      expect(firstProviderValue, const AsyncLoading<BearerToken>(), reason: 'Provider must be tested from initial state');
     });
 
     test('Saved invalid JWT', () async {
@@ -107,8 +106,7 @@ void main() {
       });
 
       container.listen(loginProvider, (_, __) {}, fireImmediately: true);
-      final isSetCompletedOk =
-          await container.read(loginProvider.notifier).setJWT(mockCredentials, httpClient: mockClient);
+      final isSetCompletedOk = await container.read(loginProvider.notifier).setJWT(mockCredentials, httpClient: mockClient);
       final savedValue = await SecureStorageAdapter().readValue("jwt");
 
       expect(isSetCompletedOk, true);
@@ -123,8 +121,7 @@ void main() {
       });
 
       container.listen(loginProvider, (_, __) {}, fireImmediately: true);
-      final isSetCompletedOk =
-          await container.read(loginProvider.notifier).setJWT(mockCredentials, httpClient: mockClient);
+      final isSetCompletedOk = await container.read(loginProvider.notifier).setJWT(mockCredentials, httpClient: mockClient);
       final savedValue = await SecureStorageAdapter().readValue("jwt");
 
       expect(isSetCompletedOk, false);
@@ -156,10 +153,11 @@ void main() {
       });
 
       container.listen(loginProvider, (_, __) {}, fireImmediately: true);
+      final isSetCompletedOk = await container.read(loginProvider.notifier).setJWT(mockCredentials, httpClient: mockClient);
+      final savedValue = await SecureStorageAdapter().readValue("jwt");
 
-      await expectLater(() => container.read(loginProvider.notifier).setJWT(mockCredentials, httpClient: mockClient),
-          throwsA(isA<HttpException>()));
-      await expectLater(await SecureStorageAdapter().readValue("jwt"), null);
+      expect(isSetCompletedOk, false);
+      expect(savedValue, null);
     });
   });
 }
