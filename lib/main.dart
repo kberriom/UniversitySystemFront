@@ -12,8 +12,11 @@ import 'Provider/login_provider.dart';
 import 'Router/go_router_config.dart';
 import 'Util/provider_logger.dart';
 
+final class _UniversitySystemUiGoRouter extends GoRouterConfig {}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  GetIt.instance.registerSingleton<GoRouter>(_UniversitySystemUiGoRouter().router);
   if (Platform.isWindows) {
     await WindowManager.instance.ensureInitialized();
     WindowManager.instance.setMinimumSize(const Size(384, 782));
@@ -36,13 +39,11 @@ class UniversitySystemUi extends StatelessWidget {
         ],
         theme: const theme.MaterialTheme().light(),
         darkTheme: const theme.MaterialTheme().dark(),
-        routerConfig: GetIt.instance.registerSingleton<GoRouter>(_UniversitySystemUiGoRouter().router),
+        routerConfig: GetIt.instance.get<GoRouter>(),
       ),
     );
   }
 }
-
-final class _UniversitySystemUiGoRouter extends GoRouterConfig {}
 
 ///This class initializes the login controller which checks secure storage for a previous JWT,
 ///and sets up the redirection to login for expired or invalid jwt
