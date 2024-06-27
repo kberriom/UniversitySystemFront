@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/university_system_ui_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:university_system_front/Theme/theme.dart' as theme;
 import 'package:window_manager/window_manager.dart';
 
@@ -34,11 +36,13 @@ class UniversitySystemUi extends StatelessWidget {
         ],
         theme: const theme.MaterialTheme().light(),
         darkTheme: const theme.MaterialTheme().dark(),
-        routerConfig: GoRouterConfig().router,
+        routerConfig: GetIt.instance.registerSingleton<GoRouter>(_UniversitySystemUiGoRouter().router),
       ),
     );
   }
 }
+
+final class _UniversitySystemUiGoRouter extends GoRouterConfig {}
 
 ///This class initializes the login controller which checks secure storage for a previous JWT,
 ///and sets up the redirection to login for expired or invalid jwt

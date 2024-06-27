@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
@@ -12,18 +13,8 @@ import 'package:university_system_front/Widget/login/token_expired_widget.dart';
 
 part 'go_router_config.g.dart';
 
-///Singleton class to get the router instance, intended to only be used in [MaterialApp.router] and navigation cases described in [loginRedirection] on [go_router_config.dart]
-///
-///Do not use for regular routing, use [BuildContext.go_router] to navigate
-final class GoRouterConfig {
-  static final GoRouterConfig _instance = GoRouterConfig._internal();
-
-  GoRouterConfig._internal();
-
-  factory GoRouterConfig() {
-    return _instance;
-  }
-
+///Class to get the configured router instance, Use [GetIt.instance.get] to get the registered router instance
+abstract base class GoRouterConfig {
   final GoRouter router = GoRouter(
     initialLocation: GoRouterRoutes.loginSplash.routeName,
     routes: [
@@ -87,13 +78,13 @@ void loginRedirection(LoginRedirectionRef ref) async {
         {
           if (value.mustRedirectLogin ?? false) {
             final sessionExpiredRoute = GoRouterRoutes.tokenExpiredInfo.routeName;
-            var currentRute = GoRouterConfig().router.routeInformationProvider.value.uri.path;
+            var currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
             //Redirect only if user is on a screen that's not login / animatedLogin, sessionExpired or the initial loading splash
             if (((currentRute != sessionExpiredRoute) &&
                 (currentRute != GoRouterRoutes.login.routeName) &&
                 (currentRute != GoRouterRoutes.animatedLogin.routeName) &&
                 (currentRute != GoRouterRoutes.loginSplash.routeName))) {
-              GoRouterConfig().router.pushNamed(sessionExpiredRoute);
+              GetIt.instance.get<GoRouter>().pushNamed(sessionExpiredRoute);
             }
           }
         }

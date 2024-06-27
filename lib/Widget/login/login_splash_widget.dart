@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Widget/login/base_login_widget.dart';
@@ -18,7 +19,7 @@ class _LoginSplashWidgetState extends State<LoginSplashWidget> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       Timer(
         const Duration(milliseconds: 100), //Time the initial splash logo remains on screen
-        () => context.goNamed(GoRouterRoutes.animatedLogin.routeName),
+        () => GetIt.instance.get<GoRouter>().goNamed(GoRouterRoutes.animatedLogin.routeName),
       );
     });
     super.initState();

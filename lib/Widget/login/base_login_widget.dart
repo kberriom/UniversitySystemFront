@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Provider/login_provider.dart';
@@ -24,7 +25,7 @@ class BaseLoginWidget extends ConsumerWidget {
         case AsyncValue<BearerToken>(:final value?):
           {
             if (value.token.isNotEmpty) {
-              context.goNamed(GoRouterRoutes.home.routeName);
+              GetIt.instance.get<GoRouter>().goNamed(GoRouterRoutes.home.routeName);
             }
           }
       }

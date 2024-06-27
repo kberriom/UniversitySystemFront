@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/university_system_ui_localizations.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Theme/theme.dart';
@@ -23,7 +24,7 @@ class TokenExpiredWidget extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () {
-                  context.goNamed(GoRouterRoutes.login.routeName);
+                  GetIt.instance.get<GoRouter>().goNamed(GoRouterRoutes.login.routeName);
                 },
                 child: Text(
                   AppLocalizations.of(context)!.sessionExpiredConfirmation,
