@@ -1,10 +1,11 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:test/test.dart';
 import 'package:university_system_front/Adapter/secure_storage_adapter.dart';
+import 'package:university_system_front/Model/credentials/bearer_token.dart';
 
 void main() {
   group('Test mock secure storage', () {
-    const key = "jwt";
+    final key = BearerTokenType.jwt.name;
     const expectedResult = "expectedResult";
 
     setUp(() {

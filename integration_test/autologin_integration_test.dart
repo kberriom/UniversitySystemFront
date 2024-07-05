@@ -26,7 +26,7 @@ void main() {
 
   group('JWT autoLogin integration test', () {
     testWidgets('login / freshLoggedInInstanceHelper test', (widgetTester) async {
-      expect(await SecureStorageAdapter().readValue("jwt"), isNull,
+      expect(await SecureStorageAdapter().readValue(BearerTokenType.jwt.name), isNull,
           reason: 'Test must be run with no valid JWT saved, do not run this test group randomized');
 
       await freshLoggedInInstanceHelper(widgetTester, newJwt: true, keepJwt: true, autoLogin: true);
@@ -35,12 +35,12 @@ void main() {
       final currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
       expect(currentRute, GoRouterRoutes.home.routeName);
 
-      final storedBearerToken = await SecureStorageAdapter().readValue("jwt");
+      final storedBearerToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
       expect(storedBearerToken, isNotEmpty);
     });
 
     testWidgets('auto-login with saved credentials', (widgetTester) async {
-      expect(await SecureStorageAdapter().readValue("jwt"), isNotEmpty,
+      expect(await SecureStorageAdapter().readValue(BearerTokenType.jwt.name), isNotEmpty,
           reason: 'Test must be run with valid JWT saved, do not run this test group randomized');
 
       await freshLoggedInInstanceHelper(widgetTester, newJwt: false, keepJwt: true, autoLogin: false);
@@ -49,11 +49,11 @@ void main() {
 
       final currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
       expect(currentRute, GoRouterRoutes.home.routeName);
-      expect(await SecureStorageAdapter().readValue("jwt"), isNotEmpty);
+      expect(await SecureStorageAdapter().readValue(BearerTokenType.jwt.name), isNotEmpty);
     });
 
     testWidgets('auto-logout with saved credentials', (widgetTester) async {
-      String currentJwt = await SecureStorageAdapter().readValue("jwt") ?? "";
+      String currentJwt = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name) ?? "";
       expect(currentJwt, isNotEmpty, reason: 'Test must be run with valid JWT saved, do not run this test group randomized');
       expect(JwtDecoder.getRemainingTime(currentJwt), lessThan(const Duration(minutes: 1)),
           reason: 'Jwt expiration must not be longer than 1 minute for autoLogin tests');
@@ -63,7 +63,7 @@ void main() {
       await widgetTester.pumpAndSettle();
 
       expect(GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path, GoRouterRoutes.home.routeName);
-      expect(await SecureStorageAdapter().readValue("jwt"), isNotEmpty);
+      expect(await SecureStorageAdapter().readValue(BearerTokenType.jwt.name), isNotEmpty);
 
       await widgetTester.pumpAndSettle(JwtDecoder.getRemainingTime(currentJwt)); //Wait for JWT expiration
 

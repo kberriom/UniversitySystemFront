@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:university_system_front/Adapter/secure_storage_adapter.dart';
+import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Router/go_router_config.dart';
 import 'package:university_system_front/Util/provider_logger.dart';
 import 'package:university_system_front/main.dart';
@@ -12,11 +13,11 @@ import 'package:university_system_front/main.dart';
 Future<void> freshLoggedInInstanceHelper(WidgetTester widgetTester,
     {bool newJwt = true, bool keepJwt = false, bool autoLogin = true}) async {
   if (newJwt) {
-    await SecureStorageAdapter().deleteValue("jwt");
+    await SecureStorageAdapter().deleteValue(BearerTokenType.jwt.name);
   }
 
   if (!keepJwt) {
-    addTearDown(() async => await SecureStorageAdapter().deleteValue("jwt"));
+    addTearDown(() async => await SecureStorageAdapter().deleteValue(BearerTokenType.jwt.name));
   }
 
   await widgetTester.pumpWidget(ProviderScope(observers: [ProviderLogger()], child: const UniversitySystemUi()));

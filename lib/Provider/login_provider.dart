@@ -85,11 +85,3 @@ class Login extends _$Login {
     return false;
   }
 }
-
-enum BearerTokenType {
-  jwt(name: "jwt");
-
-  final String name;
-
-  const BearerTokenType({required this.name});
-}

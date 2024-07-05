@@ -9,3 +9,11 @@ class BearerToken with _$BearerToken {
 
   factory BearerToken.fromJson(Map<String, dynamic> json) => _$BearerTokenFromJson(json);
 }
+
+enum BearerTokenType {
+  jwt(name: "jwt");
+
+  final String name;
+
+  const BearerTokenType({required this.name});
+}

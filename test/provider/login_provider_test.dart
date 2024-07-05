@@ -50,7 +50,7 @@ void main() {
 
     test('Saved invalid JWT', () async {
       final container = createContainer();
-      FlutterSecureStorage.setMockInitialValues({"jwt": "not a JWT"});
+      FlutterSecureStorage.setMockInitialValues({BearerTokenType.jwt.name: "not a JWT"});
 
       container.listen(loginProvider, (_, __) {}, fireImmediately: true);
       final actual = await container.read(loginProvider.future);
@@ -62,7 +62,7 @@ void main() {
       final container = createContainer();
       String jwt =
           "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJVU0VSIERFVEFJTFMiLCJpc3MiOiJVTklWRVJTSVRZX1NZU1RFTSIsImV4cCI6MTcxODIxNTg5OSwiaWF0IjoxNzE4MjE1Nzk5LCJlbWFpbCI6ImFkbWluQHVuaXZlcnNpdHlTeXN0ZW0uY29tIn0.-hdVHYKRR8drHO_FIDQ14cdrp98Somz_2chVIxehpDE";
-      FlutterSecureStorage.setMockInitialValues({"jwt": jwt});
+      FlutterSecureStorage.setMockInitialValues({BearerTokenType.jwt.name: jwt});
 
       container.listen(loginProvider, (_, __) {}, fireImmediately: true);
       final actual = await container.read(loginProvider.future);
@@ -81,7 +81,7 @@ void main() {
         "email": "admin@universitySystem.com"
       });
       final jwtString = jwt.sign(SecretKey("SECRET_VERY_SECRET_FOR_JWT"));
-      FlutterSecureStorage.setMockInitialValues({"jwt": jwtString});
+      FlutterSecureStorage.setMockInitialValues({BearerTokenType.jwt.name: jwtString});
 
       container.listen(loginProvider, (_, __) {}, fireImmediately: true);
       final actual = await container.read(loginProvider.future);
@@ -99,7 +99,7 @@ void main() {
 
       container.listen(loginProvider, (_, __) {}, fireImmediately: true);
       final isSetCompletedOk = await container.read(loginProvider.notifier).setJWT(mockCredentials, httpClient: mockClient);
-      final savedValue = await SecureStorageAdapter().readValue("jwt");
+      final savedValue = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
 
       expect(isSetCompletedOk, true);
       expect(savedValue, jwtStringFromMockServer);
@@ -114,7 +114,7 @@ void main() {
 
       container.listen(loginProvider, (_, __) {}, fireImmediately: true);
       final isSetCompletedOk = await container.read(loginProvider.notifier).setJWT(mockCredentials, httpClient: mockClient);
-      final savedValue = await SecureStorageAdapter().readValue("jwt");
+      final savedValue = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
 
       expect(isSetCompletedOk, false);
       expect(savedValue, null);
@@ -134,7 +134,7 @@ void main() {
 
       await expectLater(() => container.read(loginProvider.notifier).setJWT(mockCredentials, httpClient: mockClient),
           throwsA(isA<TimeoutException>()));
-      await expectLater(await SecureStorageAdapter().readValue("jwt"), null);
+      await expectLater(await SecureStorageAdapter().readValue(BearerTokenType.jwt.name), null);
     });
 
     test('Too many requests', () async {
@@ -146,7 +146,7 @@ void main() {
 
       container.listen(loginProvider, (_, __) {}, fireImmediately: true);
       final isSetCompletedOk = await container.read(loginProvider.notifier).setJWT(mockCredentials, httpClient: mockClient);
-      final savedValue = await SecureStorageAdapter().readValue("jwt");
+      final savedValue = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
 
       expect(isSetCompletedOk, false);
       expect(savedValue, null);

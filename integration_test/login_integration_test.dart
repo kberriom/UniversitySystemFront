@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:university_system_front/Adapter/secure_storage_adapter.dart';
+import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Util/provider_logger.dart';
 import 'package:university_system_front/main.dart';
@@ -25,11 +26,11 @@ void main() {
 
   group('Login integration test', () {
     setUpAll(() async {
-      await SecureStorageAdapter().deleteValue("jwt");
+      await SecureStorageAdapter().deleteValue(BearerTokenType.jwt.name);
     });
 
     tearDown(() async {
-      await SecureStorageAdapter().deleteValue("jwt");
+      await SecureStorageAdapter().deleteValue(BearerTokenType.jwt.name);
     });
 
     testWidgets('show correct login Widgets', (widgetTester) async {
@@ -47,7 +48,7 @@ void main() {
 
       var currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
       expect(currentRute, GoRouterRoutes.animatedLogin.routeName);
-      final storedBearerToken = await SecureStorageAdapter().readValue("jwt");
+      final storedBearerToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
       expect(storedBearerToken, null);
     });
 
@@ -88,7 +89,7 @@ void main() {
       var currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
       expect(currentRute, GoRouterRoutes.home.routeName);
 
-      final storedBearerToken = await SecureStorageAdapter().readValue("jwt");
+      final storedBearerToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
       expect(storedBearerToken, isNotNull);
       expect(storedBearerToken, isNotEmpty);
     });
@@ -116,7 +117,7 @@ void main() {
 
       var currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
       expect(currentRute, GoRouterRoutes.animatedLogin.routeName);
-      final storedBearerToken = await SecureStorageAdapter().readValue("jwt");
+      final storedBearerToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
       expect(storedBearerToken, isNull);
     });
 
@@ -148,7 +149,7 @@ void main() {
       var currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
       expect(currentRute, GoRouterRoutes.animatedLogin.routeName);
 
-      final storedBearerToken = await SecureStorageAdapter().readValue("jwt");
+      final storedBearerToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
       expect(storedBearerToken, isNull);
     });
 
@@ -189,7 +190,7 @@ void main() {
       var currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
       expect(currentRute, GoRouterRoutes.animatedLogin.routeName);
 
-      final storedBearerToken = await SecureStorageAdapter().readValue("jwt");
+      final storedBearerToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
       expect(storedBearerToken, isNull);
     });
   });
