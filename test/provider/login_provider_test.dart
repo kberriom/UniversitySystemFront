@@ -15,7 +15,7 @@ import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Model/credentials/login_credentials.dart';
 import 'package:university_system_front/Provider/login_provider.dart';
 
-import '../test_util.dart';
+import '../unit_widget_test_util.dart';
 
 void main() {
   group('Login Provider tests', () {
@@ -92,15 +92,7 @@ void main() {
     test('New valid JWT with valid credentials', () async {
       final container = createContainer();
       LoginCredentials mockCredentials = const LoginCredentials(email: "test@test.com", password: "test");
-      final dateTime = DateTime.now();
-      final jwt = JWT({
-        "sub": "USER DETAILS",
-        "iss": "UNIVERSITY_SYSTEM",
-        "exp": dateTime.add(const Duration(days: 1)).millisecondsSinceEpoch,
-        "iat": dateTime.millisecondsSinceEpoch,
-        "email": mockCredentials.email
-      });
-      final jwtStringFromMockServer = jwt.sign(SecretKey("SECRET_VERY_SECRET_FOR_JWT"));
+      String jwtStringFromMockServer = getMockJwt(mockCredentials);
       final mockClient = MockClient((request) {
         return Future.value(Response(jsonEncode({"token": jwtStringFromMockServer}), 200));
       });
