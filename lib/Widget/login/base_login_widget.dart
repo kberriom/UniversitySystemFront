@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
@@ -37,7 +36,7 @@ class BaseLoginWidget extends ConsumerWidget {
         backgroundColor: MaterialTheme.fixedPrimary.value,
         body: GestureDetector(
           onTap: () {
-            SystemChannels.textInput.invokeMethod('TextInput.hide');
+            FocusScope.of(context).unfocus(disposition: UnfocusDisposition.scope);
           },
           child: SingleChildScrollView(
             child: Center(
