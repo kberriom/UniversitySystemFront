@@ -15,7 +15,14 @@ part 'login_provider.g.dart';
 ///Reactive Auth for the UniversitySystem Service.
 ///Gets token from secure storage and checks if token is valid,
 ///if token is invalid all listeners receive a [mustRedirectLogin] that triggers auth related events.
-///For auth routing redirection see [loginRedirectionProvider]
+///
+///Do not use the raw JWT saved in storage, expired tokens are not removed until a new valid login.
+///[loginProvider] will return a [BearerToken] that reflects this without exposing the old JWT value.
+///
+///For auth routing redirection see:
+///[loginRedirectionProvider] for expired token redirection.
+///[AnimatedLoginWidget] for auto-login redirection entrypoint
+///[BaseLoginWidget] for new login redirection to /home
 @riverpod
 class Login extends _$Login {
   @override
