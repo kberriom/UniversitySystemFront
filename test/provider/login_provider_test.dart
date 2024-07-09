@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -72,21 +71,13 @@ void main() {
 
     test('Saved existing valid JWT', () async {
       final container = createContainer();
-      final dateTime = DateTime.now();
-      final jwt = JWT({
-        "sub": "USER DETAILS",
-        "iss": "UNIVERSITY_SYSTEM",
-        "exp": dateTime.add(const Duration(days: 1)).millisecondsSinceEpoch,
-        "iat": dateTime.millisecondsSinceEpoch,
-        "email": "admin@universitySystem.com"
-      });
-      final jwtString = jwt.sign(SecretKey("SECRET_VERY_SECRET_FOR_JWT"));
+      final jwtString = getMockJwt(const LoginCredentials(email: "test@test.com", password: "test"));
       FlutterSecureStorage.setMockInitialValues({BearerTokenType.jwt.name: jwtString});
 
       container.listen(loginProvider, (_, __) {}, fireImmediately: true);
       final actual = await container.read(loginProvider.future);
 
-      expect(actual, BearerToken(token: jwtString, mustRedirectLogin: false));
+      expect(actual, BearerToken(token: jwtString, role: UserRole.admin, mustRedirectLogin: false));
     });
 
     test('New valid JWT with valid credentials', () async {

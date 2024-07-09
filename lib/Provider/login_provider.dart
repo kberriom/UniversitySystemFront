@@ -30,10 +30,13 @@ class Login extends _$Login {
     final String? storedToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
     BearerToken jwt = BearerToken(token: storedToken ?? "", mustRedirectLogin: false);
     late final Duration? remainingTime;
+    late final Map<String, dynamic> decodedToken;
 
     try {
       if (jwt.token.isNotEmpty) {
-        remainingTime = JwtDecoder.getRemainingTime(jwt.token);
+        decodedToken = JwtDecoder.decode(jwt.token);
+        final expirationDate = DateTime.fromMillisecondsSinceEpoch(0).add(Duration(seconds: decodedToken['exp'].toInt()));
+        remainingTime = expirationDate.difference(DateTime.now());
       } else {
         //JWT is empty / first app start
         //do not redirect user to login screen
@@ -55,7 +58,8 @@ class Login extends _$Login {
     });
     ref.onDispose(timer.cancel);
     ref.onDispose(keepAliveReference.close);
-    return jwt;
+    return jwt.copyWith(
+        role: UserRole.values.firstWhere((posibleRole) => posibleRole.roleName == decodedToken["role"]));
   }
 
   ///Get JWT from Server and store in secure storage

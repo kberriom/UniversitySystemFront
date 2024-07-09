@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Model/credentials/login_credentials.dart';
 
 ///Initializes all application wide dependencies that require a reset after being used,
@@ -36,6 +37,7 @@ String getMockJwt(LoginCredentials mockCredentials) {
   final jwt = JWT({
     "sub": "USER DETAILS",
     "iss": "UNIVERSITY_SYSTEM",
+    "role": UserRole.admin.roleName,
     "exp": dateTime.add(const Duration(days: 1)).millisecondsSinceEpoch,
     "iat": dateTime.millisecondsSinceEpoch,
     "email": mockCredentials.email
