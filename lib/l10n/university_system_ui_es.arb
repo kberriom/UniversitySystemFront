@@ -7,5 +7,10 @@
   "loginServerError": "Ups! Algo salió mal. Por favor, inténtalo de nuevo más tarde.",
   "sessionExpired": "Tu sesión ha expirado",
   "sessionExpiredConfirmation": "OK",
-  "sessionExpiredMessage": "Por tu seguridad, por favor inicia sesión nuevamente"
+  "sessionExpiredMessage": "Por tu seguridad, por favor inicia sesión nuevamente",
+  "navDestHome": "Inicio",
+  "navDestUsers": "Usuarios",
+  "navDestSubjects": "Materias",
+  "navDestCurriculums": "Currículos",
+  "signOutPopupMenu" : "Cerrar sesión"
 }

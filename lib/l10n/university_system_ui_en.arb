@@ -7,5 +7,10 @@
   "loginServerError": "Oops! Something went wrong. Please try again later",
   "sessionExpired": "Your session has expired",
   "sessionExpiredConfirmation": "OK",
-  "sessionExpiredMessage": "For safety reasons please log in again"
+  "sessionExpiredMessage": "For safety reasons please log in again",
+  "navDestHome": "Home",
+  "navDestUsers": "Users",
+  "navDestSubjects": "Subjects",
+  "navDestCurriculums": "Curriculums",
+  "signOutPopupMenu" : "Sign out"
 }
