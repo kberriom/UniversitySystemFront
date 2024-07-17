@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:get_it/get_it.dart';
