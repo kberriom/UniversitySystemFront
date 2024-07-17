@@ -4,8 +4,6 @@ import 'package:flutter_gen/gen_l10n/university_system_ui_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:university_system_front/Model/credentials/login_credentials.dart';
 import 'package:university_system_front/Provider/login_provider.dart';
-import 'package:university_system_front/Theme/theme.dart' show MaterialTheme;
-import 'package:university_system_front/Theme/theme_utils.dart';
 
 class LoginWidgetForm extends ConsumerStatefulWidget {
   const LoginWidgetForm({super.key});
@@ -58,8 +56,6 @@ class _LoginWidgetFormState extends ConsumerState<LoginWidgetForm> {
                 onEditingComplete: () => _passwordFocusNode.requestFocus(),
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
-                  fillColor: ThemeUtils.colorByBrightness(
-                      context, MaterialTheme.lightScheme().surfaceVariant, MaterialTheme.darkTextField.value),
                   helperText: "",
                   hintText: AppLocalizations.of(context)!.loginEmailHint,
                   filled: true,
@@ -76,8 +72,6 @@ class _LoginWidgetFormState extends ConsumerState<LoginWidgetForm> {
                 onEditingComplete: () => _loginButtonFocusNode.requestFocus(),
                 focusNode: _passwordFocusNode,
                 decoration: InputDecoration(
-                  fillColor: ThemeUtils.colorByBrightness(
-                      context, MaterialTheme.lightScheme().surfaceVariant, MaterialTheme.darkTextField.value),
                   suffixIcon: IconButton(
                     icon: _getPasswordVisibilityIcon(),
                     onPressed: () => setState(() {
@@ -125,8 +119,6 @@ class _LoginWidgetFormState extends ConsumerState<LoginWidgetForm> {
           },
           style: FilledButton.styleFrom(
             minimumSize: const Size(286, 67),
-            backgroundColor: ThemeUtils.colorByBrightness(
-                context, MaterialTheme.lightScheme().primary, MaterialTheme.darkFilledButton.seed),
           ),
           child: FutureBuilder(
             future: _pendingLogin,

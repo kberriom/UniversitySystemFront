@@ -28,12 +28,16 @@ class Login extends _$Login {
   @override
   Future<BearerToken> build() async {
     final String? storedToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
-    BearerToken jwt = BearerToken(token: storedToken ?? "", mustRedirectLogin: false);
+    BearerToken jwt = BearerToken(token: storedToken ?? "", mustRedirectTokenExpired: false);
     late final Duration? remainingTime;
     late final Map<String, dynamic> decodedToken;
 
     try {
       if (jwt.token.isNotEmpty) {
+        if (jwt.token == InternalTokenMessage.signOut.name) {
+          //User has sign out
+          return BearerToken(token: jwt.token, mustRedirectTokenExpired: false);
+        }
         decodedToken = JwtDecoder.decode(jwt.token);
         final expirationDate = DateTime.fromMillisecondsSinceEpoch(0).add(Duration(seconds: decodedToken['exp'].toInt()));
         remainingTime = expirationDate.difference(DateTime.now());
@@ -45,11 +49,11 @@ class Login extends _$Login {
     } catch (e) {
       //JWT could not be parsed
       //BearerToken is immutable, new instance required
-      return const BearerToken(token: "", mustRedirectLogin: true);
+      return const BearerToken(token: "", mustRedirectTokenExpired: true);
     }
     if (remainingTime.isNegative) {
       //JWT is expired
-      return const BearerToken(token: "", mustRedirectLogin: true);
+      return const BearerToken(token: "", mustRedirectTokenExpired: true);
     }
     //JWT is valid
     final keepAliveReference = ref.keepAlive();
@@ -87,5 +91,10 @@ class Login extends _$Login {
       throw HttpException("setJWT_serverError: ${response.statusCode}");
     }
     return false;
+  }
+
+  Future<void> signOut() async {
+    await SecureStorageAdapter().writeValue(BearerTokenType.jwt.name, InternalTokenMessage.signOut.name);
+    ref.invalidateSelf();
   }
 }

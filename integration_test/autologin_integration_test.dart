@@ -33,7 +33,7 @@ void main() {
       await widgetTester.pumpAndSettle();
 
       final currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
-      expect(currentRute, GoRouterRoutes.home.routeName);
+      expect(currentRute, GoRouterRoutes.adminHome.routeName);
 
       final storedBearerToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
       expect(storedBearerToken, isNotEmpty);
@@ -48,7 +48,7 @@ void main() {
       await widgetTester.pumpAndSettle();
 
       final currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
-      expect(currentRute, GoRouterRoutes.home.routeName);
+      expect(currentRute, GoRouterRoutes.adminHome.routeName);
       expect(await SecureStorageAdapter().readValue(BearerTokenType.jwt.name), isNotEmpty);
     });
 
@@ -62,7 +62,7 @@ void main() {
 
       await widgetTester.pumpAndSettle();
 
-      expect(GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path, GoRouterRoutes.home.routeName);
+      expect(GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path, GoRouterRoutes.adminHome.routeName);
       expect(await SecureStorageAdapter().readValue(BearerTokenType.jwt.name), isNotEmpty);
 
       await widgetTester.pumpAndSettle(JwtDecoder.getRemainingTime(currentJwt)); //Wait for JWT expiration
@@ -92,7 +92,7 @@ void main() {
 
       expect(GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path, GoRouterRoutes.login.routeName);
       final providerContainer = ProviderScope.containerOf(widgetTester.element(find.byType(FilledButton)));
-      expect(await providerContainer.read(loginProvider.future), const BearerToken(token: "", mustRedirectLogin: true));
+      expect(await providerContainer.read(loginProvider.future), const BearerToken(token: "", mustRedirectTokenExpired: true));
     });
   });
 }

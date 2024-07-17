@@ -87,11 +87,67 @@ void main() {
       await widgetTester.pumpAndSettle();
 
       var currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
-      expect(currentRute, GoRouterRoutes.home.routeName);
+      expect(currentRute, GoRouterRoutes.adminHome.routeName);
 
       final storedBearerToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
       expect(storedBearerToken, isNotNull);
       expect(storedBearerToken, isNotEmpty);
+    });
+
+    testWidgets('sign out', (widgetTester) async {
+      await widgetTester.pumpWidget(ProviderScope(observers: [ProviderLogger()], child: const UniversitySystemUi()));
+
+      await widgetTester.pumpAndSettle(const Duration(milliseconds: 150));
+
+      final textFormFieldFinder = find.byType(TextFormField);
+      final filledButtonFinder = find.byType(FilledButton);
+
+      expect(textFormFieldFinder, findsExactly(2));
+      expect(filledButtonFinder, findsOne);
+
+      final textFormFieldEmailFinder = find.ancestor(
+          of: find.text(AppLocalizations.of(widgetTester.element(textFormFieldFinder.first))!.loginEmailHint),
+          matching: textFormFieldFinder);
+      final textFormFieldPasswordFinder = find.ancestor(
+          of: find.text(AppLocalizations.of(widgetTester.element(textFormFieldFinder.first))!.loginPasswordHint),
+          matching: textFormFieldFinder);
+
+      await widgetTester.tap(textFormFieldEmailFinder);
+      await widgetTester.enterText(textFormFieldEmailFinder, const String.fromEnvironment("INTEG_TEST_USER_MAIL"));
+
+      await widgetTester.tap(textFormFieldPasswordFinder);
+      await widgetTester.enterText(textFormFieldPasswordFinder, const String.fromEnvironment("INTEG_TEST_USER_PASSWORD"));
+
+      await widgetTester.ensureVisible(filledButtonFinder);
+      await widgetTester.tap(filledButtonFinder);
+
+      await widgetTester.pump();
+      final circularProgressIndicatorFinder = find.byType(CircularProgressIndicator);
+
+      expect(circularProgressIndicatorFinder, findsOne);
+
+      await widgetTester.pumpAndSettle();
+
+      var currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
+      expect(currentRute, GoRouterRoutes.adminHome.routeName);
+
+      final popupMenuFinder = find.byType(PopupMenuButton);
+      expect(popupMenuFinder, findsOne);
+
+      await widgetTester.tap(popupMenuFinder);
+      await widgetTester.pumpAndSettle();
+
+      final popupMenuItemFinder = find.ancestor(
+          of: find.text(AppLocalizations.of(widgetTester.element(popupMenuFinder))!.signOutPopupMenu),
+          matching: find.byType(PopupMenuItem));
+      expect(popupMenuItemFinder, findsOne);
+
+      await widgetTester.tap(popupMenuItemFinder);
+      await widgetTester.pumpAndSettle();
+
+      expect(GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path, GoRouterRoutes.login.routeName);
+      final storedBearerToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
+      expect(storedBearerToken, InternalTokenMessage.signOut.name);
     });
 
     testWidgets('"Invalid email" when no email error at login', (widgetTester) async {

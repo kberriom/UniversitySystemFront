@@ -51,5 +51,6 @@ Future<void> freshLoggedInInstanceHelper(WidgetTester widgetTester,
 final class _IntegrationTestUniversitySystemUiGoRouter extends GoRouterConfig {}
 
 GoRouter registerGoRouterForIntegrationTest() {
+  GetIt.instance.allowReassignment = true;
   return GetIt.instance.registerSingleton<GoRouter>(_IntegrationTestUniversitySystemUiGoRouter().router);
 }

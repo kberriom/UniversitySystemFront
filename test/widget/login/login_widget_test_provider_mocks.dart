@@ -15,7 +15,7 @@ part 'login_widget_test_provider_mocks.g.dart';
 class MockOkLogin extends _$MockOkLogin implements Login {
   @override
   Future<BearerToken> build() async {
-    return const BearerToken(token: "JWT", mustRedirectLogin: false);
+    return const BearerToken(token: "JWT", role: UserRole.admin, mustRedirectTokenExpired: false);
   }
 
   @override
@@ -25,26 +25,32 @@ class MockOkLogin extends _$MockOkLogin implements Login {
     });
     return ref.read(loginProvider.notifier).setJWT(credentials, httpClient: mockClient);
   }
+
+  @override
+  Future<void> signOut() async {}
 }
 
 @riverpod
 class MockUnauthorizedLogin extends _$MockUnauthorizedLogin implements Login {
   @override
   Future<BearerToken> build() async {
-    return const BearerToken(token: "", mustRedirectLogin: false);
+    return const BearerToken(token: "", mustRedirectTokenExpired: false);
   }
 
   @override
   Future<bool> setJWT(LoginCredentials? credentials, {http.Client? httpClient}) async {
     return await Future.value(false);
   }
+
+  @override
+  Future<void> signOut() async {}
 }
 
 @riverpod
 class MockLongLogin extends _$MockLongLogin implements Login {
   @override
   Future<BearerToken> build() async {
-    return const BearerToken(token: "", mustRedirectLogin: false);
+    return const BearerToken(token: "", mustRedirectTokenExpired: false);
   }
 
   @override
@@ -52,17 +58,23 @@ class MockLongLogin extends _$MockLongLogin implements Login {
     Future<bool> response = Future.delayed(const Duration(milliseconds: 1), () => false);
     return await response;
   }
+
+  @override
+  Future<void> signOut() async {}
 }
 
 @riverpod
 class MockServerErrorLogin extends _$MockServerErrorLogin implements Login {
   @override
   Future<BearerToken> build() async {
-    return const BearerToken(token: "", mustRedirectLogin: false);
+    return const BearerToken(token: "", mustRedirectTokenExpired: false);
   }
 
   @override
   Future<bool> setJWT(LoginCredentials? credentials, {http.Client? httpClient}) async {
     throw const HttpException("setJWT_serverError: 500");
   }
+
+  @override
+  Future<void> signOut() async {}
 }

@@ -6,17 +6,17 @@ part 'bearer_token.g.dart';
 
 @freezed
 class BearerToken with _$BearerToken {
-  const factory BearerToken({required String token, UserRole? role, bool? mustRedirectLogin}) = _BearerToken;
+  const factory BearerToken({required String token, UserRole? role, bool? mustRedirectTokenExpired}) = _BearerToken;
 
   factory BearerToken.fromJson(Map<String, dynamic> json) => _$BearerTokenFromJson(json);
 }
 
+enum InternalTokenMessage {
+  signOut;
+}
+
 enum BearerTokenType {
-  jwt(name: "jwt");
-
-  final String name;
-
-  const BearerTokenType({required this.name});
+  jwt;
 }
 
 enum UserRole {

@@ -44,7 +44,7 @@ void main() {
       await widgetTester.tap(filledButtonFinder);
       await widgetTester.pumpAndSettle();
 
-      verify(mockGoRouter.goNamed(GoRouterRoutes.home.routeName)).called(1);
+      verify(mockGoRouter.goNamed(GoRouterRoutes.adminHome.routeName)).called(1);
       await GetIt.instance.reset();
     });
 

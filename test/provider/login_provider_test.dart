@@ -30,7 +30,7 @@ void main() {
       final actual = await container.read(loginProvider.future);
 
       expect(firstProviderValue, const AsyncLoading<BearerToken>());
-      expect(actual, const BearerToken(token: "", mustRedirectLogin: false));
+      expect(actual, const BearerToken(token: "", mustRedirectTokenExpired: false));
     });
 
     test('Provider is tested from initial state', () async {
@@ -54,7 +54,7 @@ void main() {
       container.listen(loginProvider, (_, __) {}, fireImmediately: true);
       final actual = await container.read(loginProvider.future);
 
-      expect(actual, const BearerToken(token: "", mustRedirectLogin: true));
+      expect(actual, const BearerToken(token: "", mustRedirectTokenExpired: true));
     });
 
     test('Saved expired JWT', () async {
@@ -66,7 +66,7 @@ void main() {
       container.listen(loginProvider, (_, __) {}, fireImmediately: true);
       final actual = await container.read(loginProvider.future);
 
-      expect(actual, const BearerToken(token: "", mustRedirectLogin: true));
+      expect(actual, const BearerToken(token: "", mustRedirectTokenExpired: true));
     });
 
     test('Saved existing valid JWT', () async {
@@ -77,7 +77,7 @@ void main() {
       container.listen(loginProvider, (_, __) {}, fireImmediately: true);
       final actual = await container.read(loginProvider.future);
 
-      expect(actual, BearerToken(token: jwtString, role: UserRole.admin, mustRedirectLogin: false));
+      expect(actual, BearerToken(token: jwtString, role: UserRole.admin, mustRedirectTokenExpired: false));
     });
 
     test('New valid JWT with valid credentials', () async {
