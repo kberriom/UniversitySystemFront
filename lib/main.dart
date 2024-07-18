@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:university_system_front/Theme/theme.dart' as theme;
+import 'package:university_system_front/Theme/theme_mode_provider.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'Provider/login_provider.dart';
@@ -24,11 +25,11 @@ void main() async {
   runApp(ProviderScope(observers: [ProviderLogger()], child: const UniversitySystemUi()));
 }
 
-class UniversitySystemUi extends StatelessWidget {
+class UniversitySystemUi extends ConsumerWidget {
   const UniversitySystemUi({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return _LoginInitialization(
       child: MaterialApp.router(
         title: 'University System UI',
@@ -39,6 +40,7 @@ class UniversitySystemUi extends StatelessWidget {
         ],
         theme: const theme.MaterialTheme().light(),
         darkTheme: const theme.MaterialTheme().dark(),
+        themeMode: ref.watch(currentThemeModeProvider),
         routerConfig: GetIt.instance.get<GoRouter>(),
       ),
     );
