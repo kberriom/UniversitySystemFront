@@ -6,11 +6,13 @@ import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Provider/login_provider.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Widget/base_scaffold_navigation/admin_scaffold_navigation_widget.dart';
+import 'package:university_system_front/Widget/curriculums/admin/admin_curriculums_widget.dart';
 import 'package:university_system_front/Widget/home/admin/admin_home_widget.dart';
 import 'package:university_system_front/Widget/login/animated_login_widget.dart';
 import 'package:university_system_front/Widget/login/login_splash_widget.dart';
 import 'package:university_system_front/Widget/login/login_widget.dart';
 import 'package:university_system_front/Widget/login/token_expired_widget.dart';
+import 'package:university_system_front/Widget/subjects/admin/admin_subject_widget.dart';
 import 'package:university_system_front/Widget/users/admin/admin_users_widget.dart';
 
 part 'go_router_config.g.dart';
@@ -58,6 +60,7 @@ abstract base class GoRouterConfig {
             child: const TokenExpiredWidget(),
             transitionsBuilder: _fadeTransition),
       ),
+      //ADMIN ROUTE TREE
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return AdminScaffoldNavigationWidget(navigationShell: navigationShell);
@@ -84,6 +87,28 @@ abstract base class GoRouterConfig {
               ),
               routes: const [],
             )
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: GoRouterRoutes.adminSubjects.routeName,
+              name: GoRouterRoutes.adminSubjects.routeName,
+              pageBuilder: (context, state) => NoTransitionPage(
+                key: ValueKey(GoRouterRoutes.adminSubjects.routeName),
+                child: const AdminSubjectWidget(),
+              ),
+              routes: const [],
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: GoRouterRoutes.adminCurriculums.routeName,
+              name: GoRouterRoutes.adminCurriculums.routeName,
+              pageBuilder: (context, state) => NoTransitionPage(
+                key: ValueKey(GoRouterRoutes.adminCurriculums.routeName),
+                child: const AdminCurriculumsWidget(),
+              ),
+              routes: const [],
+            ),
           ]),
         ],
       ),
