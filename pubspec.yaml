@@ -50,6 +50,13 @@ flutter:
   generate: true
   uses-material-design: true
 
+  fonts:
+    - family: Blazma
+      fonts:
+        - asset: fonts/blazma/Blazma-Regular.ttf
+        - asset: fonts/blazma/Blazma-Italic.ttf
+          style: italic
+
   assets:
     - assets/splash_logo.png #Splash image A
     - assets/logo.png #Splash image B
