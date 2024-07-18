@@ -12,5 +12,25 @@
   "navDestUsers": "Users",
   "navDestSubjects": "Subjects",
   "navDestCurriculums": "Curriculums",
-  "signOutPopupMenu" : "Sign out"
+  "signOutPopupMenu" : "Sign out",
+  "upperCaseHomeTitleAndUserName": "HELLO {userName}",
+  "@upperCaseHomeTitleAndUserName" : {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "lowerCaseHomeTitleAndUserName": "Hello {userName}",
+  "@lowerCaseHomeTitleAndUserName" : {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "homeQuickAccess" : "Quick access",
+  "adminQuickAccessAddStudent": "Add Student",
+  "adminQuickAccessAddTeacher": "Add teacher",
+  "adminQuickAccessCalGrades": "Calculate grades"
 }

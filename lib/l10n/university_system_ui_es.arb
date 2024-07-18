@@ -12,5 +12,25 @@
   "navDestUsers": "Usuarios",
   "navDestSubjects": "Materias",
   "navDestCurriculums": "Currículos",
-  "signOutPopupMenu" : "Cerrar sesión"
+  "signOutPopupMenu" : "Cerrar sesión",
+  "upperCaseHomeTitleAndUserName": "HOLA {userName}",
+  "@upperCaseHomeTitleAndUserName" : {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "lowerCaseHomeTitleAndUserName": "Hola {userName}",
+  "@lowerCaseHomeTitleAndUserName" : {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "homeQuickAccess" : "Acceso rápido",
+  "adminQuickAccessAddStudent": "Añadir estudiante",
+  "adminQuickAccessAddTeacher": "Añadir profesor",
+  "adminQuickAccessCalGrades": "Calcular notas"
 }
