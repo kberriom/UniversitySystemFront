@@ -28,16 +28,9 @@ class AdminScaffoldNavigationWidget extends ConsumerWidget {
       builder: (context, ref, child) {
         return AdaptiveScaffold(
           appBar: AppBar(
+            backgroundColor: _appBarBackgroundColor(ref, context),
             primary: true,
-            leading: Platform.isWindows
-                ? IconButton(
-                    onPressed: () {
-                      ref.read(currentThemeModeProvider.notifier).changeThemeMode();
-                    },
-                    icon: Icon(Theme.of(context).colorScheme.brightness == Brightness.light
-                        ? Icons.sunny
-                        : Icons.nightlight_round_sharp))
-                : null,
+            leading: _getWinOnlyLeading(ref, context),
             title: ConstrainedBox(
                 constraints: const BoxConstraints.tightFor(width: 110),
                 child: Image.asset('assets/logo_full_nobg_v1.png', cacheWidth: 200)),
@@ -74,5 +67,25 @@ class AdminScaffoldNavigationWidget extends ConsumerWidget {
         );
       },
     );
+  }
+
+  IconButton? _getWinOnlyLeading(WidgetRef ref, BuildContext context) {
+    if (Platform.isWindows) {
+      return IconButton(
+          onPressed: () {
+            ref.read(currentThemeModeProvider.notifier).changeThemeMode();
+          },
+          icon: Icon(Theme.of(context).colorScheme.brightness == Brightness.light ? Icons.sunny : Icons.nightlight_round_sharp));
+    } else {
+      return null;
+    }
+  }
+
+  Color? _appBarBackgroundColor(WidgetRef ref, BuildContext context) {
+    if (ref.watch(currentThemeModeProvider) == ThemeMode.light) {
+      return Theme.of(context).colorScheme.outlineVariant;
+    } else {
+      return null;
+    }
   }
 }
