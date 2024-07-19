@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:university_system_front/Theme/theme.dart';
 import 'package:university_system_front/Theme/theme_mode_provider.dart';
 import 'package:university_system_front/Util/university_system_ui_localizations_helper.dart';
+import 'package:university_system_front/Widget/home/common_home_widgets.dart';
 
 class AdminHomeWidget extends ConsumerStatefulWidget {
   const AdminHomeWidget({super.key});
@@ -15,31 +16,14 @@ class _HomeWidgetState extends ConsumerState<AdminHomeWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(image: AssetImage('assets/logo_no_shadow_rotated.png'), repeat: ImageRepeat.repeat, opacity: 0.05),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 650),
-                child: FractionallySizedBox(
-                  widthFactor: 0.7,
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10, left: 16),
-                      child: Text(
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        context.localizations.upperCaseHomeTitleAndUserName('ADMIN'),
-                        style: const TextStyle(fontFamily: 'blazma', fontStyle: FontStyle.italic, fontSize: 32),
-                      ),
-                    ),
-                    Divider(color: Theme.of(context).colorScheme.onSurface),
-                  ]),
-                ),
-              ),
-            ),
+            HomeTextTitle(text: context.localizations.upperCaseHomeTitleAndUserName('ADMIN')),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
@@ -97,7 +81,9 @@ class QuickAccessIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
-      style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))),
+      style: OutlinedButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))),
       onPressed: onPressed,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minWidth: 300, maxWidth: 600, minHeight: 80, maxHeight: 80),

@@ -61,6 +61,7 @@ flutter:
     - assets/splash_logo.png #Splash image A
     - assets/logo.png #Splash image B
     - assets/logo_full_nobg_v1.png #Splash image C
+    - assets/logo_no_shadow_rotated.png
 
 # To regenerate the splashScreen the following is needed:
 # -> Image A, splashScreen that follows the Android 12 requirements for app icon without an icon background
