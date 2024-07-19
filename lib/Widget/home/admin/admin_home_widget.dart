@@ -97,6 +97,7 @@ class QuickAccessIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
+      style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))),
       onPressed: onPressed,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minWidth: 300, maxWidth: 600, minHeight: 80, maxHeight: 80),
