@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/university_system_ui_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,7 +21,8 @@ void main() async {
   GetIt.instance.registerSingleton<GoRouter>(_UniversitySystemUiGoRouter().router);
   if (Platform.isWindows) {
     await WindowManager.instance.ensureInitialized();
-    WindowManager.instance.setMinimumSize(const Size(384, 782));
+    await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+    appWindow.minSize = const Size(384, 782);
   }
   runApp(ProviderScope(observers: [ProviderLogger()], child: const UniversitySystemUi()));
 }
@@ -32,6 +34,7 @@ class UniversitySystemUi extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return _LoginInitialization(
       child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
         title: 'University System UI',
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: const [
