@@ -27,6 +27,7 @@ dependencies:
   window_manager: ^0.3.9
   bitsdojo_window: ^0.1.6
   flutter_adaptive_scaffold: ^0.1.11+1
+  sliver_tools: ^0.2.12
 
 dev_dependencies:
   flutter_test:
