@@ -6,7 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:university_system_front/Provider/login_provider.dart';
+import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Widget/login/login_widget.dart';
 
@@ -23,7 +23,7 @@ void main() {
       GetIt.instance.registerSingleton<GoRouter>(mockGoRouter);
       await widgetTester.pumpWidget(
         ProviderScope(
-          overrides: [loginProvider.overrideWith(() => MockOkLogin())],
+          overrides: [loginServiceProvider.overrideWith(() => MockOkLogin())],
           child: const MaterialApp(
             home: LoginWidget(),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -106,7 +106,7 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
       );
       await widgetTester.pumpWidget(ProviderScope(
-        overrides: [loginProvider.overrideWith(() => MockLongLogin())],
+        overrides: [loginServiceProvider.overrideWith(() => MockLongLogin())],
         child: app,
       ));
       final textFormFieldFinder = find.byType(TextFormField);
@@ -133,7 +133,7 @@ void main() {
       widgetTester.view.devicePixelRatio = 1.0;
       await widgetTester.pumpWidget(
         ProviderScope(
-          overrides: [loginProvider.overrideWith(() => MockServerErrorLogin())],
+          overrides: [loginServiceProvider.overrideWith(() => MockServerErrorLogin())],
           child: const MaterialApp(
             home: LoginWidget(),
             localizationsDelegates: AppLocalizations.localizationsDelegates,

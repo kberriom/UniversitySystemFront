@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:university_system_front/Provider/login_provider.dart';
+import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Router/go_router_config.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Widget/login/base_login_widget.dart';
@@ -22,7 +22,7 @@ class _LoginSplashWidgetState extends ConsumerState<LoginSplashWidget> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ref.listenManual(loginProvider, (previous, next) {
+      ref.listenManual(loginServiceProvider, (previous, next) {
         switch (next) {
           case AsyncValue<BearerToken>(:final value?):
             {

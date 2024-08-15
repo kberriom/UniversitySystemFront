@@ -3,7 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
-import 'package:university_system_front/Provider/login_provider.dart';
+import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Widget/base_scaffold_navigation/admin_scaffold_navigation_widget.dart';
 import 'package:university_system_front/Widget/curriculums/admin/admin_curriculums_widget.dart';
@@ -60,7 +60,9 @@ abstract base class GoRouterConfig {
             child: const TokenExpiredWidget(),
             transitionsBuilder: _fadeTransition),
       ),
+      //
       //ADMIN ROUTE TREE
+      //
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return AdminScaffoldNavigationWidget(navigationShell: navigationShell);
@@ -123,9 +125,11 @@ abstract base class GoRouterConfig {
   }
 }
 
+///Redirects the user for login related events such as token expired, sign out or unexpected token expiration from server
+///only evaluates on a update event of [loginServiceProvider]
 @riverpod
 void loginRedirection(LoginRedirectionRef ref) async {
-  ref.listen(loginProvider, (previous, next) {
+  ref.listen(loginServiceProvider, (previous, next) {
     switch (next) {
       case AsyncValue<BearerToken>(:final value?):
         {
@@ -154,6 +158,8 @@ bool _isNotLocatedInLoginRelatedRute(String currentRute) {
       (currentRute != GoRouterRoutes.loginSplash.routeName));
 }
 
+///Redirects the user to the appropriate nav tree, can be seen as the "entry point" to the application
+///If a bearer token has a role it implies that the token is valid
 @riverpod
 void userRoleRedirection(UserRoleRedirectionRef ref, BearerToken bearerToken) async {
   switch (bearerToken.role) {

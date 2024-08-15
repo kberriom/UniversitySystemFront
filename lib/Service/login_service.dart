@@ -9,22 +9,24 @@ import 'package:university_system_front/Adapter/remote_config.dart';
 import 'package:university_system_front/Adapter/secure_storage_adapter.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Model/credentials/login_credentials.dart';
+import 'package:university_system_front/Router/go_router_config.dart';
 
-part 'login_provider.g.dart';
+part 'login_service.g.dart';
 
 ///Reactive Auth for the UniversitySystem Service.
 ///Gets token from secure storage and checks if token is valid,
 ///if token is invalid all listeners receive a [mustRedirectLogin] that triggers auth related events.
 ///
 ///Do not use the raw JWT saved in storage, expired tokens are not removed until a new valid login.
-///[loginProvider] will return a [BearerToken] that reflects this without exposing the old JWT value.
+///[loginServiceProvider] will return a [BearerToken] that reflects this without exposing the old JWT value.
 ///
 ///For auth routing redirection see:
 ///[loginRedirectionProvider] for expired token redirection.
+///[userRoleRedirectionProvider] for "entry point" of regular non login user flow
 ///[AnimatedLoginWidget] for auto-login redirection entrypoint
 ///[BaseLoginWidget] for new login redirection to /home
 @riverpod
-class Login extends _$Login {
+class LoginService extends _$LoginService {
   @override
   Future<BearerToken> build() async {
     final String? storedToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
@@ -35,7 +37,9 @@ class Login extends _$Login {
     try {
       if (jwt.token.isNotEmpty) {
         if (jwt.token == InternalTokenMessage.signOut.name) {
-          //User has sign out
+          //User has requested sign out
+          //loginRedirectionProvider will return the user to the login screen
+          //as it has no role userRoleRedirectionProvider won't redirect back to regular user flow
           return BearerToken(token: jwt.token, mustRedirectTokenExpired: false);
         }
         decodedToken = JwtDecoder.decode(jwt.token);
@@ -62,12 +66,11 @@ class Login extends _$Login {
     });
     ref.onDispose(timer.cancel);
     ref.onDispose(keepAliveReference.close);
-    return jwt.copyWith(
-        role: UserRole.values.firstWhere((posibleRole) => posibleRole.roleName == decodedToken["role"]));
+    return jwt.copyWith(role: UserRole.values.firstWhere((posibleRole) => posibleRole.roleName == decodedToken["role"]));
   }
 
   ///Get JWT from Server and store in secure storage
-  Future<bool> setJWT(LoginCredentials? credentials, {http.Client? httpClient}) async {
+  Future<bool> signIn(LoginCredentials? credentials, {http.Client? httpClient}) async {
     httpClient ??= http.Client();
     if (credentials != null && (credentials.email.isNotEmpty || credentials.password.isNotEmpty)) {
       final uri = Uri.http(RemoteConfig().getServerAddress(), "/auth/login");
@@ -93,6 +96,9 @@ class Login extends _$Login {
     return false;
   }
 
+  ///Save [InternalTokenMessage.signOut] as token to storage and invalidate provider.
+  ///
+  ///Do not unnecessarily invalidate provider again after calling.
   Future<void> signOut() async {
     await SecureStorageAdapter().writeValue(BearerTokenType.jwt.name, InternalTokenMessage.signOut.name);
     ref.invalidateSelf();

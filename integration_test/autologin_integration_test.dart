@@ -7,7 +7,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:university_system_front/Adapter/secure_storage_adapter.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
-import 'package:university_system_front/Provider/login_provider.dart';
+import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:flutter_gen/gen_l10n/university_system_ui_localizations.dart';
 
@@ -92,7 +92,7 @@ void main() {
 
       expect(GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path, GoRouterRoutes.login.routeName);
       final providerContainer = ProviderScope.containerOf(widgetTester.element(find.byType(FilledButton)));
-      expect(await providerContainer.read(loginProvider.future), const BearerToken(token: "", mustRedirectTokenExpired: true));
+      expect(await providerContainer.read(loginServiceProvider.future), const BearerToken(token: "", mustRedirectTokenExpired: true));
     });
   });
 }

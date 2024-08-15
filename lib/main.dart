@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/university_system_ui_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,7 +11,7 @@ import 'package:university_system_front/Theme/theme.dart' as theme;
 import 'package:university_system_front/Theme/theme_mode_provider.dart';
 import 'package:window_manager/window_manager.dart';
 
-import 'Provider/login_provider.dart';
+import 'Service/login_service.dart';
 import 'Router/go_router_config.dart';
 import 'Util/provider_utils.dart';
 
@@ -24,6 +25,7 @@ void main() async {
     await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
     appWindow.minSize = const Size(384, 782);
   }
+  DateTimeMapper.encodingMode = DateTimeEncoding.iso8601String;
   runApp(ProviderScope(observers: [ProviderLogger()], child: const UniversitySystemUi()));
 }
 
@@ -59,7 +61,7 @@ class _LoginInitialization extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(loginProvider);
+    ref.watch(loginServiceProvider);
     ref.watch(loginRedirectionProvider);
     return child;
   }

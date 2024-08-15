@@ -3,7 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/university_system_ui_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:university_system_front/Model/credentials/login_credentials.dart';
-import 'package:university_system_front/Provider/login_provider.dart';
+import 'package:university_system_front/Service/login_service.dart';
+import 'package:university_system_front/Util/university_system_ui_localizations_helper.dart';
 
 class LoginWidgetForm extends ConsumerStatefulWidget {
   const LoginWidgetForm({super.key});
@@ -100,7 +101,7 @@ class _LoginWidgetFormState extends ConsumerState<LoginWidgetForm> {
             if (_emailFormKey.currentState!.validate() && _pendingLogin == null) {
               final loginCredentials =
                   LoginCredentials(email: _emailTextController.text, password: _passwordTextController.text);
-              final Future<bool> futureLogin = ref.read(loginProvider.notifier).setJWT(loginCredentials);
+              final Future<bool> futureLogin = ref.read(loginServiceProvider.notifier).signIn(loginCredentials);
 
               futureLogin.then((result) {
                 //Success callback
@@ -109,7 +110,9 @@ class _LoginWidgetFormState extends ConsumerState<LoginWidgetForm> {
                 _pendingLogin = null;
               }, onError: (e) {
                 //Error callback
-                _getLoginErrorSnackBar(context);
+                if (mounted) {
+                  _getLoginErrorSnackBar(context);
+                }
                 _pendingLogin = null;
               });
               setState(() {
