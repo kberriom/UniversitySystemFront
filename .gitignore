@@ -37,6 +37,7 @@ migrate_working_dir/
 *.g.dart
 *.freezed.dart
 *.mocks.dart
+*.mapper.dart
 
 # Symbolication related
 app.*.symbols
