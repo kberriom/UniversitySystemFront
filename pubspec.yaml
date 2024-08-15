@@ -27,7 +27,8 @@ dependencies:
   window_manager: ^0.3.9
   bitsdojo_window: ^0.1.6
   flutter_adaptive_scaffold: ^0.1.11+1
-  sliver_tools: ^0.2.12
+  dart_mappable: ^4.2.2
+  mutex: ^3.1.0
 
 dev_dependencies:
   flutter_test:
@@ -37,16 +38,19 @@ dev_dependencies:
   flutter_driver:
     sdk: flutter
   test: ^1.25.2
-  flutter_lints: ^4.0.0
-  build_runner: ^2.4.9
-  custom_lint:
-  riverpod_generator: ^2.4.0
-  riverpod_lint: ^2.3.10
-  freezed: ^2.5.2
-  json_serializable: ^6.7.1
   flutter_native_splash: ^2.4.0
   dart_jsonwebtoken: ^2.14.0
   mockito: ^5.4.4
+  # Linters
+  flutter_lints: ^4.0.0
+  custom_lint:
+  riverpod_lint: ^2.3.10
+  # build_runner dependencies
+  build_runner: ^2.4.9
+  riverpod_generator: ^2.4.0
+  freezed: ^2.5.2
+  json_serializable: ^6.7.1
+  dart_mappable_builder: ^4.2.3
 
 flutter:
   generate: true
