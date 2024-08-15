@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:university_system_front/Provider/login_provider.dart';
+import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Theme/theme_mode_provider.dart';
 import 'package:university_system_front/Util/university_system_ui_localizations_helper.dart';
 import 'package:window_manager/window_manager.dart';
@@ -25,6 +25,7 @@ class DynamicUniSystemAppBar extends ConsumerWidget implements PreferredSizeWidg
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return AppBar(
+      automaticallyImplyLeading: Platform.isAndroid ? true : false,
       centerTitle: true,
       flexibleSpace: _buildChildOrGestureDetectorWithChild(),
       backgroundColor: _appBarBackgroundColor(ref, context),
@@ -36,6 +37,7 @@ class DynamicUniSystemAppBar extends ConsumerWidget implements PreferredSizeWidg
           icon: Icon(Theme.of(context).colorScheme.brightness == Brightness.light ? Icons.sunny : Icons.nightlight_round_sharp),
         ),
       )),
+      scrolledUnderElevation: 0,
       title: _setIfNotInLogin(
         ConstrainedBox(
           constraints: const BoxConstraints.tightFor(width: 110),
@@ -51,7 +53,8 @@ class DynamicUniSystemAppBar extends ConsumerWidget implements PreferredSizeWidg
               child: const Icon(Icons.account_circle_sharp),
               itemBuilder: (context) => <PopupMenuEntry>[
                 PopupMenuItem(
-                    child: Text(context.localizations.signOutPopupMenu), onTap: () => ref.read(loginProvider.notifier).signOut()),
+                    child: Text(context.localizations.signOutPopupMenu),
+                    onTap: () => ref.read(loginServiceProvider.notifier).signOut()),
               ],
             ),
             onPressed: () {},
@@ -128,14 +131,48 @@ class DynamicUniSystemAppBar extends ConsumerWidget implements PreferredSizeWidg
     }
   }
 
-  Color? _appBarBackgroundColor(WidgetRef ref, BuildContext context) {
-    if (ref.watch(currentThemeModeProvider) == ThemeMode.light) {
-      return Theme.of(context).colorScheme.outlineVariant;
-    } else {
-      return null; //Use default color of theme
-    }
+  @override
+  Size get preferredSize => AppBar().preferredSize;
+}
+
+class UniSystemSliverAppBar extends ConsumerWidget implements PreferredSizeWidget {
+  const UniSystemSliverAppBar({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SliverAppBar(
+      pinned: false,
+      floating: true,
+      snap: false,
+      centerTitle: true,
+      backgroundColor: _appBarBackgroundColor(ref, context),
+      scrolledUnderElevation: 0,
+      title: ConstrainedBox(
+        constraints: const BoxConstraints.tightFor(width: 110),
+        child: Image.asset('assets/logo_full_nobg_v1.png', cacheWidth: 200),
+      ),
+      actions: [
+        IconButton(
+          //Keep IconButton to maintain built-in padding to the left
+          iconSize: 32,
+          icon: PopupMenuButton(
+            child: const Icon(Icons.account_circle_sharp),
+            itemBuilder: (context) => <PopupMenuEntry>[
+              PopupMenuItem(
+                  child: Text(context.localizations.signOutPopupMenu),
+                  onTap: () => ref.read(loginServiceProvider.notifier).signOut()),
+            ],
+          ),
+          onPressed: () {},
+        ),
+      ],
+    );
   }
 
   @override
   Size get preferredSize => AppBar().preferredSize;
+}
+
+Color? _appBarBackgroundColor(WidgetRef ref, BuildContext context) {
+  return ref.watch(currentThemeModeProvider) == ThemeMode.light ? Theme.of(context).colorScheme.outlineVariant : null;
 }
