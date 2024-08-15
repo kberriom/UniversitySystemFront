@@ -122,6 +122,8 @@ class MaterialTheme {
         navigationBarTheme: NavigationBarThemeData(backgroundColor: colorScheme.surfaceContainer),
         appBarTheme: AppBarTheme(backgroundColor: colorScheme.surfaceBright),
         navigationRailTheme: NavigationRailThemeData(backgroundColor: colorScheme.surface),
+        searchBarTheme:
+            SearchBarThemeData(elevation: WidgetStateProperty.all(0), constraints: const BoxConstraints(maxWidth: 1000)),
       );
 
   ///Color used in the login TextField background
