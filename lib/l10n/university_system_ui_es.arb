@@ -4,7 +4,10 @@
   "loginButton": "Ingresar",
   "loginError": "Correo o contraseña incorrecta",
   "loginEmailError": "Correo inválido",
-  "loginServerError": "Ups! Algo salió mal. Por favor, inténtalo de nuevo más tarde.",
+  "veryVerboseErrorTryAgain": "Algo salió mal. Por favor, inténtalo de nuevo más tarde",
+  "verboseErrorTryAgain": "Por favor intenta esto mas tarde",
+  "verboseError": "Ups! Algo salió mal",
+  "error": "Algo salió mal",
   "sessionExpired": "Tu sesión ha expirado",
   "sessionExpiredConfirmation": "OK",
   "sessionExpiredMessage": "Por tu seguridad, por favor inicia sesión nuevamente",
@@ -32,5 +35,25 @@
   "homeQuickAccess" : "Acceso rápido",
   "adminQuickAccessAddStudent": "Añadir estudiante",
   "adminQuickAccessAddTeacher": "Añadir profesor",
-  "adminQuickAccessCalGrades": "Calcular notas"
+  "adminQuickAccessCalGrades": "Calcular notas",
+  "userTypeNameStudent": "{count, plural, =1{Estudiante} other{Estudiantes}}",
+  "@userTypeNameStudent": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "userTypeNameTeacher": "{count, plural, =1{Profesor} other{Profesores}}",
+  "@userTypeNameTeacher": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adminUserListSearchBoxHint": "Buscar usuarios",
+  "adminUserListFiltersBoxTooltip": "Filtros",
+  "adminUserListFetchNoData": "No hay usuarios registrados",
+  "oneFilterActiveRuleError": "Debe haber al menos un filtro activo"
 }

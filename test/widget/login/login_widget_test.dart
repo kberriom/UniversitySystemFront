@@ -153,7 +153,7 @@ void main() {
       await widgetTester.enterText(textFormFieldPasswordFinder, "testPassword");
       await widgetTester.tap(filledButtonFinder);
       final snackBarFinder =
-          find.widgetWithText(SnackBar, AppLocalizations.of(widgetTester.element(filledButtonFinder))!.loginServerError);
+          find.widgetWithText(SnackBar, AppLocalizations.of(widgetTester.element(filledButtonFinder))!.veryVerboseErrorTryAgain);
       while (snackBarFinder.evaluate().isEmpty) {
         await widgetTester.pump();
       }

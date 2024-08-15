@@ -4,7 +4,10 @@
   "loginButton": "Login",
   "loginError": "Incorrect email or password",
   "loginEmailError": "Invalid email",
-  "loginServerError": "Oops! Something went wrong. Please try again later",
+  "veryVerboseErrorTryAgain": "Oops! Something went wrong. Please try again later",
+  "verboseErrorTryAgain": "Oops, something went wrong please try later",
+  "verboseError": "Oops, something went wrong",
+  "error": "Something went wrong",
   "sessionExpired": "Your session has expired",
   "sessionExpiredConfirmation": "OK",
   "sessionExpiredMessage": "For safety reasons please log in again",
@@ -32,5 +35,25 @@
   "homeQuickAccess" : "Quick access",
   "adminQuickAccessAddStudent": "Add Student",
   "adminQuickAccessAddTeacher": "Add teacher",
-  "adminQuickAccessCalGrades": "Calculate grades"
+  "adminQuickAccessCalGrades": "Calculate grades",
+  "userTypeNameStudent": "{count, plural, =1{Student} other{Students}}",
+  "@userTypeNameStudent": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "userTypeNameTeacher": "{count, plural, =1{Teacher} other{Teachers}}",
+  "@userTypeNameTeacher": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adminUserListSearchBoxHint": "Search Users",
+  "adminUserListFiltersBoxTooltip": "Filters",
+  "adminUserListFetchNoData": "No registered users",
+  "oneFilterActiveRuleError": "One filter must remain active"
 }

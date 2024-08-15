@@ -138,7 +138,7 @@ class _LoginWidgetFormState extends ConsumerState<LoginWidgetForm> {
   }
 
   void _getLoginErrorSnackBar(BuildContext context) {
-    final snackBar = SnackBar(content: Text(AppLocalizations.of(context)!.loginServerError));
+    final snackBar = SnackBar(content: Text(context.localizations.veryVerboseErrorTryAgain));
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) => ScaffoldMessenger.of(context).showSnackBar(snackBar));
   }
 
