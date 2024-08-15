@@ -12,7 +12,7 @@ import 'package:window_manager/window_manager.dart';
 
 import 'Provider/login_provider.dart';
 import 'Router/go_router_config.dart';
-import 'Util/provider_logger.dart';
+import 'Util/provider_utils.dart';
 
 final class _UniversitySystemUiGoRouter extends GoRouterConfig {}
 

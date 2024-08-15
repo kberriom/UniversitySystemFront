@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart' show debugPrint, kReleaseMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -44,5 +46,15 @@ class ProviderLogger extends ProviderObserver {
     if (!kReleaseMode) {
       debugPrint(content);
     }
+  }
+}
+
+extension ProviderKeepForExtension on AutoDisposeRef<Object?> {
+  /// Keeps the provider alive for [duration].
+  void keepFor(Duration duration) {
+    final link = keepAlive();
+    final timer = Timer(duration, link.close);
+
+    onDispose(timer.cancel);
   }
 }

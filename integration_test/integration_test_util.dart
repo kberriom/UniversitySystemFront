@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:university_system_front/Adapter/secure_storage_adapter.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Router/go_router_config.dart';
-import 'package:university_system_front/Util/provider_logger.dart';
+import 'package:university_system_front/Util/provider_utils.dart';
 import 'package:university_system_front/main.dart';
 
 Future<void> freshLoggedInInstanceHelper(WidgetTester widgetTester,

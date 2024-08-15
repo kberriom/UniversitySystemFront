@@ -8,7 +8,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:university_system_front/Adapter/secure_storage_adapter.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
-import 'package:university_system_front/Util/provider_logger.dart';
+import 'package:university_system_front/Util/provider_utils.dart';
 import 'package:university_system_front/main.dart';
 
 import 'integration_test_util.dart';
