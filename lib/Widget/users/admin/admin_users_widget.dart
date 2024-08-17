@@ -22,10 +22,12 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
   final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   late final SearchController searchController;
   late final ScrollController scrollController;
+  late final TextEditingController searchTextController;
   late final AnimationController animationController;
 
   @override
   void initState() {
+    searchTextController = TextEditingController();
     searchController = SearchController();
     scrollController = ScrollController();
     animationController = createController(unbounded: true, fps: 60);
@@ -35,6 +37,7 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
   @override
   void dispose() {
     searchController.dispose();
+    searchTextController.dispose();
     scrollController.removeListener(() {});
     scrollController.dispose();
     super.dispose();
@@ -49,6 +52,8 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
   bool showFilters = false;
   bool filterByStudent = true;
   bool filterByTeacher = true;
+
+  int searchRequestKeyStrokeNumber = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -93,8 +98,9 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
                         cardHeight: userItemHeight,
                         cardMinWidthConstraints: userItemMinWidth,
                         cardMaxWidthConstraints: userItemMaxWidth,
-                        providerFuture:
-                            ref.watch(adminUsersWidgetControllerProvider.call(filterByTeacher, filterByStudent).future),
+                        providerFuture: ref.watch(adminUsersWidgetControllerProvider
+                            .call(filterByTeacher, filterByStudent, searchController.value.text)
+                            .future),
                         loadingWidget: SliverFillRemaining(
                           child: Padding(
                             padding: const EdgeInsets.only(left: 16, right: 16, top: 10),
@@ -189,8 +195,24 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
                     ],
                     Flexible(
                       child: SearchAnchor(
+                        searchController: searchController,
                         builder: (context, controller) {
                           return SearchBar(
+                            controller: searchTextController,
+                            onChanged: (value) async {
+                              if (value.isEmpty) {
+                                searchController.text = value;
+                                return;
+                              }
+                              int thisRequestNumber = (searchRequestKeyStrokeNumber += 1);
+                              await Future.delayed(const Duration(milliseconds: 450));
+                              if ((thisRequestNumber == searchRequestKeyStrokeNumber) && mounted) {
+                                searchController.text = value;
+                              }
+                            },
+                            onSubmitted: (value) {
+                              searchController.text = value;
+                            },
                             hintText: context.localizations.adminUserListSearchBoxHint,
                             onTapOutside: (event) {
                               FocusManager.instance.primaryFocus?.unfocus();
@@ -205,11 +227,24 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
                                     });
                                   }),
                             ),
-                            trailing: const [
-                              Padding(
-                                padding: EdgeInsets.only(right: 13),
-                                child: Icon(Icons.search),
-                              ),
+                            trailing: [
+                              if (searchController.value.text.isEmpty)
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 13),
+                                  child: Icon(Icons.search),
+                                ),
+                              if (searchController.value.text.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10),
+                                  child: IconButton(
+                                      icon: const Icon(Icons.close),
+                                      onPressed: () {
+                                        setState(() {
+                                          searchTextController.clear();
+                                          searchController.clear();
+                                        });
+                                      }),
+                                ),
                             ],
                           );
                         },

@@ -147,7 +147,7 @@ class _FixedExtentShimmerListState extends ConsumerState<FixedExtentShimmerList>
   void didChangeDependencies() {
     if (!_isVisible) {
       Future.delayed(
-        const Duration(milliseconds: 80),
+        const Duration(milliseconds: 30),
         () {
           if (mounted) {
             setState(() {

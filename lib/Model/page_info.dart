@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:dart_mappable/dart_mappable.dart';
+import 'package:university_system_front/Model/searchable.dart';
 
 part 'page_info.mapper.dart';
 
@@ -17,11 +18,20 @@ class PageInfo with PageInfoMappable {
   static const fromJson = PageInfoMapper.fromJson;
 }
 
-class PaginatedList<T extends Object> implements Comparable<PaginatedList<T>> {
+class PaginatedList<T extends Searchable> implements Comparable<PaginatedList<T>>{
   PageInfo pageInfo;
   Set<T> set;
 
   PaginatedList({required this.pageInfo, required this.set});
+
+  Set<T> searchInPage (String search) {
+    final searchAsNumber = num.tryParse(search);
+    if (searchAsNumber != null) {
+      return set.where((element) => element.hasNumberMatch(searchAsNumber)).toSet();
+    } else {
+      return set.where((element) => element.hasStringMatch(search)).toSet();
+    }
+  }
 
   @override
   int compareTo(other) {
@@ -35,7 +45,7 @@ class PaginatedList<T extends Object> implements Comparable<PaginatedList<T>> {
   }
 }
 
-class PaginatedInfiniteList<T extends Object> {
+class PaginatedInfiniteList<T extends Searchable> {
   ///contains all the inserted [PageInfo]
   SplayTreeSet<PaginatedList<T>> paginatedListsTree = SplayTreeSet();
 

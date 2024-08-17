@@ -1,4 +1,5 @@
 import 'package:dart_mappable/dart_mappable.dart';
+import 'package:string_similarity/string_similarity.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Model/users/user.dart';
 
@@ -21,6 +22,21 @@ class Student extends User with StudentMappable {
 
   static const fromMap = StudentMapper.fromMap;
   static const fromJson = StudentMapper.fromJson;
+
+  @override
+  bool hasNumberMatch(num search) {
+    return super.id == search;
+  }
+
+  @override
+  bool hasStringMatch(String search) {
+    final match = search.bestMatch([
+      super.name.toLowerCase(),
+      super.lastName.toLowerCase(),
+      super.governmentId.toLowerCase(),
+    ]);
+    return (match.bestMatch.rating ?? 0) > 0.6;
+  }
 }
 
 @MappableClass()

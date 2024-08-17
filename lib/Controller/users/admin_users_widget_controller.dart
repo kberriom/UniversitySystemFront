@@ -140,7 +140,7 @@ Future<PaginatedInfiniteList<User>> paginatedUserInfiniteList(PaginatedUserInfin
 @riverpod
 class AdminUsersWidgetController extends _$AdminUsersWidgetController {
   @override
-  Future<List<User?>> build(bool showTeacherList, bool showStudentList) async {
+  Future<List<User?>> build(bool showTeacherList, bool showStudentList, String searchTerm) async {
     List<User?> usersList = [];
 
     //On a full list implementation for reference:
@@ -155,24 +155,42 @@ class AdminUsersWidgetController extends _$AdminUsersWidgetController {
     PaginatedInfiniteList<Teacher> teacherPages =
         (await ref.watch(paginatedUserInfiniteListProvider.call(UserRole.teacher).future)) as PaginatedInfiniteList<Teacher>;
 
-    if (showStudentList) {
-      usersList.addAll(studentPages.getCacheOrTreeSnapshotAsList());
-      var maxStudents = studentPages.paginatedListsTree.first.pageInfo.maxItems;
-      var currentLocalStudents = studentPages.getCacheOrTreeSnapshotAsList().length;
-      if (maxStudents != 0 && currentLocalStudents < maxStudents) {
-        usersList.addAll(List<Student?>.generate(maxStudents - currentLocalStudents, (index) => null));
+    if (searchTerm.isNotEmpty) {
+      searchTerm = searchTerm.toLowerCase();
+      if (showStudentList) {
+        Set<Student> searchResults = {};
+        for (var page in studentPages.paginatedListsTree) {
+          searchResults.addAll(page.searchInPage(searchTerm));
+        }
+        usersList.addAll(searchResults);
       }
-    }
-    if (showTeacherList) {
-      usersList.addAll(teacherPages.getCacheOrTreeSnapshotAsList());
-      var maxTeachers = teacherPages.paginatedListsTree.first.pageInfo.maxItems;
-      var currentLocalTeachers = teacherPages.getCacheOrTreeSnapshotAsList().length;
-      if (maxTeachers != 0 && currentLocalTeachers < maxTeachers) {
-        usersList.addAll(List<Teacher?>.generate(maxTeachers - currentLocalTeachers, (index) => null));
+      if (showTeacherList) {
+        Set<Teacher> searchResults = {};
+        for (var page in teacherPages.paginatedListsTree) {
+          searchResults.addAll(page.searchInPage(searchTerm));
+        }
+        usersList.addAll(searchResults);
       }
+      ref.keepFor(const Duration(minutes: 5));
+    } else {
+      if (showStudentList) {
+        usersList.addAll(studentPages.getCacheOrTreeSnapshotAsList());
+        var maxStudents = studentPages.paginatedListsTree.first.pageInfo.maxItems;
+        var currentLocalStudents = studentPages.getCacheOrTreeSnapshotAsList().length;
+        if (maxStudents != 0 && currentLocalStudents < maxStudents) {
+          usersList.addAll(List<Student?>.generate(maxStudents - currentLocalStudents, (index) => null));
+        }
+      }
+      if (showTeacherList) {
+        usersList.addAll(teacherPages.getCacheOrTreeSnapshotAsList());
+        var maxTeachers = teacherPages.paginatedListsTree.first.pageInfo.maxItems;
+        var currentLocalTeachers = teacherPages.getCacheOrTreeSnapshotAsList().length;
+        if (maxTeachers != 0 && currentLocalTeachers < maxTeachers) {
+          usersList.addAll(List<Teacher?>.generate(maxTeachers - currentLocalTeachers, (index) => null));
+        }
+      }
+      ref.keepFor(const Duration(minutes: 10));
     }
-
-    ref.keepFor(const Duration(minutes: 10));
     return usersList;
   }
 }
