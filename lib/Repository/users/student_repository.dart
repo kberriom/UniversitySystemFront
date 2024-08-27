@@ -3,7 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Model/page_info.dart';
 import 'package:university_system_front/Model/users/student.dart';
-import 'package:university_system_front/Repository/user_repository_interface.dart';
+import 'package:university_system_front/Repository/users/user_repository_interface.dart';
 import 'package:university_system_front/Service/uni_system_client/uni_system_api.dart';
 import 'package:university_system_front/Service/uni_system_client/uni_system_api_request.dart';
 
