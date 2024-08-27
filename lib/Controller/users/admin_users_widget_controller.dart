@@ -8,8 +8,8 @@ import 'package:university_system_front/Model/page_info.dart';
 import 'package:university_system_front/Model/users/student.dart';
 import 'package:university_system_front/Model/users/teacher.dart';
 import 'package:university_system_front/Model/users/user.dart';
-import 'package:university_system_front/Repository/student_repository.dart';
-import 'package:university_system_front/Repository/teacher_repository.dart';
+import 'package:university_system_front/Repository/users/student_repository.dart';
+import 'package:university_system_front/Repository/users/teacher_repository.dart';
 import 'package:university_system_front/Util/provider_utils.dart';
 
 part 'admin_users_widget_controller.g.dart';
@@ -22,8 +22,8 @@ part 'admin_users_widget_controller.freezed.dart';
 const int preCacheAmount = 20;
 
 @freezed
-class ListItemPackage with _$ListItemPackage {
-  const factory ListItemPackage({User? userData}) = _ListItemPackage;
+class UserListItemPackage with _$UserListItemPackage {
+  const factory UserListItemPackage({User? userData}) = _UserListItemPackage;
 }
 
 final selfAwareUserListItemLock = Mutex();
@@ -33,7 +33,7 @@ final selfAwareUserListItemLock = Mutex();
 @riverpod
 class SelfAwareUserListItem extends _$SelfAwareUserListItem {
   @override
-  Future<ListItemPackage> build(int pageIndex, bool showTeacherList, bool showStudentList) async {
+  Future<UserListItemPackage> build(int pageIndex, bool showTeacherList, bool showStudentList) async {
     if (pageIndex < 0) {
       throw const FormatException("Page item index must start at 0");
     } else {
@@ -44,7 +44,7 @@ class SelfAwareUserListItem extends _$SelfAwareUserListItem {
     //Protect with lock, heavy computation will only occur on cache miss
     //Lag will only become apparent on very low preCacheAmount < 10
     assert(preCacheAmount >= 10);
-    return await selfAwareUserListItemLock.protect<ListItemPackage>(() async {
+    return await selfAwareUserListItemLock.protect<UserListItemPackage>(() async {
       PaginatedInfiniteList<Student> pgStudentList =
           (await ref.watch(paginatedUserInfiniteListProvider.call(UserRole.student).future)) as PaginatedInfiniteList<Student>;
       PaginatedInfiniteList<Teacher> pgTeacherList =
@@ -69,7 +69,7 @@ class SelfAwareUserListItem extends _$SelfAwareUserListItem {
       if (firstPageInfo.maxPages == lastPageInfo.currentPage) {
         if (lastPageInfo.currentPageSize == 0) {
           //Do not build => No more items, is on last posible page and current page has no items or no user type registered
-          return const ListItemPackage(userData: null);
+          return const UserListItemPackage(userData: null);
         }
         //On last page and items
         final int totalPageIndex =
@@ -78,7 +78,7 @@ class SelfAwareUserListItem extends _$SelfAwareUserListItem {
           final fetchedItemFromCacheOfOnePage = _getItemAtLengthCached(type, pageIndex, pgTeacherList, pgStudentList);
           return fetchedItemFromCacheOfOnePage;
         } else {
-          return const ListItemPackage(userData: null);
+          return const UserListItemPackage(userData: null);
         }
       }
       //On n-1 page and items
@@ -102,7 +102,7 @@ class SelfAwareUserListItem extends _$SelfAwareUserListItem {
           if (userPage.pageInfo.currentPageSize == 0) {
             //Oops new page is empty, so we are tying to get info that does not exist
             //Do not build any more
-            return const ListItemPackage(userData: null);
+            return const UserListItemPackage(userData: null);
           }
           if (pgUserList.paginatedListsTree.last != userPage) {
             pgUserList.addPage(userPage);
@@ -115,13 +115,13 @@ class SelfAwareUserListItem extends _$SelfAwareUserListItem {
     });
   }
 
-  ListItemPackage _getItemAtLengthCached(
+  UserListItemPackage _getItemAtLengthCached(
       UserRole type, int pageIndex, PaginatedInfiniteList<Teacher> pgTeacherList, PaginatedInfiniteList<Student> pgStudentList) {
     final int listIndex = pageIndex - 1;
     if (type == UserRole.student) {
-      return ListItemPackage(userData: pgStudentList.getCacheOrTreeSnapshotAsList()[listIndex]);
+      return UserListItemPackage(userData: pgStudentList.getCacheOrTreeSnapshotAsList()[listIndex]);
     } else {
-      return ListItemPackage(userData: pgTeacherList.getCacheOrTreeSnapshotAsList()[listIndex]);
+      return UserListItemPackage(userData: pgTeacherList.getCacheOrTreeSnapshotAsList()[listIndex]);
     }
   }
 }
