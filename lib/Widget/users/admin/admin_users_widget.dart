@@ -200,10 +200,6 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
                           return SearchBar(
                             controller: searchTextController,
                             onChanged: (value) async {
-                              if (value.isEmpty) {
-                                searchController.text = value;
-                                return;
-                              }
                               int thisRequestNumber = (searchRequestKeyStrokeNumber += 1);
                               await Future.delayed(const Duration(milliseconds: 450));
                               if ((thisRequestNumber == searchRequestKeyStrokeNumber) && mounted) {
