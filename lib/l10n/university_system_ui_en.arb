@@ -53,7 +53,12 @@
     }
   },
   "adminUserListSearchBoxHint": "Search Users",
+  "adminSubjectSearchBoxHint": "Search Subjects",
+  "adminCurriculumSearchBoxHint": "Search Curriculums",
   "adminUserListFiltersBoxTooltip": "Filters",
   "adminUserListFetchNoData": "No registered users",
-  "oneFilterActiveRuleError": "One filter must remain active"
+  "adminSubjectListFetchNoData": "No registered subjects",
+  "adminCurriculumListFetchNoData": "No registered curriculums",
+  "oneFilterActiveRuleError": "One filter must remain active",
+  "adminSubjectListNoRoomAssigned": "No asgmt"
 }

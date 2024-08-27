@@ -52,8 +52,13 @@
       }
     }
   },
-  "adminUserListSearchBoxHint": "Buscar usuarios",
+  "adminUserListSearchBoxHint": "Buscar Usuarios",
+  "adminSubjectSearchBoxHint": "Buscar Materias",
+  "adminCurriculumSearchBoxHint": "Buscar Currículos",
   "adminUserListFiltersBoxTooltip": "Filtros",
   "adminUserListFetchNoData": "No hay usuarios registrados",
-  "oneFilterActiveRuleError": "Debe haber al menos un filtro activo"
+  "adminSubjectListFetchNoData": "No hay materias registradas",
+  "adminCurriculumListFetchNoData": "No hay currículos registrados",
+  "oneFilterActiveRuleError": "Debe haber al menos un filtro activo",
+  "adminSubjectListNoRoomAssigned": "Sin asign"
 }
