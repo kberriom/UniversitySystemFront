@@ -1,11 +1,12 @@
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
-import 'package:university_system_front/Model/searchable.dart';
+import 'package:university_system_front/Model/uni_system_model.dart';
 
 part 'user.mapper.dart';
 
 @MappableClass(discriminatorKey: 'UserRole')
-abstract class User with UserMappable implements Searchable {
+abstract class User with UserMappable implements UniSystemModel<int> {
+  @override
   int id;
   String name;
   String lastName;

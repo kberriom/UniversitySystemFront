@@ -1,7 +1,7 @@
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
+import 'package:university_system_front/Model/uni_system_model.dart';
 import 'package:university_system_front/Model/users/user.dart';
-import 'package:string_similarity/string_similarity.dart';
 
 part 'teacher.mapper.dart';
 
@@ -33,13 +33,12 @@ class Teacher extends User with TeacherMappable {
 
   @override
   bool hasStringMatch(String search) {
-    final match = search.bestMatch([
+    return bestMatch(search: search, stringList: [
       super.name.toLowerCase(),
       super.lastName.toLowerCase(),
       super.governmentId.toLowerCase(),
       department.toLowerCase(),
     ]);
-    return (match.bestMatch.rating ?? 0) > 0.6;
   }
 }
 
@@ -60,4 +59,26 @@ class TeacherDto with TeacherDtoMappable {
 
   static const fromMap = TeacherDtoMapper.fromMap;
   static const fromJson = TeacherDtoMapper.fromJson;
+}
+
+@MappableClass()
+class TeacherAssignation with TeacherAssignationMappable {
+  TeacherAssignationId id;
+  String roleInClass;
+
+  static const fromMap = TeacherAssignationMapper.fromMap;
+  static const fromJson = TeacherAssignationMapper.fromJson;
+
+  TeacherAssignation({required this.id, required this.roleInClass});
+}
+
+@MappableClass()
+class TeacherAssignationId with TeacherAssignationIdMappable {
+  int subjectId;
+  int teacherUserId;
+
+  static const fromMap = TeacherAssignationIdMapper.fromMap;
+  static const fromJson = TeacherAssignationIdMapper.fromJson;
+
+  TeacherAssignationId({required this.subjectId, required this.teacherUserId});
 }

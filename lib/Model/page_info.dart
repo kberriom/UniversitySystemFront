@@ -1,7 +1,7 @@
 import 'dart:collection';
 
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:university_system_front/Model/searchable.dart';
+import 'package:university_system_front/Model/uni_system_model.dart';
 
 part 'page_info.mapper.dart';
 
@@ -18,7 +18,7 @@ class PageInfo with PageInfoMappable {
   static const fromJson = PageInfoMapper.fromJson;
 }
 
-class PaginatedList<T extends Searchable> implements Comparable<PaginatedList<T>>{
+class PaginatedList<T extends UniSystemModel> implements Comparable<PaginatedList<T>>{
   PageInfo pageInfo;
   Set<T> set;
 
@@ -45,7 +45,7 @@ class PaginatedList<T extends Searchable> implements Comparable<PaginatedList<T>
   }
 }
 
-class PaginatedInfiniteList<T extends Searchable> {
+class PaginatedInfiniteList<T extends UniSystemModel> {
   ///contains all the inserted [PageInfo]
   SplayTreeSet<PaginatedList<T>> paginatedListsTree = SplayTreeSet();
 
