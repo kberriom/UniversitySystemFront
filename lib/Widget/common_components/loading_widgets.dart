@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 import 'package:university_system_front/Theme/theme_mode_provider.dart';
 
+import 'infinite_list_widgets.dart';
+
 typedef FutureCallback = Future Function();
 
 class AnimatedRefreshButton extends StatefulWidget {
@@ -186,5 +188,32 @@ class _SlidingGradientTransform extends GradientTransform {
   @override
   Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
     return Matrix4.translationValues(bounds.width * slidePercent, 0.0, 0.0);
+  }
+}
+
+///A shimmer loading animation for a item in a [SliverFixedExtentList] that uses [itemConstraints]
+class LoadingShimmerItem extends StatelessWidget {
+  const LoadingShimmerItem({
+    super.key,
+    required this.itemConstraints,
+  });
+
+  final FixedExtentItemConstraints itemConstraints;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Align(
+        alignment: Alignment.center,
+        child: FixedExtentShimmerList(
+            animationController: itemConstraints.animationController,
+            itemCount: 1,
+            itemMaxWidth: itemConstraints.cardMaxWidthConstraints,
+            itemMinWidth: itemConstraints.cardMinWidthConstraints,
+            itemExtent: itemConstraints.cardHeight,
+            itemsPadding: 0),
+      ),
+    );
   }
 }
