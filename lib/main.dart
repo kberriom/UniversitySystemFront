@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:university_system_front/Theme/theme.dart' as theme;
 import 'package:university_system_front/Theme/theme_mode_provider.dart';
+import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'Service/login_service.dart';
@@ -20,7 +19,7 @@ final class _UniversitySystemUiGoRouter extends GoRouterConfig {}
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GetIt.instance.registerSingleton<GoRouter>(_UniversitySystemUiGoRouter().router);
-  if (Platform.isWindows) {
+  if (PlatformUtil.isWindows) {
     await WindowManager.instance.ensureInitialized();
     await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
     appWindow.minSize = const Size(384, 782);

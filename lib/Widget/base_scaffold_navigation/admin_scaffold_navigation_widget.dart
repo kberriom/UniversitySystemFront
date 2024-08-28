@@ -1,9 +1,8 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Widget/base_scaffold_navigation/custom_adaptive_scaffold/custom_adaptive_scaffold.dart';
 import 'package:university_system_front/Widget/common_components/uni_system_appbars.dart';
 
@@ -26,15 +25,15 @@ class AdminScaffoldNavigationWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return CustomAdaptiveScaffold(
       //Windows has a permanent appBar that is also the title bar
-      appBar: Platform.isWindows ? const DynamicUniSystemAppBar(isInLogin: false) : null,
-      appBarBreakpoint: Platform.isWindows ? Breakpoints.smallAndUp : null,
+      appBar: context.isWindows ? const DynamicUniSystemAppBar(isInLogin: false) : null,
+      appBarBreakpoint: context.isWindows ? Breakpoints.smallAndUp : null,
 
       bodyRatio: 1,
       bodyOrientation: Axis.vertical,
       useDrawer: false,
       transitionDuration: Durations.short3,
       internalAnimations: true,
-      smallBreakpoint: Platform.isAndroid ? Breakpoints.small : Breakpoints.smallDesktop,
+      smallBreakpoint: context.isAndroid ? Breakpoints.small : Breakpoints.smallDesktop,
       body: (_) => navigationShell,
       destinations: [
         buildNavigationDestinationHome(context),

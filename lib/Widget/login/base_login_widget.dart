@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Router/go_router_config.dart';
 import 'package:university_system_front/Theme/theme.dart' show MaterialTheme;
+import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Widget/common_components/uni_system_appbars.dart';
 
 class BaseLoginWidget extends ConsumerWidget {
@@ -35,7 +34,7 @@ class BaseLoginWidget extends ConsumerWidget {
       canPop: canPop,
       child: Scaffold(
         //Only Windows needs the appBar/title bar on login as it contains the app close button, ect...
-        appBar: Platform.isWindows ? const DynamicUniSystemAppBar(isInLogin: true) : null,
+        appBar: context.isWindows ? const DynamicUniSystemAppBar(isInLogin: true) : null,
         backgroundColor: MaterialTheme.fixedPrimary.value,
         body: GestureDetector(
           onTap: () {
@@ -73,7 +72,7 @@ class BaseLoginWidget extends ConsumerWidget {
 
   ///Scrolls the screen to the height of the keyboard on Mobile
   Widget scrollOnAndroid({required Widget child}) {
-    if (!Platform.isWindows) {
+    if (!PlatformUtil.isWindows) {
       return SingleChildScrollView(child: child);
     } else {
       return child;

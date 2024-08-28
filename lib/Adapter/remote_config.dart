@@ -1,10 +1,9 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:get_it/get_it.dart';
 import 'package:university_system_front/Adapter/remote_config_android_adapter.dart';
 import 'package:university_system_front/Adapter/remote_config_debug_adapter.dart';
 import 'package:university_system_front/Adapter/remote_config_windows_adapter.dart';
+import 'package:university_system_front/Util/platform_utils.dart';
 
 abstract interface class RemoteConfig {
   String getServerAddress();
@@ -19,9 +18,9 @@ abstract interface class RemoteConfig {
         return GetIt.instance.registerSingleton<DebugRemoteConfig>(DebugRemoteConfig());
       }
     }
-    if (Platform.isAndroid) {
+    if (PlatformUtil.isAndroid) {
       return AndroidRemoteConfigAdapter();
-    } else if (Platform.isWindows) {
+    } else if (PlatformUtil.isWindows) {
       return RemoteConfigWindowsAdapter();
     } else {
       throw Exception("Platform is not supported currently");

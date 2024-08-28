@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 import 'package:university_system_front/Controller/users/admin_users_widget_controller.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Model/users/user.dart';
+import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Util/university_system_ui_localizations_helper.dart';
 import 'package:university_system_front/Widget/common_components/loading_widgets.dart';
 import 'package:university_system_front/Widget/common_components/uni_system_appbars.dart';
@@ -83,7 +82,7 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
                   child: CustomScrollView(
                     controller: scrollController,
                     slivers: [
-                      if (!Platform.isWindows) const UniSystemSliverAppBar(),
+                      if (!context.isWindows) const UniSystemSliverAppBar(),
                       PinnedHeaderSliver(
                         child: AnimatedSize(
                           alignment: Alignment.topCenter,
@@ -150,7 +149,7 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
   }
 
   void setScrollExtentStatusBarColorListener(BuildContext context) {
-    if (!scrollController.hasClients && !Platform.isWindows) {
+    if (!scrollController.hasClients && !context.isWindows) {
       //Only on the first frame build does scrollController not have any clients
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         scrollController.addListener(() {
@@ -184,7 +183,7 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (Platform.isWindows) ...[
+                    if (context.isWindows) ...[
                       //Windows has no pull to refresh, it needs a button
                       AnimatedRefreshButton(
                           onPressed: () => Future.wait([

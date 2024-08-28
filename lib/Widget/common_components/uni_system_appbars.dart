@@ -1,15 +1,14 @@
-import 'dart:io';
-
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Theme/theme_mode_provider.dart';
+import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Util/university_system_ui_localizations_helper.dart';
 import 'package:window_manager/window_manager.dart';
 
 DynamicUniSystemAppBar? getAppBarAndroid() {
-  if (Platform.isWindows) {
+  if (PlatformUtil.isWindows) {
     return null;
   } else {
     return const DynamicUniSystemAppBar(isInLogin: false); //There is no appBar in Android login
@@ -25,7 +24,7 @@ class DynamicUniSystemAppBar extends ConsumerWidget implements PreferredSizeWidg
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return AppBar(
-      automaticallyImplyLeading: Platform.isAndroid ? true : false,
+      automaticallyImplyLeading: context.isAndroid ? true : false,
       centerTitle: true,
       flexibleSpace: _buildChildOrGestureDetectorWithChild(),
       backgroundColor: _appBarBackgroundColor(ref, context),
@@ -59,7 +58,7 @@ class DynamicUniSystemAppBar extends ConsumerWidget implements PreferredSizeWidg
             ),
             onPressed: () {},
           ),
-        if (Platform.isWindows) ...<Widget>[
+        if (context.isWindows) ...<Widget>[
           SizedBox(
             height: double.infinity,
             child: MinimizeWindowButton(
@@ -103,7 +102,7 @@ class DynamicUniSystemAppBar extends ConsumerWidget implements PreferredSizeWidg
   }
 
   Widget? _setIfWindows(Widget? child) {
-    if (Platform.isWindows && child != null) {
+    if (PlatformUtil.isWindows && child != null) {
       return child;
     } else {
       return null;
@@ -119,7 +118,7 @@ class DynamicUniSystemAppBar extends ConsumerWidget implements PreferredSizeWidg
   }
 
   Widget? _buildChildOrGestureDetectorWithChild({Widget? child}) {
-    if (Platform.isWindows) {
+    if (PlatformUtil.isWindows) {
       return GestureDetector(
         child: child,
         onDoubleTap: () => appWindow.maximizeOrRestore(),

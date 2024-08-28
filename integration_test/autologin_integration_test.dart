@@ -26,7 +26,7 @@ void main() {
 
   group('JWT autoLogin integration test', () {
     testWidgets('login / freshLoggedInInstanceHelper test', (widgetTester) async {
-      expect(await SecureStorageAdapter().readValue(BearerTokenType.jwt.name), isNull,
+      expect(await SecureStorageAdapter().readValue(BearerTokenType.jwt.name), anyOf(isNull, InternalTokenMessage.signOut.name),
           reason: 'Test must be run with no valid JWT saved, do not run this test group randomized');
 
       await freshLoggedInInstanceHelper(widgetTester, newJwt: true, keepJwt: true, autoLogin: true);

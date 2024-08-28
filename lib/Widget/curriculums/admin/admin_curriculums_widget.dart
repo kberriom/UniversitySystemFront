@@ -1,10 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 import 'package:university_system_front/Controller/curriculum/admin_curriculum_widget_controller.dart';
 import 'package:university_system_front/Model/curriculum.dart';
+import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Util/university_system_ui_localizations_helper.dart';
 import 'package:university_system_front/Widget/common_components/infinite_list_widgets.dart';
 import 'package:university_system_front/Widget/common_components/loading_widgets.dart';
@@ -73,7 +72,7 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
                   child: CustomScrollView(
                     controller: scrollController,
                     slivers: [
-                      if (!Platform.isWindows) const UniSystemSliverAppBar(),
+                      if (!context.isWindows) const UniSystemSliverAppBar(),
                       PinnedHeaderSliver(
                         child: AnimatedSize(
                           alignment: Alignment.topCenter,
@@ -145,7 +144,7 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
   }
 
   void setScrollExtentStatusBarColorListener(BuildContext context) {
-    if (!scrollController.hasClients && !Platform.isWindows) {
+    if (!scrollController.hasClients && !context.isWindows) {
       //Only on the first frame build does scrollController not have any clients
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         scrollController.addListener(() {
@@ -176,7 +175,7 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (Platform.isWindows) ...[
+                  if (context.isWindows) ...[
                     //Windows has no pull to refresh, it needs a button
                     AnimatedRefreshButton(
                       onPressed: () => ref.refresh(paginatedCurriculumInfiniteListProvider.future),
