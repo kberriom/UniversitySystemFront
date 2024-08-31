@@ -3,7 +3,6 @@ import 'package:flutter_gen/gen_l10n/university_system_ui_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:university_system_front/Adapter/secure_storage_adapter.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
@@ -17,7 +16,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
-    registerGoRouterForIntegrationTest();
+    GetIt.instance.allowReassignment = true;
   });
 
   tearDown(() async {
@@ -46,7 +45,7 @@ void main() {
       expect(textFormFieldFinder, findsExactly(2));
       expect(filledButtonFinder, findsOne);
 
-      var currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
+      String currentRute = getGoRouter(widgetTester, filledButtonFinder).routeInformationProvider.value.uri.path;
       expect(currentRute, GoRouterRoutes.animatedLogin.routeName);
       final storedBearerToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
       expect(storedBearerToken, null);
@@ -62,6 +61,8 @@ void main() {
 
       expect(textFormFieldFinder, findsExactly(2));
       expect(filledButtonFinder, findsOne);
+
+      final router = getGoRouter(widgetTester, filledButtonFinder);
 
       final textFormFieldEmailFinder = find.ancestor(
           of: find.text(AppLocalizations.of(widgetTester.element(textFormFieldFinder.first))!.loginEmailHint),
@@ -86,7 +87,7 @@ void main() {
 
       await widgetTester.pumpAndSettle();
 
-      var currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
+      var currentRute = router.routeInformationProvider.value.uri.path;
       expect(currentRute, GoRouterRoutes.adminHome.routeName);
 
       final storedBearerToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
@@ -105,6 +106,8 @@ void main() {
       expect(textFormFieldFinder, findsExactly(2));
       expect(filledButtonFinder, findsOne);
 
+      final router = getGoRouter(widgetTester, filledButtonFinder);
+
       final textFormFieldEmailFinder = find.ancestor(
           of: find.text(AppLocalizations.of(widgetTester.element(textFormFieldFinder.first))!.loginEmailHint),
           matching: textFormFieldFinder);
@@ -128,7 +131,7 @@ void main() {
 
       await widgetTester.pumpAndSettle();
 
-      var currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
+      var currentRute = router.routeInformationProvider.value.uri.path;
       expect(currentRute, GoRouterRoutes.adminHome.routeName);
 
       final popupMenuFinder = find.byType(PopupMenuButton);
@@ -145,7 +148,7 @@ void main() {
       await widgetTester.tap(popupMenuItemFinder);
       await widgetTester.pumpAndSettle();
 
-      expect(GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path, GoRouterRoutes.login.routeName);
+      expect(router.routeInformationProvider.value.uri.path, GoRouterRoutes.login.routeName);
       final storedBearerToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
       expect(storedBearerToken, InternalTokenMessage.signOut.name);
     });
@@ -161,6 +164,8 @@ void main() {
       expect(textFormFieldFinder, findsExactly(2));
       expect(filledButtonFinder, findsOne);
 
+      final router = getGoRouter(widgetTester, filledButtonFinder);
+
       await widgetTester.ensureVisible(filledButtonFinder);
       await widgetTester.tap(filledButtonFinder);
       await widgetTester.pumpAndSettle();
@@ -171,7 +176,7 @@ void main() {
 
       await widgetTester.pumpAndSettle();
 
-      var currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
+      var currentRute = router.routeInformationProvider.value.uri.path;
       expect(currentRute, GoRouterRoutes.animatedLogin.routeName);
       final storedBearerToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
       expect(storedBearerToken, isNull);
@@ -188,6 +193,8 @@ void main() {
       expect(textFormFieldFinder, findsExactly(2));
       expect(filledButtonFinder, findsOne);
 
+      final router = getGoRouter(widgetTester, filledButtonFinder);
+
       //Error when no password
       final textFormFieldEmailFinder = find.ancestor(
           of: find.text(AppLocalizations.of(widgetTester.element(textFormFieldFinder.first))!.loginEmailHint),
@@ -202,7 +209,7 @@ void main() {
       var invalidEmailTextFinder = find.text(AppLocalizations.of(widgetTester.element(filledButtonFinder))!.loginError);
       expect(invalidEmailTextFinder, findsOne);
 
-      var currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
+      var currentRute = router.routeInformationProvider.value.uri.path;
       expect(currentRute, GoRouterRoutes.animatedLogin.routeName);
 
       final storedBearerToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
@@ -219,6 +226,8 @@ void main() {
 
       expect(textFormFieldFinder, findsExactly(2));
       expect(filledButtonFinder, findsOne);
+
+      final router = getGoRouter(widgetTester, filledButtonFinder);
 
       final textFormFieldEmailFinder = find.ancestor(
           of: find.text(AppLocalizations.of(widgetTester.element(textFormFieldFinder.first))!.loginEmailHint),
@@ -243,7 +252,7 @@ void main() {
 
       await widgetTester.pumpAndSettle();
 
-      var currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
+      var currentRute = router.routeInformationProvider.value.uri.path;
       expect(currentRute, GoRouterRoutes.animatedLogin.routeName);
 
       final storedBearerToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);

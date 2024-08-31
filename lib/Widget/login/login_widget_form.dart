@@ -4,7 +4,7 @@ import 'package:flutter_gen/gen_l10n/university_system_ui_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:university_system_front/Model/credentials/login_credentials.dart';
 import 'package:university_system_front/Service/login_service.dart';
-import 'package:university_system_front/Util/university_system_ui_localizations_helper.dart';
+import 'package:university_system_front/Util/localization_utils.dart';
 
 class LoginWidgetForm extends ConsumerStatefulWidget {
   const LoginWidgetForm({super.key});

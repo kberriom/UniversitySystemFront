@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Router/go_router_config.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
@@ -31,7 +29,7 @@ class _LoginSplashWidgetState extends ConsumerState<LoginSplashWidget> {
               } else {
                 Timer(
                   const Duration(milliseconds: 100), //Time the initial splash logo remains on screen
-                  () => GetIt.instance.get<GoRouter>().goNamed(GoRouterRoutes.animatedLogin.routeName),
+                  () => ref.read(goRouterInstanceProvider).goNamed(GoRouterRoutes.animatedLogin.routeName),
                 );
               }
             }

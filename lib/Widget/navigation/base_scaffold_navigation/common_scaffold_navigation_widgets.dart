@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:university_system_front/Util/university_system_ui_localizations_helper.dart';
+import 'package:university_system_front/Util/localization_utils.dart';
 
 NavigationDestination buildNavigationDestinationHome(BuildContext context) {
   return NavigationDestination(

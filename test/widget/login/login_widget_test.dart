@@ -2,25 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/university_system_ui_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Widget/login/login_widget.dart';
 
+import '../../unit_widget_test_util.dart';
 import 'login_widget_test_provider_mocks.dart';
-import 'login_widget_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<GoRouter>()])
 void main() {
   group('Basic Login widget test', () {
     testWidgets('Must render and login with correct credentials', (widgetTester) async {
       widgetTester.view.physicalSize = const Size(360, 640);
       widgetTester.view.devicePixelRatio = 1.0;
-      final mockGoRouter = MockGoRouter();
-      GetIt.instance.registerSingleton<GoRouter>(mockGoRouter);
       await widgetTester.pumpWidget(
         ProviderScope(
           overrides: [loginServiceProvider.overrideWith(() => MockOkLogin())],
@@ -42,10 +35,11 @@ void main() {
       await widgetTester.enterText(textFormFieldEmailFinder, "test@test.com");
       await widgetTester.enterText(textFormFieldPasswordFinder, "testPassword");
       await widgetTester.tap(filledButtonFinder);
+      final router = getGoRouter(widgetTester, filledButtonFinder);
       await widgetTester.pumpAndSettle();
 
-      verify(mockGoRouter.goNamed(GoRouterRoutes.adminHome.routeName)).called(1);
-      await GetIt.instance.reset();
+      var currentRute = router.routeInformationProvider.value.uri.path;
+      expect(currentRute, GoRouterRoutes.adminHome.routeName);
     });
 
     testWidgets('Must render and display basic "Invalid email" error', (widgetTester) async {

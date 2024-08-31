@@ -5,9 +5,9 @@ import 'package:university_system_front/Controller/users/admin_users_widget_cont
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Model/users/user.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
-import 'package:university_system_front/Util/university_system_ui_localizations_helper.dart';
+import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:university_system_front/Widget/common_components/loading_widgets.dart';
-import 'package:university_system_front/Widget/common_components/uni_system_appbars.dart';
+import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
 import 'package:university_system_front/Widget/common_components/scaffold_background_decoration.dart';
 
 class AdminUsersWidget extends ConsumerStatefulWidget {

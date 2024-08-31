@@ -3,9 +3,9 @@ import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
-import 'package:university_system_front/Widget/base_scaffold_navigation/custom_adaptive_scaffold/custom_adaptive_scaffold.dart';
-import 'package:university_system_front/Widget/common_components/uni_system_appbars.dart';
-
+import 'custom_adaptive_scaffold/custom_adaptive_scaffold.dart';
+import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import 'common_scaffold_navigation_widgets.dart';
 
 class AdminScaffoldNavigationWidget extends ConsumerWidget {
@@ -19,6 +19,7 @@ class AdminScaffoldNavigationWidget extends ConsumerWidget {
       index,
       initialLocation: index == navigationShell.currentIndex,
     );
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) => VisibilityDetectorController.instance.notifyNow());
   }
 
   @override

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:university_system_front/Adapter/secure_storage_adapter.dart';
@@ -17,7 +16,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
-    registerGoRouterForIntegrationTest();
+    GetIt.instance.allowReassignment = true;
   });
 
   tearDown(() async {
@@ -32,7 +31,7 @@ void main() {
       await freshLoggedInInstanceHelper(widgetTester, newJwt: true, keepJwt: true, autoLogin: true);
       await widgetTester.pumpAndSettle();
 
-      final currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
+      final currentRute = getGoRouter(widgetTester, find.byType(AppBar)).routeInformationProvider.value.uri.path;
       expect(currentRute, GoRouterRoutes.adminHome.routeName);
 
       final storedBearerToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
@@ -47,7 +46,7 @@ void main() {
 
       await widgetTester.pumpAndSettle();
 
-      final currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
+      final currentRute = getGoRouter(widgetTester, find.byType(AppBar)).routeInformationProvider.value.uri.path;
       expect(currentRute, GoRouterRoutes.adminHome.routeName);
       expect(await SecureStorageAdapter().readValue(BearerTokenType.jwt.name), isNotEmpty);
     });
@@ -62,7 +61,7 @@ void main() {
 
       await widgetTester.pumpAndSettle();
 
-      expect(GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path, GoRouterRoutes.adminHome.routeName);
+      expect(getGoRouter(widgetTester, find.byType(AppBar)).routeInformationProvider.value.uri.path, GoRouterRoutes.adminHome.routeName);
       expect(await SecureStorageAdapter().readValue(BearerTokenType.jwt.name), isNotEmpty);
 
       await widgetTester.pumpAndSettle(JwtDecoder.getRemainingTime(currentJwt)); //Wait for JWT expiration
@@ -70,7 +69,7 @@ void main() {
       await widgetTester.pumpAndSettle(); //Wait for animations
 
       //_RouterState is private in GoRouter, but it's serializable
-      Map goRouterState = GetIt.instance.get<GoRouter>().routeInformationProvider.value.state as Map<dynamic, dynamic>;
+      Map goRouterState = getGoRouter(widgetTester, find.byType(AppBar)).routeInformationProvider.value.state as Map<dynamic, dynamic>;
 
       expect(((goRouterState['imperativeMatches'] as List<Map<dynamic, dynamic>>).first['location'] as String),
           GoRouterRoutes.tokenExpiredInfo.routeName);
@@ -90,8 +89,9 @@ void main() {
 
       await widgetTester.pumpAndSettle();
 
-      expect(GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path, GoRouterRoutes.login.routeName);
-      final providerContainer = ProviderScope.containerOf(widgetTester.element(find.byType(FilledButton)));
+      final filledButtonFinder = find.byType(FilledButton);
+      expect(getGoRouter(widgetTester, filledButtonFinder).routeInformationProvider.value.uri.path, GoRouterRoutes.login.routeName);
+      final providerContainer = ProviderScope.containerOf(widgetTester.element(filledButtonFinder));
       expect(await providerContainer.read(loginServiceProvider.future), const BearerToken(token: "", mustRedirectTokenExpired: true));
     });
   });

@@ -5,7 +5,7 @@ import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Router/go_router_config.dart';
 import 'package:university_system_front/Theme/theme.dart' show MaterialTheme;
 import 'package:university_system_front/Util/platform_utils.dart';
-import 'package:university_system_front/Widget/common_components/uni_system_appbars.dart';
+import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
 
 class BaseLoginWidget extends ConsumerWidget {
   ///The widget list to be placed in a stack created in the logo position

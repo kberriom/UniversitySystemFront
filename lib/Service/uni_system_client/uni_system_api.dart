@@ -10,8 +10,6 @@ import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Service/uni_system_client/uni_system_api_request.dart';
 
-typedef Json = Map<String, dynamic>;
-
 ///Reactive http client with the appropriate headers and authorization for the UniversitySystem Service.
 ///
 ///Do not use for external requests

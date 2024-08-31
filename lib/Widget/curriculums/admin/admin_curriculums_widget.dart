@@ -4,11 +4,11 @@ import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 import 'package:university_system_front/Controller/curriculum/admin_curriculum_widget_controller.dart';
 import 'package:university_system_front/Model/curriculum.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
-import 'package:university_system_front/Util/university_system_ui_localizations_helper.dart';
+import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:university_system_front/Widget/common_components/infinite_list_widgets.dart';
 import 'package:university_system_front/Widget/common_components/loading_widgets.dart';
 import 'package:university_system_front/Widget/common_components/scaffold_background_decoration.dart';
-import 'package:university_system_front/Widget/common_components/uni_system_appbars.dart';
+import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
 
 class AdminCurriculumsWidget extends ConsumerStatefulWidget {
   const AdminCurriculumsWidget({super.key});

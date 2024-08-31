@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:university_system_front/Theme/theme.dart';
 import 'package:university_system_front/Theme/theme_mode_provider.dart';
-import 'package:university_system_front/Util/university_system_ui_localizations_helper.dart';
-import 'package:university_system_front/Widget/common_components/uni_system_appbars.dart';
+import 'package:university_system_front/Util/localization_utils.dart';
+import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
 import 'package:university_system_front/Widget/common_components/scaffold_background_decoration.dart';
 import 'package:university_system_front/Widget/home/common_home_widgets.dart';
 

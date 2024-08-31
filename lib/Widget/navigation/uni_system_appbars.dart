@@ -4,8 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Theme/theme_mode_provider.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
-import 'package:university_system_front/Util/university_system_ui_localizations_helper.dart';
+import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:window_manager/window_manager.dart';
+import 'leading_widgets.dart';
 
 DynamicUniSystemAppBar? getAppBarAndroid() {
   if (PlatformUtil.isWindows) {
@@ -28,14 +29,11 @@ class DynamicUniSystemAppBar extends ConsumerWidget implements PreferredSizeWidg
       centerTitle: true,
       flexibleSpace: _buildChildOrGestureDetectorWithChild(),
       backgroundColor: _appBarBackgroundColor(ref, context),
-      leading: _setIfWindows(_setIfNotInLogin(
-        IconButton(
-          onPressed: () {
-            ref.read(currentThemeModeProvider.notifier).changeThemeMode();
-          },
-          icon: Icon(Theme.of(context).colorScheme.brightness == Brightness.light ? Icons.sunny : Icons.nightlight_round_sharp),
+      leading: _setIfWindows(
+        _setIfNotInLogin(
+          ref.watch(uniSystemAppBarLeadingProvider),
         ),
-      )),
+      ),
       scrolledUnderElevation: 0,
       title: _setIfNotInLogin(
         ConstrainedBox(
@@ -109,7 +107,7 @@ class DynamicUniSystemAppBar extends ConsumerWidget implements PreferredSizeWidg
     }
   }
 
-  Widget? _setIfNotInLogin(Widget child) {
+  Widget? _setIfNotInLogin(Widget? child) {
     if (!isInLogin) {
       return child;
     } else {

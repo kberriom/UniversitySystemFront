@@ -15,8 +15,12 @@ enum GoRouterRoutes {
 
   ///Start of the admin navigation subtree
   adminHome(routeName: '/adminHome', userRole: UserRole.admin),
+  ///Admin users subtree
   adminUsers(routeName: '/adminUsers', userRole: UserRole.admin),
+  ///Admin subjects subtree
   adminSubjects(routeName: '/adminSubjects', userRole: UserRole.admin),
+  adminAddSubject(routeName: 'addSubject', userRole: UserRole.admin, isSubRoute: true),
+  ///Admin curriculums subtree
   adminCurriculums(routeName: '/adminCurriculums', userRole: UserRole.admin),
 
   ///Start of the teacher navigation subtree
@@ -28,6 +32,8 @@ enum GoRouterRoutes {
 
   final String routeName;
   final UserRole? userRole;
+  ///SubRoutes cannot have "/" in route name
+  final bool isSubRoute;
 
-  const GoRouterRoutes({required this.routeName, required this.userRole});
+  const GoRouterRoutes({required this.routeName, required this.userRole, this.isSubRoute = false});
 }
