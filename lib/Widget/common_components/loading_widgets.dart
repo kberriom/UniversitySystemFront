@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
-import 'package:university_system_front/Theme/theme_mode_provider.dart';
+import 'package:university_system_front/Theme/dimensions.dart';
 
 import 'infinite_list_widgets.dart';
 
@@ -40,7 +39,15 @@ class _AnimatedRefreshState extends State<AnimatedRefreshButton> with AnimationM
   }
 }
 
-class FixedExtentShimmerList extends ConsumerStatefulWidget {
+class FixedExtentShimmerList extends StatefulWidget {
+  final double itemMaxWidth;
+  final double itemMinWidth;
+  final double itemsPadding;
+  final double itemExtent;
+  final int? itemCount;
+  final AnimationController? animationController;
+  final double borderRadius;
+
   const FixedExtentShimmerList({
     this.animationController,
     this.itemCount,
@@ -48,6 +55,7 @@ class FixedExtentShimmerList extends ConsumerStatefulWidget {
     required this.itemExtent,
     required this.itemMinWidth,
     required this.itemMaxWidth,
+    this.borderRadius = kBorderRadiusSmall,
     super.key,
   });
 
@@ -83,21 +91,15 @@ class FixedExtentShimmerList extends ConsumerStatefulWidget {
     tileMode: TileMode.clamp,
   );
 
-  final double itemMaxWidth;
-  final double itemMinWidth;
-  final double itemsPadding;
-  final double itemExtent;
-  final int? itemCount;
-  final AnimationController? animationController;
-
   @override
-  ConsumerState<FixedExtentShimmerList> createState() => _FixedExtentShimmerListState();
+  State<FixedExtentShimmerList> createState() => _FixedExtentShimmerListState();
 }
 
-class _FixedExtentShimmerListState extends ConsumerState<FixedExtentShimmerList> with AnimationMixin {
+class _FixedExtentShimmerListState extends State<FixedExtentShimmerList> with AnimationMixin {
   late AnimationController _shimmerController;
   late BoxConstraints _itemConstraints;
   bool _isVisible = false;
+  late LinearGradient _gradient;
 
   @override
   Widget build(BuildContext context) {
@@ -116,24 +118,12 @@ class _FixedExtentShimmerListState extends ConsumerState<FixedExtentShimmerList>
               constraints: _itemConstraints,
               child: Container(
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(widget.borderRadius),
                     gradient: LinearGradient(
-                      colors: (ref.watch(currentThemeModeProvider) == ThemeMode.light
-                              ? widget.shimmerGradientLightMode
-                              : widget.shimmerGradientDarkMode)
-                          .colors,
-                      stops: (ref.watch(currentThemeModeProvider) == ThemeMode.light
-                              ? widget.shimmerGradientLightMode
-                              : widget.shimmerGradientDarkMode)
-                          .stops,
-                      begin: (ref.watch(currentThemeModeProvider) == ThemeMode.light
-                              ? widget.shimmerGradientLightMode
-                              : widget.shimmerGradientDarkMode)
-                          .begin,
-                      end: (ref.watch(currentThemeModeProvider) == ThemeMode.light
-                              ? widget.shimmerGradientLightMode
-                              : widget.shimmerGradientDarkMode)
-                          .end,
+                      colors: _gradient.colors,
+                      stops: _gradient.stops,
+                      begin: _gradient.begin,
+                      end: _gradient.end,
                       transform: _SlidingGradientTransform(slidePercent: _shimmerController.value),
                     )),
                 child: const SizedBox.expand(),
@@ -147,6 +137,10 @@ class _FixedExtentShimmerListState extends ConsumerState<FixedExtentShimmerList>
 
   @override
   void didChangeDependencies() {
+    _gradient = switch (Theme.of(context).brightness) {
+      Brightness.dark => widget.shimmerGradientDarkMode,
+      Brightness.light => widget.shimmerGradientLightMode,
+    };
     if (!_isVisible) {
       Future.delayed(
         const Duration(milliseconds: 30),
@@ -196,17 +190,22 @@ class LoadingShimmerItem extends StatelessWidget {
   const LoadingShimmerItem({
     super.key,
     required this.itemConstraints,
+    this.borderRadius = kBorderRadiusSmall,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16),
   });
 
+  final double borderRadius;
+  final EdgeInsets padding;
   final FixedExtentItemConstraints itemConstraints;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: padding,
       child: Align(
         alignment: Alignment.center,
         child: FixedExtentShimmerList(
+            borderRadius: borderRadius,
             animationController: itemConstraints.animationController,
             itemCount: 1,
             itemMaxWidth: itemConstraints.cardMaxWidthConstraints,

@@ -35,7 +35,7 @@ class SelfAwareSubjectListItem extends _$SelfAwareSubjectListItem {
         return ref.watch(paginatedSubjectInfiniteListProvider.future);
       },
       newPageCallback: (int page) {
-        return ref.read(subjectRepositoryImplProvider).getAllSubjectsPaged(page, preCacheAmount);
+        return ref.read(subjectRepositoryProvider).getAllSubjectsPaged(page, preCacheAmount);
       },
     );
     return SubjectsListItemPackage(subjectData: await selfAwareListItem.computeItem(pageIndex));
@@ -44,7 +44,7 @@ class SelfAwareSubjectListItem extends _$SelfAwareSubjectListItem {
 
 @riverpod
 Future<PaginatedInfiniteList<Subject>> paginatedSubjectInfiniteList(PaginatedSubjectInfiniteListRef ref) async {
-  PaginatedList<Subject> subjectPage = await ref.read(subjectRepositoryImplProvider).getAllSubjectsPaged(1, preCacheAmount);
+  PaginatedList<Subject> subjectPage = await ref.read(subjectRepositoryProvider).getAllSubjectsPaged(1, preCacheAmount);
   return PaginatedInfiniteList<Subject>(subjectPage);
 }
 

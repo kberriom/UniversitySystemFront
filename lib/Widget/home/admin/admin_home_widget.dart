@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Theme/theme.dart';
-import 'package:university_system_front/Theme/theme_mode_provider.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
-import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
 import 'package:university_system_front/Widget/common_components/scaffold_background_decoration.dart';
-import 'package:university_system_front/Widget/home/common_home_widgets.dart';
+import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
+import 'package:university_system_front/Widget/common_components/animated_text_title.dart';
 
 class AdminHomeWidget extends ConsumerStatefulWidget {
   const AdminHomeWidget({super.key});
@@ -23,7 +23,7 @@ class _HomeWidgetState extends ConsumerState<AdminHomeWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            HomeTextTitle(text: context.localizations.upperCaseHomeTitleAndUserName('ADMIN')),
+            AnimatedTextTitle(text: context.localizations.upperCaseHomeTitleAndUserName('ADMIN')),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
@@ -83,7 +83,7 @@ class QuickAccessIconButton extends StatelessWidget {
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusBig))),
       onPressed: onPressed,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minWidth: 300, maxWidth: 600, minHeight: 80, maxHeight: 80),
@@ -99,7 +99,7 @@ class QuickAccessIconButton extends StatelessWidget {
   }
 }
 
-class BigIconWithCompanion extends ConsumerWidget {
+class BigIconWithCompanion extends StatefulWidget {
   final IconData mainIcon;
   final IconData? companionIcon;
 
@@ -110,35 +110,42 @@ class BigIconWithCompanion extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var currentThemeMode = ref.watch(currentThemeModeProvider);
+  State<BigIconWithCompanion> createState() => _BigIconWithCompanionState();
+}
 
-    Color? mainIconColor;
-    if (currentThemeMode == ThemeMode.light) {
-      mainIconColor = Theme.of(context).colorScheme.onSecondaryFixed;
-    } else {
-      mainIconColor = null;
-    }
+class _BigIconWithCompanionState extends State<BigIconWithCompanion> {
+  late Brightness _currentThemeMode;
+  Color? _mainIconColor;
+  late Color _companionColor;
 
-    Color companionColor;
-    if (currentThemeMode == ThemeMode.light) {
-      companionColor = Theme.of(context).colorScheme.onSecondaryFixed;
-    } else {
-      companionColor = MaterialTheme.darkFilledButton.value;
-    }
+  @override
+  void didChangeDependencies() {
+    _currentThemeMode = Theme.of(context).brightness;
+    _mainIconColor = switch (_currentThemeMode) {
+      Brightness.dark => null,
+      Brightness.light => Theme.of(context).colorScheme.onSecondaryFixed,
+    };
+    _companionColor = switch (_currentThemeMode) {
+      Brightness.dark => MaterialTheme.darkFilledButton.value,
+      Brightness.light => Theme.of(context).colorScheme.onSecondaryFixed,
+    };
+    super.didChangeDependencies();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return SizedBox(
       height: 65,
       width: 90,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Icon(mainIcon, size: 42, color: mainIconColor),
-          if (companionIcon != null)
+          Icon(widget.mainIcon, size: 42, color: _mainIconColor),
+          if (widget.companionIcon != null)
             Positioned(
               bottom: 0,
               right: 0,
-              child: Icon(companionIcon, size: 32, color: companionColor),
+              child: Icon(widget.companionIcon, size: 32, color: _companionColor),
             ),
         ],
       ),

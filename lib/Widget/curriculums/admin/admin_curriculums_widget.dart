@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 import 'package:university_system_front/Controller/curriculum/admin_curriculum_widget_controller.dart';
 import 'package:university_system_front/Model/curriculum.dart';
+import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:university_system_front/Widget/common_components/infinite_list_widgets.dart';
 import 'package:university_system_front/Widget/common_components/loading_widgets.dart';
 import 'package:university_system_front/Widget/common_components/scaffold_background_decoration.dart';
+import 'package:university_system_front/Widget/navigation/animated_status_bar_color.dart';
 import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
 
 class AdminCurriculumsWidget extends ConsumerStatefulWidget {
@@ -23,6 +25,9 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
   late final ScrollController scrollController;
   late final TextEditingController searchTextController;
   late final AnimationController animationController;
+  late final FixedExtentItemConstraints fixedExtentItemConstraints;
+
+  int searchRequestKeyStrokeNumber = 0;
 
   @override
   void initState() {
@@ -30,6 +35,12 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
     searchController = SearchController();
     scrollController = ScrollController();
     animationController = createController(unbounded: true, fps: 60);
+    fixedExtentItemConstraints = FixedExtentItemConstraints(
+      animationController: animationController,
+      cardHeight: 80,
+      cardMinWidthConstraints: 300,
+      cardMaxWidthConstraints: 800,
+    );
     super.initState();
   }
 
@@ -37,39 +48,33 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
   void dispose() {
     searchController.dispose();
     searchTextController.dispose();
-    scrollController.removeListener(() {});
     scrollController.dispose();
     super.dispose();
   }
 
-  final appBarHeight = const UniSystemSliverAppBar().preferredSize.height;
-  final double userItemHeight = 80;
-  final double userItemMinWidth = 300;
-  final double userItemMaxWidth = 800;
-  Color? animatedStatusBarColor;
-
-  int searchRequestKeyStrokeNumber = 0;
-
   @override
   Widget build(BuildContext context) {
-    //Set the status bar color depending on scroll extent to create seamless appbar/searchBar
-    setScrollExtentStatusBarColorListener(context);
-
     return RefreshIndicator(
       onRefresh: () => ref.refresh(paginatedCurriculumInfiniteListProvider.future),
       edgeOffset: 150,
       displacement: 10,
-      child: AnimatedContainer(
-        color: animatedStatusBarColor ?? Theme.of(context).colorScheme.surfaceBright,
-        duration: Durations.short1,
+      child: AnimatedStatusBarColor(
+        scrollController: scrollController,
         child: SafeArea(
           bottom: false,
           child: ScaffoldMessenger(
             key: scaffoldMessengerKey,
             child: Scaffold(
                 resizeToAvoidBottomInset: false,
+                floatingActionButton: FloatingActionButton(
+                  child: const Icon(Icons.add),
+                  onPressed: () {
+                    //TODO add new Curriculum
+                  },
+                ),
                 body: ScaffoldBackgroundDecoration(
                   child: CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     controller: scrollController,
                     slivers: [
                       if (!context.isWindows) const UniSystemSliverAppBar(),
@@ -81,29 +86,26 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
                         ),
                       ),
                       FutureSelfAwareListBuilder(
-                        onDataWidgetBuilderCallback: (list) => SelfAwareDataListSliver(
-                          currentStateList: list,
-                          selfAwareItemFuture: (index) => ref.watch(selfAwareCurriculumListItemProvider.call(index).future),
-                          loadingShimmerItem: (itemConstraints) => LoadingShimmerItem(itemConstraints: itemConstraints),
-                          errorItem: (itemConstraints) => CurriculumErrorItem(itemConstraints: itemConstraints),
-                          itemWidget: (data, itemConstraints) => CurriculumItem(data: data, itemConstraints: itemConstraints),
-                          itemConstraints: FixedExtentItemConstraints(
-                            animationController: animationController,
-                            cardHeight: userItemHeight,
-                            cardMinWidthConstraints: userItemMinWidth,
-                            cardMaxWidthConstraints: userItemMaxWidth,
-                          ),
-                        ),
+                        onDataWidgetBuilderCallback: (list) {
+                          return SelfAwareDataListSliver(
+                            itemConstraints: fixedExtentItemConstraints,
+                            currentStateList: list,
+                            selfAwareItemFuture: (index) => ref.watch(selfAwareCurriculumListItemProvider.call(index).future),
+                            loadingShimmerItem: (itemConstraints) => LoadingShimmerItem(itemConstraints: itemConstraints),
+                            errorItem: (itemConstraints) => CurriculumErrorItem(itemConstraints: itemConstraints),
+                            itemWidget: (data, itemConstraints) => CurriculumItem(data: data, itemConstraints: itemConstraints),
+                          );
+                        },
                         providerFuture: ref.watch(adminSubjectsWidgetControllerProvider.call(searchController.value.text).future),
                         loadingWidget: SliverFillRemaining(
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 16, right: 16, top: 10),
+                            padding: const EdgeInsets.only(left: kBodyHorizontalPadding, right: kBodyHorizontalPadding, top: 10),
                             child: FixedExtentShimmerList(
                               animationController: animationController,
-                              itemExtent: userItemHeight,
+                              itemExtent: fixedExtentItemConstraints.cardHeight,
                               itemsPadding: 16,
-                              itemMinWidth: userItemMinWidth,
-                              itemMaxWidth: userItemMaxWidth,
+                              itemMinWidth: fixedExtentItemConstraints.cardMinWidthConstraints,
+                              itemMaxWidth: fixedExtentItemConstraints.cardMaxWidthConstraints,
                             ),
                           ),
                         ),
@@ -143,30 +145,11 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
     );
   }
 
-  void setScrollExtentStatusBarColorListener(BuildContext context) {
-    if (!scrollController.hasClients && !context.isWindows) {
-      //Only on the first frame build does scrollController not have any clients
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        scrollController.addListener(() {
-          if (scrollController.position.pixels > appBarHeight) {
-            setState(() {
-              animatedStatusBarColor = Theme.of(context).colorScheme.surfaceContainerLow;
-            });
-          } else if (scrollController.position.pixels <= appBarHeight) {
-            setState(() {
-              animatedStatusBarColor = Theme.of(context).colorScheme.surfaceBright;
-            });
-          }
-        });
-      });
-    }
-  }
-
   Widget buildSearchBar(BuildContext context) {
     return Container(
       color: Theme.of(context).colorScheme.surfaceContainerLow,
       child: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8, top: 8),
+        padding: const EdgeInsets.only(left: kBodyHorizontalPadding, right: kBodyHorizontalPadding, bottom: 8, top: 8),
         child: Column(
           children: [
             ConstrainedBox(
@@ -279,7 +262,7 @@ class CurriculumErrorItem extends StatelessWidget {
               overlayColor: Colors.transparent,
               enableFeedback: false,
               enabledMouseCursor: MouseCursor.defer,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
               backgroundColor: Theme.of(context).colorScheme.surface,
             ),
             onPressed: () {},
@@ -327,7 +310,7 @@ class CurriculumItem extends StatelessWidget {
               maxHeight: itemConstraints.cardHeight),
           child: OutlinedButton(
             style: OutlinedButton.styleFrom(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
               backgroundColor: Theme.of(context).colorScheme.surface,
             ),
             onPressed: () {}, //TODO Detail view

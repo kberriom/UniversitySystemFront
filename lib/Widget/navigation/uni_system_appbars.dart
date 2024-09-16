@@ -2,16 +2,18 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:university_system_front/Service/login_service.dart';
-import 'package:university_system_front/Theme/theme_mode_provider.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:window_manager/window_manager.dart';
 import 'leading_widgets.dart';
 
-DynamicUniSystemAppBar? getAppBarAndroid() {
+DynamicUniSystemAppBar? getAppBarAndroid({UniSystemSmartLeadButton? leading}) {
   if (PlatformUtil.isWindows) {
     return null;
   } else {
+    if (leading != null) {
+      return DynamicUniSystemAppBar(isInLogin: false, androidLeading: leading);
+    }
     return const DynamicUniSystemAppBar(isInLogin: false); //There is no appBar in Android login
   }
 }
@@ -19,8 +21,10 @@ DynamicUniSystemAppBar? getAppBarAndroid() {
 ///An App bar that turns into a usable Windows title bar with close/restore/minimize buttons on Desktop.
 class DynamicUniSystemAppBar extends ConsumerWidget implements PreferredSizeWidget {
   final bool isInLogin;
+  final bool forceShowLogo;
+  final UniSystemSmartLeadButton? androidLeading;
 
-  const DynamicUniSystemAppBar({super.key, required this.isInLogin});
+  const DynamicUniSystemAppBar({super.key, required this.isInLogin, this.forceShowLogo = false, this.androidLeading});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,13 +33,13 @@ class DynamicUniSystemAppBar extends ConsumerWidget implements PreferredSizeWidg
       centerTitle: true,
       flexibleSpace: _buildChildOrGestureDetectorWithChild(),
       backgroundColor: _appBarBackgroundColor(ref, context),
-      leading: _setIfWindows(
+      leading: PlatformUtil.isAndroid ? androidLeading : _setIfWindows(
         _setIfNotInLogin(
           ref.watch(uniSystemAppBarLeadingProvider),
         ),
       ),
       scrolledUnderElevation: 0,
-      title: _setIfNotInLogin(
+      title: _setIfNotInLoginOrForceLogo(
         ConstrainedBox(
           constraints: const BoxConstraints.tightFor(width: 110),
           child: _buildChildOrGestureDetectorWithChild(child: Image.asset('assets/logo_full_nobg_v1.png', cacheWidth: 200)),
@@ -115,6 +119,14 @@ class DynamicUniSystemAppBar extends ConsumerWidget implements PreferredSizeWidg
     }
   }
 
+  Widget? _setIfNotInLoginOrForceLogo(Widget? child) {
+    if (!isInLogin || forceShowLogo) {
+      return child;
+    } else {
+      return null;
+    }
+  }
+
   Widget? _buildChildOrGestureDetectorWithChild({Widget? child}) {
     if (PlatformUtil.isWindows) {
       return GestureDetector(
@@ -171,5 +183,5 @@ class UniSystemSliverAppBar extends ConsumerWidget implements PreferredSizeWidge
 }
 
 Color? _appBarBackgroundColor(WidgetRef ref, BuildContext context) {
-  return ref.watch(currentThemeModeProvider) == ThemeMode.light ? Theme.of(context).colorScheme.outlineVariant : null;
+  return Theme.of(context).brightness == Brightness.light ? Theme.of(context).colorScheme.outlineVariant : null;
 }

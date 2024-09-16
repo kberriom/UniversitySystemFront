@@ -4,9 +4,13 @@ import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 import 'package:university_system_front/Controller/users/admin_users_widget_controller.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Model/users/user.dart';
+import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
+import 'package:university_system_front/Util/snackbar_utils.dart';
+import 'package:university_system_front/Widget/common_components/infinite_list_widgets.dart';
 import 'package:university_system_front/Widget/common_components/loading_widgets.dart';
+import 'package:university_system_front/Widget/navigation/animated_status_bar_color.dart';
 import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
 import 'package:university_system_front/Widget/common_components/scaffold_background_decoration.dart';
 
@@ -23,6 +27,12 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
   late final ScrollController scrollController;
   late final TextEditingController searchTextController;
   late final AnimationController animationController;
+  late final FixedExtentItemConstraints fixedExtentItemConstraints;
+
+  int searchRequestKeyStrokeNumber = 0;
+  bool showFilters = false;
+  bool filterByStudent = true;
+  bool filterByTeacher = true;
 
   @override
   void initState() {
@@ -30,6 +40,12 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
     searchController = SearchController();
     scrollController = ScrollController();
     animationController = createController(unbounded: true, fps: 60);
+    fixedExtentItemConstraints = FixedExtentItemConstraints(
+      animationController: animationController,
+      cardHeight: 80,
+      cardMinWidthConstraints: 300,
+      cardMaxWidthConstraints: 800,
+    );
     super.initState();
   }
 
@@ -42,23 +58,8 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
     super.dispose();
   }
 
-  final appBarHeight = const UniSystemSliverAppBar().preferredSize.height;
-  final double userItemHeight = 80;
-  final double userItemMinWidth = 300;
-  final double userItemMaxWidth = 800;
-  Color? animatedStatusBarColor;
-
-  bool showFilters = false;
-  bool filterByStudent = true;
-  bool filterByTeacher = true;
-
-  int searchRequestKeyStrokeNumber = 0;
-
   @override
   Widget build(BuildContext context) {
-    //Set the status bar color depending on scroll extent to create seamless appbar/searchBar
-    setScrollExtentStatusBarColorListener(context);
-
     return RefreshIndicator(
       onRefresh: () {
         final refreshFuture = Future.wait([
@@ -69,17 +70,23 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
       },
       edgeOffset: 150,
       displacement: 10,
-      child: AnimatedContainer(
-        color: animatedStatusBarColor ?? Theme.of(context).colorScheme.surfaceBright,
-        duration: Durations.short1,
+      child: AnimatedStatusBarColor(
+        scrollController: scrollController,
         child: SafeArea(
           bottom: false,
           child: ScaffoldMessenger(
             key: scaffoldMessengerKey,
             child: Scaffold(
                 resizeToAvoidBottomInset: false,
+                floatingActionButton: FloatingActionButton(
+                  child: const Icon(Icons.add),
+                  onPressed: () {
+                    //todo add new user
+                  },
+                ),
                 body: ScaffoldBackgroundDecoration(
                   child: CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     controller: scrollController,
                     slivers: [
                       if (!context.isWindows) const UniSystemSliverAppBar(),
@@ -94,9 +101,9 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
                         filterByTeacher,
                         filterByStudent,
                         animationController: animationController,
-                        cardHeight: userItemHeight,
-                        cardMinWidthConstraints: userItemMinWidth,
-                        cardMaxWidthConstraints: userItemMaxWidth,
+                        cardHeight: fixedExtentItemConstraints.cardHeight,
+                        cardMinWidthConstraints: fixedExtentItemConstraints.cardMinWidthConstraints,
+                        cardMaxWidthConstraints: fixedExtentItemConstraints.cardMaxWidthConstraints,
                         providerFuture: ref.watch(adminUsersWidgetControllerProvider
                             .call(filterByTeacher, filterByStudent, searchController.value.text)
                             .future),
@@ -105,10 +112,10 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
                             padding: const EdgeInsets.only(left: 16, right: 16, top: 10),
                             child: FixedExtentShimmerList(
                               animationController: animationController,
-                              itemExtent: userItemHeight,
+                              itemExtent: fixedExtentItemConstraints.cardHeight,
                               itemsPadding: 16,
-                              itemMinWidth: userItemMinWidth,
-                              itemMaxWidth: userItemMaxWidth,
+                              itemMinWidth: fixedExtentItemConstraints.cardMinWidthConstraints,
+                              itemMaxWidth: fixedExtentItemConstraints.cardMaxWidthConstraints,
                             ),
                           ),
                         ),
@@ -146,25 +153,6 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
         ),
       ),
     );
-  }
-
-  void setScrollExtentStatusBarColorListener(BuildContext context) {
-    if (!scrollController.hasClients && !context.isWindows) {
-      //Only on the first frame build does scrollController not have any clients
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        scrollController.addListener(() {
-          if (scrollController.position.pixels > appBarHeight) {
-            setState(() {
-              animatedStatusBarColor = Theme.of(context).colorScheme.surfaceContainerLow;
-            });
-          } else if (scrollController.position.pixels <= appBarHeight) {
-            setState(() {
-              animatedStatusBarColor = Theme.of(context).colorScheme.surfaceBright;
-            });
-          }
-        });
-      });
-    }
   }
 
   Widget buildSearchBar(BuildContext context) {
@@ -303,9 +291,7 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
   }
 
   void _showErrorOneFilterReq(BuildContext context) {
-    scaffoldMessengerKey.currentState
-      ?..clearSnackBars()
-      ..showSnackBar(SnackBar(content: Text(context.localizations.oneFilterActiveRuleError)));
+    context.showLocalSnackBar(scaffoldMessengerKey, context.localizations.oneFilterActiveRuleError);
   }
 }
 
@@ -381,7 +367,7 @@ class UserListSliver extends ConsumerWidget {
                                 maxHeight: cardHeight),
                             child: OutlinedButton(
                               style: OutlinedButton.styleFrom(
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
                                 backgroundColor: Theme.of(context).colorScheme.surface,
                               ),
                               onPressed: () {}, //TODO Detail view
@@ -441,7 +427,7 @@ class UserListSliver extends ConsumerWidget {
                                 overlayColor: Colors.transparent,
                                 enableFeedback: false,
                                 enabledMouseCursor: MouseCursor.defer,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
                                 backgroundColor: Theme.of(context).colorScheme.surface,
                               ),
                               onPressed: () {},

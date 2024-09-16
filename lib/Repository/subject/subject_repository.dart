@@ -7,19 +7,21 @@ import 'package:university_system_front/Model/users/teacher.dart';
 import 'package:university_system_front/Repository/subject/subject_repository_interface.dart';
 import 'package:university_system_front/Service/uni_system_client/uni_system_api.dart';
 import 'package:university_system_front/Service/uni_system_client/uni_system_api_request.dart';
+import 'package:university_system_front/Util/provider_utils.dart';
 
 part 'subject_repository.g.dart';
 
-@Riverpod(keepAlive: true)
-SubjectRepositoryImpl subjectRepositoryImpl(SubjectRepositoryImplRef ref) {
-  return SubjectRepositoryImpl(ref);
+@riverpod
+SubjectRepository subjectRepository(SubjectRepositoryRef ref) {
+  ref.keepFor(const Duration(minutes: 20));
+  return _SubjectRepositoryImpl(ref);
 }
 
-class SubjectRepositoryImpl implements SubjectRepository {
-  late final UniSystemApiService uniSystemApiService;
+class _SubjectRepositoryImpl implements SubjectRepository {
+  late final UniSystemApiService _uniSystemApiService;
 
-  SubjectRepositoryImpl(Ref ref) {
-    uniSystemApiService = UniSystemApiService(ref);
+  _SubjectRepositoryImpl(Ref ref) {
+    _uniSystemApiService = UniSystemApiService(ref);
   }
 
   @override
@@ -35,21 +37,29 @@ class SubjectRepositoryImpl implements SubjectRepository {
   }
 
   @override
-  Future<Subject> createSubject(SubjectDto subjectDto) {
-    // TODO: implement createSubject
-    throw UnimplementedError();
+  Future<Subject> createSubject(SubjectDto subjectDto) async {
+    final request =
+        UniSystemRequest(type: UniSysApiRequestType.post, body: subjectDto.toMap(), endpoint: 'subject/createSubject');
+    Json response = await _uniSystemApiService.makeRequest(request);
+    return Subject.fromMap(response);
   }
 
   @override
-  Future<void> deleteSubject(String subjectName) {
-    // TODO: implement deleteSubject
-    throw UnimplementedError();
+  Future<void> deleteSubject(String subjectName) async {
+    final request =
+        UniSystemRequest(type: UniSysApiRequestType.delete, query: {"name": subjectName}, endpoint: 'subject/deleteSubject');
+    return _uniSystemApiService.makeRequest(request);
   }
 
   @override
-  Future<List<StudentSubjectRegistration>> getAllRegisteredStudents() {
-    // TODO: implement getAllRegisteredStudents
-    throw UnimplementedError();
+  Future<List<StudentSubjectRegistration>> getAllRegisteredStudents(String subjectName) async {
+    final request = UniSystemRequest(type: UniSysApiRequestType.get, endpoint: 'subject/getAllRegisteredStudents/$subjectName');
+    List<dynamic> response = await _uniSystemApiService.makeRequest(request);
+    List<StudentSubjectRegistration> list = [];
+    for (var registrationJson in response) {
+      list.add(StudentSubjectRegistration.fromMap(registrationJson));
+    }
+    return list;
   }
 
   @override
@@ -64,7 +74,7 @@ class SubjectRepositoryImpl implements SubjectRepository {
         type: UniSysApiRequestType.get,
         query: {"page": page.toString(), "size": size.toString()},
         endpoint: 'subject/getAllSubjects/paged');
-    List<dynamic> response = await uniSystemApiService.makeRequest(request);
+    List<dynamic> response = await _uniSystemApiService.makeRequest(request);
     PageInfo pageInfo = PageInfo.fromMap(response[0]);
     response.removeAt(0);
     Set<Subject> set = {};
@@ -75,15 +85,21 @@ class SubjectRepositoryImpl implements SubjectRepository {
   }
 
   @override
-  Future<List<TeacherAssignation>> getAllTeachers() {
-    // TODO: implement getAllTeachers
-    throw UnimplementedError();
+  Future<List<TeacherAssignation>> getAllTeachers(String subjectName) async {
+    final request = UniSystemRequest(type: UniSysApiRequestType.get, endpoint: 'subject/getAllTeachers/$subjectName');
+    List<dynamic> response = await _uniSystemApiService.makeRequest(request);
+    List<TeacherAssignation> list = [];
+    for (var assignationJson in response) {
+      list.add(TeacherAssignation.fromMap(assignationJson));
+    }
+    return list;
   }
 
   @override
-  Future<Subject> getSubject(String name) {
-    // TODO: implement getSubject
-    throw UnimplementedError();
+  Future<Subject> getSubject(String name) async {
+    final request = UniSystemRequest(type: UniSysApiRequestType.get, query: {"name": name}, endpoint: 'subject/getSubject');
+    Json response = await _uniSystemApiService.makeRequest(request);
+    return Subject.fromMap(response);
   }
 
   @override
@@ -105,8 +121,10 @@ class SubjectRepositoryImpl implements SubjectRepository {
   }
 
   @override
-  Future<Subject> updateSubject(SubjectDto subjectDto) {
-    // TODO: implement updateSubject
-    throw UnimplementedError();
+  Future<Subject> updateSubject(SubjectDto subjectDto, String oldName) async {
+    final request =
+        UniSystemRequest(type: UniSysApiRequestType.patch, body: subjectDto.toMap(), endpoint: 'subject/updateSubject/$oldName');
+    Json response = await _uniSystemApiService.makeRequest(request);
+    return Subject.fromMap(response);
   }
 }

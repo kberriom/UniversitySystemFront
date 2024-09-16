@@ -62,7 +62,7 @@ class GoRouterInstance extends _$GoRouterInstance {
     );
   }
 
-  Widget _fadeTransition(BuildContext context, Animation<double> animation, Animation secondaryAnimation, Widget child) {
+  Widget _fadeTransition(Object _, Animation<double> animation, Object __, Widget child) {
     return FadeTransition(
       opacity: CurveTween(curve: Curves.easeOutCubic).animate(animation),
       child: child,

@@ -61,13 +61,13 @@ class StudentDto with StudentDtoMappable {
 class StudentSubjectRegistration with StudentSubjectRegistrationMappable {
   StudentSubjectRegistrationId id;
   String registrationDate;
-  double finalGrade;
+  double? finalGrade;
   Set<Grade>? subjectGrades;
 
   static const fromMap = StudentSubjectRegistrationMapper.fromMap;
   static const fromJson = StudentSubjectRegistrationMapper.fromJson;
 
-  StudentSubjectRegistration({required this.id, required this.registrationDate, required this.finalGrade, this.subjectGrades});
+  StudentSubjectRegistration({required this.id, required this.registrationDate, this.finalGrade, this.subjectGrades});
 }
 
 @MappableClass()

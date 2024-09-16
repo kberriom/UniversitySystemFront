@@ -1,28 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 import 'package:university_system_front/Controller/subject/admin_subjects_widget_controller.dart';
 import 'package:university_system_front/Model/subject.dart';
+import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Util/string_utils.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
+import 'package:university_system_front/Theme/dimensions.dart';
+import 'package:university_system_front/Widget/common_components/infinite_list_widgets.dart';
 import 'package:university_system_front/Widget/common_components/loading_widgets.dart';
 import 'package:university_system_front/Widget/common_components/scaffold_background_decoration.dart';
+import 'package:university_system_front/Widget/navigation/animated_status_bar_color.dart';
 import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
 
-class AdminSubjectWidget extends ConsumerStatefulWidget {
-  const AdminSubjectWidget({super.key});
+class AdminSubjectListWidget extends ConsumerStatefulWidget {
+  const AdminSubjectListWidget({super.key});
 
   @override
-  ConsumerState<AdminSubjectWidget> createState() => _AdminSubjectWidgetState();
+  ConsumerState<AdminSubjectListWidget> createState() => _AdminSubjectWidgetState();
 }
 
-class _AdminSubjectWidgetState extends ConsumerState<AdminSubjectWidget> with AnimationMixin {
+class _AdminSubjectWidgetState extends ConsumerState<AdminSubjectListWidget> with AnimationMixin {
   final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   late final SearchController searchController;
   late final ScrollController scrollController;
   late final TextEditingController searchTextController;
   late final AnimationController animationController;
+  late final FixedExtentItemConstraints fixedExtentItemConstraints;
+
+  int searchRequestKeyStrokeNumber = 0;
 
   @override
   void initState() {
@@ -30,6 +38,12 @@ class _AdminSubjectWidgetState extends ConsumerState<AdminSubjectWidget> with An
     searchController = SearchController();
     scrollController = ScrollController();
     animationController = createController(unbounded: true, fps: 60);
+    fixedExtentItemConstraints = FixedExtentItemConstraints(
+      animationController: animationController,
+      cardHeight: 80,
+      cardMinWidthConstraints: 300,
+      cardMaxWidthConstraints: 800,
+    );
     super.initState();
   }
 
@@ -42,34 +56,29 @@ class _AdminSubjectWidgetState extends ConsumerState<AdminSubjectWidget> with An
     super.dispose();
   }
 
-  final appBarHeight = const UniSystemSliverAppBar().preferredSize.height;
-  final double userItemHeight = 80;
-  final double userItemMinWidth = 300;
-  final double userItemMaxWidth = 800;
-  Color? animatedStatusBarColor;
-
-  int searchRequestKeyStrokeNumber = 0;
-
   @override
   Widget build(BuildContext context) {
-    //Set the status bar color depending on scroll extent to create seamless appbar/searchBar
-    setScrollExtentStatusBarColorListener(context);
-
     return RefreshIndicator(
       onRefresh: () => ref.refresh(paginatedSubjectInfiniteListProvider.future),
       edgeOffset: 150,
       displacement: 10,
-      child: AnimatedContainer(
-        color: animatedStatusBarColor ?? Theme.of(context).colorScheme.surfaceBright,
-        duration: Durations.short1,
+      child: AnimatedStatusBarColor(
+        scrollController: scrollController,
         child: SafeArea(
           bottom: false,
           child: ScaffoldMessenger(
             key: scaffoldMessengerKey,
             child: Scaffold(
                 resizeToAvoidBottomInset: false,
+                floatingActionButton: FloatingActionButton(
+                  child: const Icon(Icons.add),
+                  onPressed: () {
+                    GoRouter.of(context).goNamed(GoRouterRoutes.adminAddSubject.routeName);
+                  },
+                ),
                 body: ScaffoldBackgroundDecoration(
                   child: CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     controller: scrollController,
                     slivers: [
                       if (!context.isWindows) const UniSystemSliverAppBar(),
@@ -82,19 +91,19 @@ class _AdminSubjectWidgetState extends ConsumerState<AdminSubjectWidget> with An
                       ),
                       FutureSelfAwareListBuilder(
                         animationController: animationController,
-                        cardHeight: userItemHeight,
-                        cardMinWidthConstraints: userItemMinWidth,
-                        cardMaxWidthConstraints: userItemMaxWidth,
+                        cardHeight: fixedExtentItemConstraints.cardHeight,
+                        cardMinWidthConstraints: fixedExtentItemConstraints.cardMinWidthConstraints,
+                        cardMaxWidthConstraints: fixedExtentItemConstraints.cardMaxWidthConstraints,
                         providerFuture: ref.watch(adminSubjectsWidgetControllerProvider.call(searchController.value.text).future),
                         loadingWidget: SliverFillRemaining(
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 16, right: 16, top: 10),
+                            padding: const EdgeInsets.only(left: kBodyHorizontalPadding, right: kBodyHorizontalPadding, top: 10),
                             child: FixedExtentShimmerList(
                               animationController: animationController,
-                              itemExtent: userItemHeight,
+                              itemExtent: fixedExtentItemConstraints.cardHeight,
                               itemsPadding: 16,
-                              itemMinWidth: userItemMinWidth,
-                              itemMaxWidth: userItemMaxWidth,
+                              itemMinWidth: fixedExtentItemConstraints.cardMinWidthConstraints,
+                              itemMaxWidth: fixedExtentItemConstraints.cardMaxWidthConstraints,
                             ),
                           ),
                         ),
@@ -134,30 +143,11 @@ class _AdminSubjectWidgetState extends ConsumerState<AdminSubjectWidget> with An
     );
   }
 
-  void setScrollExtentStatusBarColorListener(BuildContext context) {
-    if (!scrollController.hasClients && !context.isWindows) {
-      //Only on the first frame build does scrollController not have any clients
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        scrollController.addListener(() {
-          if (scrollController.position.pixels > appBarHeight) {
-            setState(() {
-              animatedStatusBarColor = Theme.of(context).colorScheme.surfaceContainerLow;
-            });
-          } else if (scrollController.position.pixels <= appBarHeight) {
-            setState(() {
-              animatedStatusBarColor = Theme.of(context).colorScheme.surfaceBright;
-            });
-          }
-        });
-      });
-    }
-  }
-
   Widget buildSearchBar(BuildContext context) {
     return Container(
       color: Theme.of(context).colorScheme.surfaceContainerLow,
       child: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8, top: 8),
+        padding: const EdgeInsets.only(left: kBodyHorizontalPadding, right: kBodyHorizontalPadding, bottom: 8, top: 8),
         child: Column(
           children: [
             ConstrainedBox(
@@ -285,7 +275,7 @@ class SelfAwareSubjectDataListSliver extends ConsumerWidget {
                   case ConnectionState.active:
                   case ConnectionState.waiting:
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: kBodyHorizontalPadding),
                       child: Align(
                         alignment: Alignment.center,
                         child: FixedExtentShimmerList(
@@ -302,7 +292,7 @@ class SelfAwareSubjectDataListSliver extends ConsumerWidget {
                       Subject data = list[index] ?? snapshot.data!.subjectData!;
                       return Padding(
                         key: ValueKey<int>(data.id),
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: kBodyHorizontalPadding),
                         child: Align(
                           alignment: Alignment.center,
                           child: ConstrainedBox(
@@ -313,10 +303,14 @@ class SelfAwareSubjectDataListSliver extends ConsumerWidget {
                                 maxHeight: cardHeight),
                             child: OutlinedButton(
                               style: OutlinedButton.styleFrom(
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
                                 backgroundColor: Theme.of(context).colorScheme.surface,
                               ),
-                              onPressed: () {}, //TODO Detail view
+                              onPressed: () {
+                                GoRouter.of(context).go(
+                                    '${GoRouterRoutes.adminSubjects.routeName}/${GoRouterRoutes.adminSubjectDetail.routeName}',
+                                    extra: data);
+                              },
                               child: Row(
                                 children: [
                                   Expanded(
@@ -353,7 +347,7 @@ class SelfAwareSubjectDataListSliver extends ConsumerWidget {
                     } else {
                       //On item error
                       return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: kBodyHorizontalPadding),
                         child: Align(
                           alignment: Alignment.center,
                           child: ConstrainedBox(
@@ -368,7 +362,7 @@ class SelfAwareSubjectDataListSliver extends ConsumerWidget {
                                 overlayColor: Colors.transparent,
                                 enableFeedback: false,
                                 enabledMouseCursor: MouseCursor.defer,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
                                 backgroundColor: Theme.of(context).colorScheme.surface,
                               ),
                               onPressed: () {},

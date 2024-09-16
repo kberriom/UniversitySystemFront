@@ -64,3 +64,48 @@ class UniSystemApiService {
     return response.body.isNotEmpty ? _jsonDecoder.convert(response.body) : null;
   }
 }
+
+///Reactive http client with the appropriate headers and authorization for the UniversitySystem Service.
+///
+///Safe to use in a isolate.
+///Do not use for external requests.
+class UniSystemApiServiceIsolate {
+  final _jsonEncoder = const JsonEncoder();
+  final _jsonDecoder = const JsonDecoder();
+  final BearerToken jwt;
+
+  UniSystemApiServiceIsolate(this.jwt);
+
+  Future<dynamic> makeRequest(UniSystemRequest request, {http.Client? httpClient, RemoteConfig? config}) async {
+    httpClient = httpClient ?? http.Client();
+    config = config ?? RemoteConfig();
+
+    final String? jsonBody = (request.body == null) ? null : _jsonEncoder.convert(request.body);
+
+    final timeLimit = Duration(seconds: config.getRequestTimeoutSeconds());
+
+    Map<String, String> headers = {"Authorization": "Bearer ${jwt.token}", HttpHeaders.contentTypeHeader: "application/json"};
+
+    final uri = Uri.http(config.getServerAddress(), '/${request.endpoint}', request.query);
+
+    Future<http.Response> futureResponse = switch (request.type) {
+      UniSysApiRequestType.get => httpClient.get(uri, headers: headers),
+      UniSysApiRequestType.post => httpClient.post(uri, body: jsonBody, headers: headers),
+      UniSysApiRequestType.put => httpClient.put(uri, body: jsonBody, headers: headers),
+      UniSysApiRequestType.patch => httpClient.patch(uri, body: jsonBody, headers: headers),
+      UniSysApiRequestType.delete => httpClient.delete(uri, body: jsonBody, headers: headers)
+    }
+      ..whenComplete(() => httpClient?.close());
+
+    http.Response response = await futureResponse.timeout(timeLimit, onTimeout: () => throw Exception("request_timeout"));
+    if (response.statusCode == HttpStatus.tooManyRequests) throw Exception("request_ratelimit");
+    if (response.statusCode == HttpStatus.unauthorized || response.statusCode == HttpStatus.forbidden) {
+      //Token is expired or using unauthorized endpoint
+      throw Exception("request_invalid");
+    }
+    if (response.statusCode >= 400 && response.statusCode <= 499) {
+      throw Exception("request_4xx");
+    }
+    return response.body.isNotEmpty ? _jsonDecoder.convert(response.body) : null;
+  }
+}
