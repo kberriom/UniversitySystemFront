@@ -31,6 +31,7 @@ dependencies:
   mutex: ^3.1.0
   string_similarity: ^2.1.1
   visibility_detector: ^0.4.0+2
+  form_builder_validators: ^11.0.0
 
 dev_dependencies:
   flutter_test:
@@ -46,7 +47,7 @@ dev_dependencies:
   # Linters
   flutter_lints: ^4.0.0
   custom_lint:
-  riverpod_lint: ^2.3.10
+  riverpod_lint: ^2.3.13
   # build_runner dependencies
   build_runner: ^2.4.9
   riverpod_generator: ^2.4.0
