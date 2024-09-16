@@ -13,19 +13,19 @@ abstract interface class SubjectRepository {
   Future<StudentSubjectRegistration> addStudent(int studentId, int subjectName);
 
   ///URL param [subjectDto.name]
-  Future<Subject> updateSubject(SubjectDto subjectDto);
+  Future<Subject> updateSubject(SubjectDto subjectDto, String oldName);
 
   Future<Subject> getSubject(String name);
 
   ///URL param [subjectName]
-  Future<List<TeacherAssignation>> getAllTeachers();
+  Future<List<TeacherAssignation>> getAllTeachers(String subjectName);
 
   Future<List<Subject>> getAllSubjects();
 
   Future<PaginatedList<Subject>> getAllSubjectsPaged(int page, int size);
 
   ///URL param [subjectName]
-  Future<List<StudentSubjectRegistration>> getAllRegisteredStudents();
+  Future<List<StudentSubjectRegistration>> getAllRegisteredStudents(String subjectName);
 
   Future<void> removeTeacher(int teacherId, String subjectName);
 
