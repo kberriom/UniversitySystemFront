@@ -10,7 +10,7 @@ abstract interface class SubjectRepository {
 
   Future<Subject> createSubject(SubjectDto subjectDto);
 
-  Future<StudentSubjectRegistration> addStudent(int studentId, int subjectName);
+  Future<StudentSubjectRegistration> addStudent(int studentId, String subjectName);
 
   ///URL param [subjectDto.name]
   Future<Subject> updateSubject(SubjectDto subjectDto, String oldName);

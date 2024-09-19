@@ -138,15 +138,35 @@ Future<PaginatedInfiniteList<User>> paginatedUserInfiniteList(PaginatedUserInfin
 @riverpod
 class AdminUsersWidgetController extends _$AdminUsersWidgetController {
   @override
-  Future<List<User?>> build(bool showTeacherList, bool showStudentList, String searchTerm) async {
+  Future<List<User?>> build(bool showTeacherList, bool showStudentList, String searchTerm, {bool getAll = false}) async {
     List<User?> usersList = [];
+    if (searchTerm.isNotEmpty) {
+      searchTerm = searchTerm.toLowerCase();
+    }
 
-    //On a full list implementation for reference:
-    // List<User> usersList = [];
-    // Map<UserRole, List<User>> map = await ref.watch(userMapFullListForAdminProvider.future);
-    //
-    // if (showStudentList) usersList.addAll(map[UserRole.student] as List<Student>);
-    // if (showTeacherList) usersList.addAll(map[UserRole.teacher] as List<Teacher>);
+    if (getAll) {
+      num intSearchTerm = int.tryParse(searchTerm) ?? double.nan;
+      if (showStudentList) {
+        final allStudents = await ref.watch(fullUserListProvider.call(UserRole.student).future);
+        if (searchTerm.isNotEmpty) {
+          usersList.addAll(
+              allStudents.where((student) => student.hasStringMatch(searchTerm) || student.hasNumberMatch(intSearchTerm)));
+        } else {
+          usersList.addAll(allStudents);
+        }
+      }
+      if (showTeacherList) {
+        final allTeachers = await ref.watch(fullUserListProvider.call(UserRole.teacher).future);
+        if (searchTerm.isNotEmpty) {
+          usersList.addAll(
+              allTeachers.where((teacher) => teacher.hasStringMatch(searchTerm) || teacher.hasNumberMatch(intSearchTerm)));
+        } else {
+          usersList.addAll(allTeachers);
+        }
+      }
+      ref.keepFor(const Duration(minutes: 10));
+      return usersList;
+    }
 
     PaginatedInfiniteList<Student> studentPages =
         (await ref.watch(paginatedUserInfiniteListProvider.call(UserRole.student).future)) as PaginatedInfiniteList<Student>;
@@ -154,7 +174,6 @@ class AdminUsersWidgetController extends _$AdminUsersWidgetController {
         (await ref.watch(paginatedUserInfiniteListProvider.call(UserRole.teacher).future)) as PaginatedInfiniteList<Teacher>;
 
     if (searchTerm.isNotEmpty) {
-      searchTerm = searchTerm.toLowerCase();
       if (showStudentList) {
         Set<Student> searchResults = {};
         for (var page in studentPages.paginatedListsTree) {
@@ -193,13 +212,14 @@ class AdminUsersWidgetController extends _$AdminUsersWidgetController {
   }
 }
 
-//On a full list implementation for reference:
-// @riverpod
-// Future<Map<UserRole, List<User>>> userMapFullListForAdmin(UserMapFullListForAdminRef ref) async {
-//   Map<UserRole, List<User>> map = {};
-//   List<User> teacherList = await ref.read(teacherRepositoryProvider).getAllUserTypeInfo();
-//   List<User> studentList = await ref.read(studentRepositoryProvider).getAllUserTypeInfo();
-//   map.putIfAbsent(UserRole.teacher, () => teacherList);
-//   map.putIfAbsent(UserRole.student, () => studentList);
-//   return map;
-// }
+@riverpod
+Future<List<User>> fullUserList(FullUserListRef ref, UserRole userRole) async {
+  switch (userRole) {
+    case UserRole.admin:
+      throw UnimplementedError();
+    case UserRole.teacher:
+      return await ref.read(teacherRepositoryProvider).getAllUserTypeInfo();
+    case UserRole.student:
+      return await ref.read(studentRepositoryProvider).getAllUserTypeInfo();
+  }
+}

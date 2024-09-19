@@ -61,9 +61,10 @@ class _AnimatedBackgroundDecorationState extends ConsumerState<BackgroundWaitMod
 }
 
 class DialogModal extends StatelessWidget {
-  final AlertDialog child;
+  final Widget child;
+  final bool canPop;
 
-  const DialogModal({super.key, required this.child});
+  const DialogModal({super.key, required this.child, required this.canPop});
 
   @override
   Widget build(BuildContext context) {
@@ -75,9 +76,23 @@ class DialogModal extends StatelessWidget {
             )
           : null,
       backgroundColor: Colors.transparent,
-      body: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-        child: child,
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          Listener(
+            onPointerDown: (_) {
+              if (canPop) {
+                Navigator.of(context, rootNavigator: true).pop();
+              }
+            },
+            behavior: HitTestBehavior.opaque,
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+              child: const SizedBox.expand(),
+            ),
+          ),
+          Center(child: child)
+        ],
       ),
     );
   }

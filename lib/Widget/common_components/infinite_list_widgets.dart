@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:university_system_front/Model/uni_system_model.dart';
+import 'package:university_system_front/Theme/dimensions.dart';
+import 'package:university_system_front/Util/localization_utils.dart';
+import 'package:university_system_front/Widget/common_components/loading_widgets.dart';
 
 final class FixedExtentItemConstraints {
   final double cardHeight;
@@ -19,6 +22,108 @@ final class FixedExtentItemConstraints {
   });
 }
 
+class GenericErrorItem extends StatelessWidget {
+  const GenericErrorItem({
+    super.key,
+    required this.itemConstraints,
+  });
+
+  final FixedExtentItemConstraints itemConstraints;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Align(
+        alignment: Alignment.center,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+              minWidth: itemConstraints.cardMinWidthConstraints,
+              maxWidth: itemConstraints.cardMaxWidthConstraints,
+              minHeight: itemConstraints.cardHeight,
+              maxHeight: itemConstraints.cardHeight),
+          child: OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              splashFactory: NoSplash.splashFactory,
+              overlayColor: Colors.transparent,
+              enableFeedback: false,
+              enabledMouseCursor: MouseCursor.defer,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
+              backgroundColor: Theme.of(context).colorScheme.surface,
+            ),
+            onPressed: () {},
+            child: SizedBox.expand(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  Text(
+                    context.localizations.error,
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class GenericSliverLoadingShimmer extends StatelessWidget {
+  const GenericSliverLoadingShimmer({
+    super.key,
+    required this.fixedExtentItemConstraints,
+  });
+
+  final FixedExtentItemConstraints fixedExtentItemConstraints;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverFillRemaining(
+      child: Padding(
+        padding: const EdgeInsets.only(left: kBodyHorizontalPadding, right: kBodyHorizontalPadding, top: 10),
+        child: FixedExtentShimmerList(
+          animationController: fixedExtentItemConstraints.animationController,
+          itemExtent: fixedExtentItemConstraints.cardHeight,
+          itemsPadding: 16,
+          itemMinWidth: fixedExtentItemConstraints.cardMinWidthConstraints,
+          itemMaxWidth: fixedExtentItemConstraints.cardMaxWidthConstraints,
+        ),
+      ),
+    );
+  }
+}
+
+class GenericSliverWarning extends StatelessWidget {
+  final IconData icon;
+  final String errorMessage;
+
+  const GenericSliverWarning({
+    super.key,
+    required this.errorMessage,
+    this.icon = Icons.error,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverFillRemaining(
+      hasScrollBody: false,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Icon(icon, size: 80, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          ),
+          Text(errorMessage),
+        ],
+      ),
+    );
+  }
+}
+
 ///Creates a [SliverFixedExtentList] that displays the [currentStateList] fetched from a provider.
 ///
 /// Every item in [currentStateList] be [UniSystemModel] or [null] represents a valid item at that [currentStateList] index.
@@ -34,6 +139,7 @@ class SelfAwareDataListSliver<T extends UniSystemModel, P extends ListItemPackag
   final Widget Function(T data, FixedExtentItemConstraints itemConstraints) itemWidget;
   final Widget Function(FixedExtentItemConstraints itemConstraints) loadingShimmerItem;
   final Widget Function(FixedExtentItemConstraints itemConstraints) errorItem;
+  final int _childCount;
 
   const SelfAwareDataListSliver(
       {required this.selfAwareItemFuture,
@@ -42,7 +148,10 @@ class SelfAwareDataListSliver<T extends UniSystemModel, P extends ListItemPackag
       required this.errorItem,
       required this.currentStateList,
       required this.itemConstraints,
-      super.key});
+      super.key})
+      : _childCount = currentStateList.length >= 6
+            ? currentStateList.length + 1
+            : currentStateList.length; //Show no more items if more than 7 items in list;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -50,7 +159,7 @@ class SelfAwareDataListSliver<T extends UniSystemModel, P extends ListItemPackag
       padding: const EdgeInsets.only(top: 10),
       sliver: SliverFixedExtentList(
         delegate: SliverChildBuilderDelegate(
-          childCount: currentStateList.length,
+          childCount: _childCount,
           findChildIndexCallback: (key) {
             final idKey = (key as ValueKey<int>).value;
             final index = currentStateList.indexWhere((element) {
@@ -62,6 +171,12 @@ class SelfAwareDataListSliver<T extends UniSystemModel, P extends ListItemPackag
             return index == -1 ? null : index;
           },
           (context, index) {
+            if (index == currentStateList.length) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [const Icon(Icons.playlist_add_check), Text(context.localizations.noMoreItems)],
+              );
+            }
             return FutureBuilder(
               future: selfAwareItemFuture.call(index),
               builder: (context, snapshot) {

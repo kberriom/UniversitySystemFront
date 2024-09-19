@@ -12,7 +12,7 @@ import 'package:university_system_front/Widget/navigation/leading_widgets.dart';
 import 'package:university_system_front/Widget/home/admin/admin_home_widget.dart';
 import 'package:university_system_front/Widget/curriculums/admin/admin_curriculums_widget.dart';
 import 'package:university_system_front/Widget/subjects/admin/admin_add_subject_widget.dart';
-import 'package:university_system_front/Widget/subjects/admin/admin_subject_list_widget.dart';
+import 'package:university_system_front/Widget/subjects/admin/admin_subjects_widget.dart';
 import 'package:university_system_front/Widget/users/admin/admin_users_widget.dart';
 
 StatefulShellRoute getAdminRouteTree(Ref ref) {
@@ -48,7 +48,7 @@ StatefulShellRoute getAdminRouteTree(Ref ref) {
           path: GoRouterRoutes.adminSubjects.routeName,
           name: GoRouterRoutes.adminSubjects.routeName,
           pageBuilder: (context, state) =>
-              NoTransitionPage(key: ValueKey(GoRouterRoutes.adminSubjects.routeName), child: const AdminSubjectListWidget()),
+              NoTransitionPage(key: ValueKey(GoRouterRoutes.adminSubjects.routeName), child: const AdminSubjectsWidget()),
           routes: [
             GoRoute(
               path: GoRouterRoutes.adminAddSubject.routeName,

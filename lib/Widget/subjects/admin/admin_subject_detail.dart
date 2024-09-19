@@ -1,10 +1,7 @@
-import 'dart:ui' show PointerDeviceKind;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
-import 'package:simple_animations/animation_mixin/animation_mixin.dart';
-import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Model/subject.dart';
 import 'package:university_system_front/Model/users/student.dart';
 import 'package:university_system_front/Model/users/teacher.dart';
@@ -13,10 +10,12 @@ import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:university_system_front/Widget/common_components/animated_text_title.dart';
-import 'package:university_system_front/Widget/common_components/infinite_list_widgets.dart';
-import 'package:university_system_front/Widget/common_components/loading_widgets.dart';
+import 'package:university_system_front/Widget/common_components/detail_page_widgets.dart';
+import 'package:university_system_front/Widget/common_components/form_widgets.dart';
+import 'package:university_system_front/Widget/common_components/modals.dart';
 import 'package:university_system_front/Widget/common_components/scaffold_background_decoration.dart';
 import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
+import 'package:university_system_front/Widget/users/admin/admin_users_widget.dart';
 
 class AdminSubjectDetailWidget extends ConsumerStatefulWidget {
   final Subject subject;
@@ -105,7 +104,21 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                             QuickActionButton(
                               text: context.localizations.adminSubjectDetailQuickActAddTeacher,
                               icon: const Icon(Icons.add),
-                              onPressed: () {}, //todo add action
+                              onPressed: () {
+                                showGeneralDialog(
+                                  transitionBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(
+                                    opacity: animation.drive(CurveTween(curve: Curves.linearToEaseOut)),
+                                    child: child,
+                                  ),
+                                  barrierDismissible: true,
+                                  barrierLabel: "",
+                                  context: context,
+                                  pageBuilder:
+                                      (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+                                    return SelectTeacherForSubjectWidget(subject: widget.subject);
+                                  },
+                                );
+                              },
                             ),
                             QuickActionButton(
                               text: context.localizations.adminSubjectDetailQuickActRemoveTeacher,
@@ -115,7 +128,21 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                             QuickActionButton(
                               text: context.localizations.adminSubjectDetailQuickActAddStudent,
                               icon: const Icon(Icons.add),
-                              onPressed: () {}, //todo add action
+                              onPressed: () {
+                                showGeneralDialog(
+                                  transitionBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(
+                                    opacity: animation.drive(CurveTween(curve: Curves.linearToEaseOut)),
+                                    child: child,
+                                  ),
+                                  barrierDismissible: true,
+                                  barrierLabel: "",
+                                  context: context,
+                                  pageBuilder:
+                                      (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+                                    return SelectStudentForSubjectWidget(subject: widget.subject);
+                                  },
+                                );
+                              },
                             ),
                             QuickActionButton(
                               text: context.localizations.adminSubjectDetailQuickActRemoveStudent,
@@ -125,16 +152,46 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                           ],
                         ),
                         AnimatedTextTitle(text: context.localizations.userTypeNameTeacher(2)),
-                        SubjectUserCarousel<TeacherAssignation>(
+                        UserListCarousel<TeacherAssignation>(
                           future: ref.watch(subjectRepositoryProvider).getAllTeachers(widget.subject.name),
-                          subject: widget.subject,
-                          userRole: UserRole.teacher,
+                          noAssignedMsg: context.localizations.subjectNoTeacherAsgmt,
+                          onDataWidgetCallback: (data) {
+                            return UserCarouselItem(
+                              image: const Image(
+                                image: NetworkImage("https://placehold.co/300x300/png"), //todo FIX url
+                                fit: BoxFit.cover,
+                              ),
+                              footer: [
+                                Text(
+                                  "${context.localizations.idTooltip}: ${data.id.teacherUserId}",
+                                  maxLines: 1,
+                                ),
+                                Text(
+                                  "Role: ${data.roleInClass}",
+                                  maxLines: 1,
+                                ),
+                              ],
+                            );
+                          },
                         ),
                         AnimatedTextTitle(text: context.localizations.userTypeNameStudent(2)),
-                        SubjectUserCarousel<StudentSubjectRegistration>(
+                        UserListCarousel<StudentSubjectRegistration>(
                           future: ref.watch(subjectRepositoryProvider).getAllRegisteredStudents(widget.subject.name),
-                          subject: widget.subject,
-                          userRole: UserRole.student,
+                          noAssignedMsg: context.localizations.subjectNoStudentAsgmt,
+                          onDataWidgetCallback: (data) {
+                            return UserCarouselItem(
+                              image: const Image(
+                                image: NetworkImage("https://placehold.co/300x300/png"), //todo FIX url
+                                fit: BoxFit.cover,
+                              ),
+                              footer: [
+                                Text(
+                                  "${context.localizations.idTooltip}: ${data.id.studentUserId}",
+                                  maxLines: 1,
+                                ),
+                              ],
+                            );
+                          },
                         ),
                         const SizedBox(height: 10),
                       ],
@@ -150,167 +207,180 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
   }
 }
 
-class SubjectUserCarousel<T> extends ConsumerStatefulWidget {
-  const SubjectUserCarousel({
-    super.key,
-    required this.userRole,
-    required this.subject,
-    required this.future,
-  });
-
+class SelectStudentForSubjectWidget extends ConsumerWidget {
   final Subject subject;
-  final UserRole userRole;
-  final Future<List<T>> future;
+
+  const SelectStudentForSubjectWidget({super.key, required this.subject});
 
   @override
-  ConsumerState<SubjectUserCarousel> createState() => _SubjectUserCarouselState();
-}
-
-class _SubjectUserCarouselState extends ConsumerState<SubjectUserCarousel> {
-  String noAssignedMsg = "";
-
-  @override
-  void didChangeDependencies() {
-    noAssignedMsg = switch (widget.userRole) {
-      UserRole.admin => throw UnimplementedError(),
-      UserRole.teacher => context.localizations.subjectNoTeacherAsgmt,
-      UserRole.student => context.localizations.subjectNoStudentAsgmt,
-    };
-    super.didChangeDependencies();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: widget.future,
-      builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-          case ConnectionState.none:
-          case ConnectionState.active:
-            return const SmallCarousel(isPlaceholder: true);
-          case ConnectionState.done:
-            if (snapshot.data?.isEmpty ?? true) {
-              return Align(alignment: Alignment.centerLeft, child: Text(noAssignedMsg));
-            }
-            //On valid data
-            return FutureBuilder(future: Future(
-              () {
-                return List<Widget>.generate(growable: false, snapshot.data!.length, (index) {
-                  //todo: replace with profile picture
-                  var data = switch (widget.userRole) {
-                    UserRole.admin => throw UnimplementedError(),
-                    UserRole.teacher => (snapshot.data![index] as TeacherAssignation).id.teacherUserId.toString(),
-                    UserRole.student => (snapshot.data![index] as StudentSubjectRegistration).id.studentUserId.toString(),
-                  };
-                  return Center(child: Text(data));
-                });
-              },
-            ), builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                return SmallCarousel(
-                  list: snapshot.data!,
-                  onTapCallBack: (index) {},
-                );
-              }
-              return const SmallCarousel(isPlaceholder: true);
-            });
-        }
-      },
-    );
-  }
-}
-
-class SmallCarousel extends StatefulWidget {
-  final List<Widget> list;
-  final void Function(int index)? onTapCallBack;
-  final bool isPlaceholder;
-  final int placeholderAmount;
-
-  const SmallCarousel(
-      {super.key, this.list = const <Widget>[], this.onTapCallBack, this.isPlaceholder = false, this.placeholderAmount = 5});
-
-  @override
-  State<SmallCarousel> createState() => _SmallCarouselState();
-}
-
-class _SmallCarouselState extends State<SmallCarousel> with AnimationMixin {
-  late final AnimationController _animationController;
-
-  @override
-  void initState() {
-    _animationController = createController(unbounded: true, fps: 60);
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 100,
-      child: ScrollConfiguration(
-        behavior: AllDeviceScrollBehavior(),
-        child: CarouselView(
-          itemExtent: 100,
-          itemSnapping: true,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusBig)),
-          backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-          onTap: widget.onTapCallBack,
-          children: widget.isPlaceholder
-              ? List.generate(
-                  growable: false,
-                  widget.placeholderAmount,
-                  (index) => SizedBox.expand(
-                        child: LoadingShimmerItem(
-                          borderRadius: 0,
-                          padding: EdgeInsets.zero,
-                          itemConstraints: FixedExtentItemConstraints(
-                              cardHeight: 100,
-                              cardMinWidthConstraints: double.infinity,
-                              cardMaxWidthConstraints: double.infinity,
-                              animationController: _animationController),
-                        ),
-                      ))
-              : widget.list,
+  Widget build(BuildContext context, WidgetRef ref) {
+    return DialogModal(
+      canPop: true,
+      child: FractionallySizedBox(
+        widthFactor: 0.9,
+        heightFactor: 0.9,
+        child: Column(
+          children: [
+            Row(
+              children: [
+                IconButton(onPressed: () => Navigator.of(context, rootNavigator: true).pop(), icon: const Icon(Icons.close)),
+                Flexible(
+                  child: AnimatedTextTitle(
+                    text: context.localizations.selectStudentForResult,
+                    widthFactor: 0.9,
+                    fontSize: 27,
+                  ),
+                ),
+              ],
+            ),
+            Flexible(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(kBorderRadiusBig),
+                child: AdminUsersWidget(
+                    filterByTeacher: false,
+                    forResultCallback: (user, role) {
+                      final future = ref.read(subjectRepositoryProvider).addStudent(user.id, subject.name);
+                      showGeneralDialog(
+                        barrierLabel: "",
+                        barrierDismissible: false,
+                        context: context,
+                        pageBuilder: (context, animation, secondaryAnimation) {
+                          return BackgroundWaitModal(
+                            future: future,
+                          );
+                        },
+                      );
+                      future.then((value) {
+                        if (context.mounted) {
+                          ref.invalidate(subjectRepositoryProvider);
+                          Navigator.of(context, rootNavigator: true).pop();
+                        }
+                      }, onError: (e) {
+                        if (context.mounted) {
+                          if (e is Exception && e.toString().contains("409")) {
+                            ScaffoldMessenger.of(context)
+                              ..clearSnackBars()
+                              ..showSnackBar(SnackBar(content: Text(context.localizations.userAlreadyInSubjectError)));
+                          } else {
+                            ScaffoldMessenger.of(context)
+                              ..clearSnackBars()
+                              ..showSnackBar(SnackBar(content: Text(context.localizations.verboseErrorTryAgain)));
+                          }
+                        }
+                      });
+                    }),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class QuickActionButton extends StatelessWidget {
-  const QuickActionButton({
+class SelectTeacherForSubjectWidget extends ConsumerStatefulWidget {
+  final Subject subject;
+
+  const SelectTeacherForSubjectWidget({
     super.key,
-    required this.text,
-    required this.onPressed,
-    required this.icon,
+    required this.subject,
   });
 
-  final String text;
-  final Icon icon;
-  final VoidCallback onPressed;
+  @override
+  ConsumerState<SelectTeacherForSubjectWidget> createState() => _SelectTeacherForSubjectWidgetState();
+}
+
+class _SelectTeacherForSubjectWidgetState extends ConsumerState<SelectTeacherForSubjectWidget> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _teacherRoleController;
+
+  @override
+  void initState() {
+    _teacherRoleController = TextEditingController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _teacherRoleController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return TextButton.icon(
-      onPressed: () {},
-      icon: icon,
-      label: Text(text),
-      style: ButtonStyle(
-          fixedSize: const WidgetStatePropertyAll(Size.fromHeight(60)),
-          shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall))),
-          backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.surfaceContainer)),
+    return DialogModal(
+      canPop: true,
+      child: FractionallySizedBox(
+        widthFactor: 0.9,
+        heightFactor: 0.9,
+        child: Column(
+          children: [
+            Row(
+              children: [
+                IconButton(onPressed: () => Navigator.of(context, rootNavigator: true).pop(), icon: const Icon(Icons.close)),
+                Flexible(
+                  child: AnimatedTextTitle(
+                    text: context.localizations.selectTeacherForResult,
+                    widthFactor: 0.9,
+                    fontSize: 27,
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Form(
+                key: _formKey,
+                child: TextFormField(
+                  controller: _teacherRoleController,
+                  validator: FormBuilderValidators.required(),
+                  decoration: buildUniSysInputDecoration(
+                      context.localizations.teacherRole, Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
+              ),
+            ),
+            Flexible(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(kBorderRadiusBig),
+                child: AdminUsersWidget(
+                  filterByStudent: false,
+                  forResultCallback: (user, role) {
+                    if (_formKey.currentState?.validate() ?? false) {
+                      final future = ref
+                          .read(subjectRepositoryProvider)
+                          .addTeacher(user.id, widget.subject.name, _teacherRoleController.value.text);
+                      showGeneralDialog(
+                        barrierLabel: "",
+                        barrierDismissible: false,
+                        context: context,
+                        pageBuilder: (context, animation, secondaryAnimation) {
+                          return BackgroundWaitModal(
+                            future: future,
+                          );
+                        },
+                      );
+                      future.then((value) {
+                        if (context.mounted) {
+                          ref.invalidate(subjectRepositoryProvider);
+                          Navigator.of(context, rootNavigator: true).pop();
+                        }
+                      }, onError: (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context)
+                            ..clearSnackBars()
+                            ..showSnackBar(SnackBar(content: Text(context.localizations.verboseErrorTryAgain)));
+                        }
+                      });
+                    }
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
-}
-
-class AllDeviceScrollBehavior extends MaterialScrollBehavior {
-  @override
-  Set<PointerDeviceKind> get dragDevices => {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-        PointerDeviceKind.trackpad,
-        PointerDeviceKind.stylus,
-      };
 }
 
 class SubjectLocationsIndicator extends StatelessWidget {
@@ -350,7 +420,7 @@ class SubjectUnderlineInfo extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Tooltip(message: context.localizations.subjectDetailUnderlineInfoId, child: const Icon(Icons.badge_outlined)),
+            Tooltip(message: context.localizations.idTooltip, child: const Icon(Icons.badge_outlined)),
             const SizedBox(width: 5),
             Text("${subject.id}")
           ],
@@ -367,13 +437,12 @@ class SubjectUnderlineInfo extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Tooltip(
-                message: context.localizations.subjectDetailUnderlineInfoDate, child: const Icon(Icons.calendar_month_outlined)),
+            Tooltip(message: context.localizations.dateTooltip, child: const Icon(Icons.calendar_month_outlined)),
             const SizedBox(width: 5),
             if (DateTime.tryParse(subject.startDate)!.isAfter(DateTime.now()))
-              Text("${context.localizations.subjectDetailUnderlineInfoDateStart} ${subject.startDate}"),
+              Text("${context.localizations.dateStartTooltip} ${subject.startDate}"),
             if (DateTime.tryParse(subject.startDate)!.isBefore(DateTime.now()))
-              Text("${context.localizations.subjectDetailUnderlineInfoDateEnd} ${subject.endDate}"),
+              Text("${context.localizations.dateEndTooltip} ${subject.endDate}"),
           ],
         ),
       ],

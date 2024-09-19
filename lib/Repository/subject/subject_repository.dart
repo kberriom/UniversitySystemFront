@@ -25,15 +25,23 @@ class _SubjectRepositoryImpl implements SubjectRepository {
   }
 
   @override
-  Future<StudentSubjectRegistration> addStudent(int studentId, int subjectName) {
-    // TODO: implement addStudent
-    throw UnimplementedError();
+  Future<StudentSubjectRegistration> addStudent(int studentId, String subjectName) async {
+    final request = UniSystemRequest(
+        type: UniSysApiRequestType.post,
+        query: {"subjectName": subjectName, "studentId": studentId.toString()},
+        endpoint: 'subject/addStudent');
+    Json response = await _uniSystemApiService.makeRequest(request);
+    return StudentSubjectRegistration.fromMap(response);
   }
 
   @override
-  Future<TeacherAssignation> addTeacher(int teacherId, String subjectName, String roleInClass) {
-    // TODO: implement addTeacher
-    throw UnimplementedError();
+  Future<TeacherAssignation> addTeacher(int teacherId, String subjectName, String roleInClass) async {
+    final request = UniSystemRequest(
+        type: UniSysApiRequestType.put,
+        query: {"subjectName": subjectName, "teacherId": teacherId.toString(), "roleInClass": roleInClass},
+        endpoint: 'subject/addTeacher');
+    Json response = await _uniSystemApiService.makeRequest(request);
+    return TeacherAssignation.fromMap(response);
   }
 
   @override

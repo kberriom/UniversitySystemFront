@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 import 'package:university_system_front/Controller/users/admin_users_widget_controller.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
+import 'package:university_system_front/Model/users/student.dart';
+import 'package:university_system_front/Model/users/teacher.dart';
 import 'package:university_system_front/Model/users/user.dart';
 import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
@@ -14,8 +16,19 @@ import 'package:university_system_front/Widget/navigation/animated_status_bar_co
 import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
 import 'package:university_system_front/Widget/common_components/scaffold_background_decoration.dart';
 
+typedef UserSelectionCallback = void Function(User user, UserRole role);
+
 class AdminUsersWidget extends ConsumerStatefulWidget {
-  const AdminUsersWidget({super.key});
+  final UserSelectionCallback? forResultCallback;
+  final bool filterByStudent;
+  final bool filterByTeacher;
+
+  const AdminUsersWidget({
+    super.key,
+    this.forResultCallback,
+    this.filterByStudent = true,
+    this.filterByTeacher = true,
+  });
 
   @override
   ConsumerState<AdminUsersWidget> createState() => _AdminUsersWidgetState();
@@ -28,11 +41,11 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
   late final TextEditingController searchTextController;
   late final AnimationController animationController;
   late final FixedExtentItemConstraints fixedExtentItemConstraints;
+  late bool filterByStudent;
+  late bool filterByTeacher;
 
   int searchRequestKeyStrokeNumber = 0;
   bool showFilters = false;
-  bool filterByStudent = true;
-  bool filterByTeacher = true;
 
   @override
   void initState() {
@@ -46,6 +59,8 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
       cardMinWidthConstraints: 300,
       cardMaxWidthConstraints: 800,
     );
+    filterByStudent = widget.filterByStudent;
+    filterByTeacher = widget.filterByTeacher;
     super.initState();
   }
 
@@ -63,9 +78,15 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
     return RefreshIndicator(
       onRefresh: () {
         final refreshFuture = Future.wait([
+          if (widget.forResultCallback != null && filterByTeacher)
+            ref.refresh(fullUserListProvider.call(UserRole.teacher).future),
+          if (widget.forResultCallback != null && filterByStudent)
+            ref.refresh(fullUserListProvider.call(UserRole.student).future),
           ref.refresh(paginatedUserInfiniteListProvider.call(UserRole.student).future),
           ref.refresh(paginatedUserInfiniteListProvider.call(UserRole.teacher).future),
-        ]);
+        ]).then(
+          (value) => setState(() {}),
+        );
         return refreshFuture;
       },
       edgeOffset: 150,
@@ -77,78 +98,51 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
           child: ScaffoldMessenger(
             key: scaffoldMessengerKey,
             child: Scaffold(
-                resizeToAvoidBottomInset: false,
-                floatingActionButton: FloatingActionButton(
-                  child: const Icon(Icons.add),
-                  onPressed: () {
-                    //todo add new user
-                  },
+              resizeToAvoidBottomInset: false,
+              floatingActionButton: widget.forResultCallback == null
+                  ? FloatingActionButton(
+                      child: const Icon(Icons.add),
+                      onPressed: () {
+                        //todo add new user
+                      },
+                    )
+                  : null,
+              body: ScaffoldBackgroundDecoration(
+                child: CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  controller: scrollController,
+                  slivers: [
+                    if (!context.isWindows) const UniSystemSliverAppBar(),
+                    PinnedHeaderSliver(
+                      child: AnimatedSize(
+                        alignment: Alignment.topCenter,
+                        duration: Durations.short2,
+                        child: buildSearchBar(context),
+                      ),
+                    ),
+                    FutureSelfAwareListBuilder(
+                      providerFuture: ref.watch(adminUsersWidgetControllerProvider
+                          .call(filterByTeacher, filterByStudent, searchController.value.text,
+                              getAll: widget.forResultCallback != null)
+                          .future),
+                      onDataWidgetBuilderCallback: (list) {
+                        return UserListSliver(
+                          filterByTeacher: filterByTeacher,
+                          filterByStudent: filterByStudent,
+                          list: list,
+                          itemConstraints: fixedExtentItemConstraints,
+                          isComplete: list.last != null,
+                          userSelectionCallback: widget.forResultCallback,
+                        );
+                      },
+                      loadingWidget: GenericSliverLoadingShimmer(fixedExtentItemConstraints: fixedExtentItemConstraints),
+                      errorWidget: GenericSliverWarning(errorMessage: context.localizations.verboseError),
+                      noDataWidget: GenericSliverWarning(errorMessage: context.localizations.adminUserListFetchNoData),
+                    ),
+                  ],
                 ),
-                body: ScaffoldBackgroundDecoration(
-                  child: CustomScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    controller: scrollController,
-                    slivers: [
-                      if (!context.isWindows) const UniSystemSliverAppBar(),
-                      PinnedHeaderSliver(
-                        child: AnimatedSize(
-                          alignment: Alignment.topCenter,
-                          duration: Durations.short2,
-                          child: buildSearchBar(context),
-                        ),
-                      ),
-                      UserListFutureBuilder(
-                        filterByTeacher,
-                        filterByStudent,
-                        animationController: animationController,
-                        cardHeight: fixedExtentItemConstraints.cardHeight,
-                        cardMinWidthConstraints: fixedExtentItemConstraints.cardMinWidthConstraints,
-                        cardMaxWidthConstraints: fixedExtentItemConstraints.cardMaxWidthConstraints,
-                        providerFuture: ref.watch(adminUsersWidgetControllerProvider
-                            .call(filterByTeacher, filterByStudent, searchController.value.text)
-                            .future),
-                        loadingWidget: SliverFillRemaining(
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 16, right: 16, top: 10),
-                            child: FixedExtentShimmerList(
-                              animationController: animationController,
-                              itemExtent: fixedExtentItemConstraints.cardHeight,
-                              itemsPadding: 16,
-                              itemMinWidth: fixedExtentItemConstraints.cardMinWidthConstraints,
-                              itemMaxWidth: fixedExtentItemConstraints.cardMaxWidthConstraints,
-                            ),
-                          ),
-                        ),
-                        errorWidget: SliverFillRemaining(
-                          hasScrollBody: false,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 16),
-                                child: Icon(Icons.error, size: 80, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                              ),
-                              Text(context.localizations.verboseError),
-                            ],
-                          ),
-                        ),
-                        noDataWidget: SliverFillRemaining(
-                          hasScrollBody: false,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 16),
-                                child: Icon(Icons.info, size: 80, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                              ),
-                              Text(context.localizations.adminUserListFetchNoData),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
+              ),
+            ),
           ),
         ),
       ),
@@ -259,30 +253,34 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
               label: Text(context.localizations.userTypeNameStudent(2)),
               showCheckmark: filterByStudent,
               selected: filterByStudent,
-              onSelected: (bool value) {
-                setState(() {
-                  if (filterByTeacher) {
-                    filterByStudent = !filterByStudent;
-                  } else {
-                    _showErrorOneFilterReq(context);
-                  }
-                });
-              },
+              onSelected: widget.forResultCallback == null
+                  ? (bool value) {
+                      setState(() {
+                        if (filterByTeacher) {
+                          filterByStudent = !filterByStudent;
+                        } else {
+                          _showErrorOneFilterReq(context);
+                        }
+                      });
+                    }
+                  : null,
             ),
             const SizedBox(width: 16),
             FilterChip(
               label: Text(context.localizations.userTypeNameTeacher(2)),
               showCheckmark: filterByTeacher,
               selected: filterByTeacher,
-              onSelected: (bool value) {
-                setState(() {
-                  if (filterByStudent) {
-                    filterByTeacher = !filterByTeacher;
-                  } else {
-                    _showErrorOneFilterReq(context);
-                  }
-                });
-              },
+              onSelected: widget.forResultCallback == null
+                  ? (bool value) {
+                      setState(() {
+                        if (filterByStudent) {
+                          filterByTeacher = !filterByTeacher;
+                        } else {
+                          _showErrorOneFilterReq(context);
+                        }
+                      });
+                    }
+                  : null,
             ),
           ],
         ),
@@ -298,20 +296,22 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
 class UserListSliver extends ConsumerWidget {
   ///Must be ordered students then teachers
   final List<User?> list;
-  final bool showTeacherList;
-  final bool showStudentList;
-  final double cardHeight;
-  final double cardMinWidthConstraints;
-  final double cardMaxWidthConstraints;
-  final AnimationController animationController;
+  final bool isComplete;
+  final UserSelectionCallback? userSelectionCallback;
+  final bool filterByTeacher;
+  final bool filterByStudent;
+  final FixedExtentItemConstraints itemConstraints;
+  final int _childCount;
 
-  const UserListSliver(this.showTeacherList, this.showStudentList,
-      {required this.list,
-      required this.cardHeight,
-      required this.cardMinWidthConstraints,
-      required this.cardMaxWidthConstraints,
-      required this.animationController,
-      super.key});
+  const UserListSliver({
+    super.key,
+    required this.filterByTeacher,
+    required this.filterByStudent,
+    required this.list,
+    required this.isComplete,
+    required this.itemConstraints,
+    this.userSelectionCallback,
+  }) : _childCount = list.length >= 6 ? list.length + 1 : list.length; //Show no more items if more than 7 items in list
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -319,7 +319,7 @@ class UserListSliver extends ConsumerWidget {
       padding: const EdgeInsets.only(top: 10),
       sliver: SliverFixedExtentList(
         delegate: SliverChildBuilderDelegate(
-          childCount: list.length,
+          childCount: _childCount,
           findChildIndexCallback: (key) {
             final idKey = (key as ValueKey<int>).value;
             final index = list.indexWhere((element) {
@@ -331,8 +331,21 @@ class UserListSliver extends ConsumerWidget {
             return index == -1 ? null : index;
           },
           (context, index) {
+            if (index == list.length) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [const Icon(Icons.playlist_add_check), Text(context.localizations.noMoreItems)],
+              );
+            }
+            if (isComplete) {
+              return UserItem(
+                data: list[index]!,
+                userSelectionCallback: userSelectionCallback,
+                itemConstraints: itemConstraints,
+              );
+            }
             return FutureBuilder(
-              future: ref.watch(selfAwareUserListItemProvider.call(index, showTeacherList, showStudentList).future),
+              future: ref.watch(selfAwareUserListItemProvider.call(index, filterByTeacher, filterByStudent).future),
               builder: (context, snapshot) {
                 switch (snapshot.connectionState) {
                   case ConnectionState.none:
@@ -343,110 +356,23 @@ class UserListSliver extends ConsumerWidget {
                       child: Align(
                         alignment: Alignment.center,
                         child: FixedExtentShimmerList(
-                            animationController: animationController,
+                            animationController: itemConstraints.animationController,
                             itemCount: 1,
-                            itemMaxWidth: cardMaxWidthConstraints,
-                            itemMinWidth: cardMinWidthConstraints,
-                            itemExtent: cardHeight,
+                            itemMaxWidth: itemConstraints.cardMaxWidthConstraints,
+                            itemMinWidth: itemConstraints.cardMinWidthConstraints,
+                            itemExtent: itemConstraints.cardHeight,
                             itemsPadding: 0),
                       ),
                     );
                   case ConnectionState.done:
                     if (snapshot.data != null && snapshot.data!.userData != null) {
                       User data = list[index] ?? snapshot.data!.userData!;
-                      return Padding(
-                        key: ValueKey<int>(data.id),
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                                minWidth: cardMinWidthConstraints,
-                                maxWidth: cardMaxWidthConstraints,
-                                minHeight: cardHeight,
-                                maxHeight: cardHeight),
-                            child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
-                                backgroundColor: Theme.of(context).colorScheme.surface,
-                              ),
-                              onPressed: () {}, //TODO Detail view
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.only(top: 16),
-                                          child: Text("${data.name} ${data.lastName}", overflow: TextOverflow.ellipsis),
-                                        ),
-                                        const Spacer(),
-                                        Padding(
-                                          padding: const EdgeInsets.only(bottom: 16),
-                                          child: Text(data.username, overflow: TextOverflow.ellipsis),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      if (data.role == UserRole.student.roleName) ...[
-                                        const Icon(Icons.school),
-                                        Text(context.localizations.userTypeNameStudent(1)),
-                                      ],
-                                      if (data.role == UserRole.teacher.roleName) ...[
-                                        const Icon(Icons.hail),
-                                        Text(context.localizations.userTypeNameTeacher(1)),
-                                      ],
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                      return UserItem(
+                        data: data,
+                        itemConstraints: itemConstraints,
                       );
                     } else {
-                      //On item error
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                                minWidth: cardMinWidthConstraints,
-                                maxWidth: cardMaxWidthConstraints,
-                                minHeight: cardHeight,
-                                maxHeight: cardHeight),
-                            child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                splashFactory: NoSplash.splashFactory,
-                                overlayColor: Colors.transparent,
-                                enableFeedback: false,
-                                enabledMouseCursor: MouseCursor.defer,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
-                                backgroundColor: Theme.of(context).colorScheme.surface,
-                              ),
-                              onPressed: () {},
-                              child: SizedBox.expand(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.error, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                    Text(
-                                      context.localizations.error,
-                                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
+                      return GenericErrorItem(itemConstraints: itemConstraints);
                     }
                 }
               },
@@ -454,66 +380,97 @@ class UserListSliver extends ConsumerWidget {
           },
         ),
         //cardHeight + (vertical padding) of each item so the content is really (cardHeight) and not a implicit (cardHeight - padding)
-        itemExtent: cardHeight + 16,
+        itemExtent: itemConstraints.cardHeight + 16,
       ),
     );
   }
 }
 
-class UserListFutureBuilder extends ConsumerWidget {
-  final Future<List<User?>> providerFuture;
-  final bool showTeacherList;
-  final bool showStudentList;
-  final Widget loadingWidget;
-  final Widget errorWidget;
-  final Widget noDataWidget;
-  final double cardHeight;
-  final double cardMinWidthConstraints;
-  final double cardMaxWidthConstraints;
-  final AnimationController animationController;
-
-  const UserListFutureBuilder(
-    this.showTeacherList,
-    this.showStudentList, {
+class UserItem extends StatelessWidget {
+  const UserItem({
     super.key,
-    required this.animationController,
-    required this.cardHeight,
-    required this.providerFuture,
-    required this.loadingWidget,
-    required this.errorWidget,
-    required this.noDataWidget,
-    required this.cardMinWidthConstraints,
-    required this.cardMaxWidthConstraints,
+    required this.data,
+    required this.itemConstraints,
+    this.userSelectionCallback,
   });
 
+  final User data;
+  final UserSelectionCallback? userSelectionCallback;
+  final FixedExtentItemConstraints itemConstraints;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return FutureBuilder(
-      future: providerFuture,
-      builder: (BuildContext context, AsyncSnapshot<List<User?>> snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.done:
-            if (!snapshot.hasData && snapshot.hasError) {
-              return errorWidget;
-            } else if (snapshot.hasData && snapshot.data!.isEmpty) {
-              return noDataWidget;
-            } else {
-              return UserListSliver(
-                showTeacherList,
-                showStudentList,
-                list: snapshot.data!,
-                cardHeight: cardHeight,
-                cardMaxWidthConstraints: cardMaxWidthConstraints,
-                cardMinWidthConstraints: cardMinWidthConstraints,
-                animationController: animationController,
-              );
-            }
-          case ConnectionState.none:
-          case ConnectionState.waiting:
-          case ConnectionState.active:
-            return loadingWidget;
-        }
-      },
+  Widget build(BuildContext context) {
+    return Padding(
+      key: ValueKey<int>(data.id),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Align(
+        alignment: Alignment.center,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+              minWidth: itemConstraints.cardMinWidthConstraints,
+              maxWidth: itemConstraints.cardMaxWidthConstraints,
+              minHeight: itemConstraints.cardHeight,
+              maxHeight: itemConstraints.cardHeight),
+          child: OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
+              backgroundColor: Theme.of(context).colorScheme.surface,
+            ),
+            onPressed: () {
+              if (userSelectionCallback != null) {
+                if (data is Student) {
+                  userSelectionCallback!(data, UserRole.student);
+                } else if (data is Teacher) {
+                  userSelectionCallback!(data, UserRole.teacher);
+                }
+              }
+              //TODO Detail view
+            },
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: Text("${data.name} ${data.lastName}", overflow: TextOverflow.ellipsis),
+                      ),
+                      const Spacer(),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Row(
+                          children: [
+                            Tooltip(message: context.localizations.idTooltip, child: const Icon(Icons.badge_outlined)),
+                            Text(" ${data.id}", overflow: TextOverflow.ellipsis),
+                            const SizedBox(width: 5),
+                            Tooltip(message: context.localizations.usernameTooltip, child: const Icon(Icons.account_circle)),
+                            Text(" ${data.username}", overflow: TextOverflow.ellipsis),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (data.role == UserRole.student.roleName) ...[
+                      const Icon(Icons.school),
+                      Text(context.localizations.userTypeNameStudent(1)),
+                    ],
+                    if (data.role == UserRole.teacher.roleName) ...[
+                      const Icon(Icons.hail),
+                      Text(context.localizations.userTypeNameTeacher(1)),
+                    ],
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

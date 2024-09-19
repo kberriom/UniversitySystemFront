@@ -64,6 +64,7 @@ class _AdminEditSubjectWidgetState extends ConsumerState<AdminEditSubjectWidget>
                                 context: context,
                                 builder: (context) {
                                   return DialogModal(
+                                    canPop: true,
                                     child: AlertDialog(
                                       title: Text(context.localizations.modalDeleteWarningTitle),
                                       content: Text(context.localizations.modalDeleteWarningContent),

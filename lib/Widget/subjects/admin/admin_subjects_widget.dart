@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
-import 'package:university_system_front/Controller/curriculum/admin_curriculum_widget_controller.dart';
-import 'package:university_system_front/Model/curriculum.dart';
-import 'package:university_system_front/Theme/dimensions.dart';
+import 'package:university_system_front/Controller/subject/admin_subjects_widget_controller.dart';
+import 'package:university_system_front/Model/subject.dart';
+import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
+import 'package:university_system_front/Util/string_utils.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
+import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Widget/common_components/infinite_list_widgets.dart';
 import 'package:university_system_front/Widget/common_components/loading_widgets.dart';
 import 'package:university_system_front/Widget/common_components/scaffold_background_decoration.dart';
 import 'package:university_system_front/Widget/navigation/animated_status_bar_color.dart';
 import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
 
-class AdminCurriculumsWidget extends ConsumerStatefulWidget {
-  const AdminCurriculumsWidget({super.key});
+class AdminSubjectsWidget extends ConsumerStatefulWidget {
+  const AdminSubjectsWidget({super.key});
 
   @override
-  ConsumerState<AdminCurriculumsWidget> createState() => _AdminCurriculumsWidgetState();
+  ConsumerState<AdminSubjectsWidget> createState() => _AdminSubjectWidgetState();
 }
 
-class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget> with AnimationMixin {
+class _AdminSubjectWidgetState extends ConsumerState<AdminSubjectsWidget> with AnimationMixin {
   final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   late final SearchController searchController;
   late final ScrollController scrollController;
@@ -48,6 +51,7 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
   void dispose() {
     searchController.dispose();
     searchTextController.dispose();
+    scrollController.removeListener(() {});
     scrollController.dispose();
     super.dispose();
   }
@@ -55,7 +59,7 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: () => ref.refresh(paginatedCurriculumInfiniteListProvider.future),
+      onRefresh: () => ref.refresh(paginatedSubjectInfiniteListProvider.future),
       edgeOffset: 150,
       displacement: 10,
       child: AnimatedStatusBarColor(
@@ -69,7 +73,7 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
               floatingActionButton: FloatingActionButton(
                 child: const Icon(Icons.add),
                 onPressed: () {
-                  //TODO add new Curriculum
+                  GoRouter.of(context).goNamed(GoRouterRoutes.adminAddSubject.routeName);
                 },
               ),
               body: ScaffoldBackgroundDecoration(
@@ -91,15 +95,15 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
                         return SelfAwareDataListSliver(
                           itemConstraints: fixedExtentItemConstraints,
                           currentStateList: list,
-                          selfAwareItemFuture: (index) => ref.watch(selfAwareCurriculumListItemProvider.call(index).future),
+                          selfAwareItemFuture: (index) => ref.watch(selfAwareSubjectListItemProvider.call(index).future),
                           loadingShimmerItem: (itemConstraints) => LoadingShimmerItem(itemConstraints: itemConstraints),
                           errorItem: (itemConstraints) => GenericErrorItem(itemConstraints: itemConstraints),
-                          itemWidget: (data, itemConstraints) => CurriculumItem(data: data, itemConstraints: itemConstraints),
+                          itemWidget: (data, itemConstraints) => SubjectItem(data: data, itemConstraints: itemConstraints),
                         );
                       },
                       loadingWidget: GenericSliverLoadingShimmer(fixedExtentItemConstraints: fixedExtentItemConstraints),
                       errorWidget: GenericSliverWarning(errorMessage: context.localizations.verboseError),
-                      noDataWidget: GenericSliverWarning(errorMessage: context.localizations.adminCurriculumListFetchNoData),
+                      noDataWidget: GenericSliverWarning(errorMessage: context.localizations.adminSubjectListFetchNoData),
                     ),
                   ],
                 ),
@@ -127,7 +131,7 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
                   if (context.isWindows) ...[
                     //Windows has no pull to refresh, it needs a button
                     AnimatedRefreshButton(
-                      onPressed: () => ref.refresh(paginatedCurriculumInfiniteListProvider.future),
+                      onPressed: () => ref.refresh(paginatedSubjectInfiniteListProvider.future),
                     ),
                     const SizedBox(width: 16),
                   ],
@@ -147,7 +151,7 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
                           onSubmitted: (value) {
                             searchController.text = value;
                           },
-                          hintText: context.localizations.adminCurriculumSearchBoxHint,
+                          hintText: context.localizations.adminSubjectSearchBoxHint,
                           onTapOutside: (event) {
                             FocusManager.instance.primaryFocus?.unfocus();
                           },
@@ -202,21 +206,21 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
   }
 }
 
-class CurriculumItem extends StatelessWidget {
-  const CurriculumItem({
+class SubjectItem extends StatelessWidget {
+  const SubjectItem({
     super.key,
     required this.data,
     required this.itemConstraints,
   });
 
-  final Curriculum data;
+  final Subject data;
   final FixedExtentItemConstraints itemConstraints;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       key: ValueKey<int>(data.id),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: kBodyHorizontalPadding),
       child: Align(
         alignment: Alignment.center,
         child: ConstrainedBox(
@@ -227,10 +231,14 @@ class CurriculumItem extends StatelessWidget {
               maxHeight: itemConstraints.cardHeight),
           child: OutlinedButton(
             style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.only(left: 24, right: 17),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
               backgroundColor: Theme.of(context).colorScheme.surface,
             ),
-            onPressed: () {}, //TODO Detail view
+            onPressed: () {
+              GoRouter.of(context)
+                  .go('${GoRouterRoutes.adminSubjects.routeName}/${GoRouterRoutes.adminSubjectDetail.routeName}', extra: data);
+            },
             child: Row(
               children: [
                 Expanded(
@@ -246,15 +254,26 @@ class CurriculumItem extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 16),
                         child: Row(
                           children: [
-                            Tooltip(message: context.localizations.idTooltip, child: const Icon(Icons.badge_outlined)),
-                            const SizedBox(width: 5),
-                            Text("${data.id}"),
-                            const SizedBox(width: 5),
                             Tooltip(message: context.localizations.dateTooltip, child: const Icon(Icons.calendar_month_sharp)),
                             const SizedBox(width: 5),
-                            Text('${data.dateStart} — ${data.dateEnd}', overflow: TextOverflow.ellipsis),
+                            Text('${data.startDate} — ${data.endDate}', overflow: TextOverflow.ellipsis),
                           ],
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 65,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      const Icon(Icons.location_on),
+                      Text(
+                        replaceOnEmptyOrNull(data.roomLocation, context.localizations.adminSubjectListNoRoomAssigned),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),

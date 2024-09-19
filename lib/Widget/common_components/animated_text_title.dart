@@ -3,8 +3,17 @@ import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 
 class AnimatedTextTitle extends StatefulWidget {
   final String text;
+  final double fontSize;
+  final TextOverflow textOverflow;
+  final double widthFactor;
 
-  const AnimatedTextTitle({super.key, required this.text});
+  const AnimatedTextTitle({
+    super.key,
+    required this.text,
+    this.fontSize = 32,
+    this.textOverflow = TextOverflow.ellipsis,
+    this.widthFactor = 0.7,
+  });
 
   @override
   State<AnimatedTextTitle> createState() => _AnimatedTextTitleState();
@@ -22,7 +31,7 @@ class _AnimatedTextTitleState extends State<AnimatedTextTitle> with AnimationMix
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 650),
         child: FractionallySizedBox(
-          widthFactor: 0.7,
+          widthFactor: widget.widthFactor,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             SlideTransition(
               position: controller.drive(slideTween),
@@ -31,10 +40,10 @@ class _AnimatedTextTitleState extends State<AnimatedTextTitle> with AnimationMix
                 child: Padding(
                   padding: const EdgeInsets.only(top: 10, left: 16),
                   child: Text(
-                    overflow: TextOverflow.ellipsis,
+                    overflow: widget.textOverflow,
                     maxLines: 1,
                     widget.text,
-                    style: const TextStyle(fontFamily: 'blazma', fontStyle: FontStyle.italic, fontSize: 32),
+                    style: TextStyle(fontFamily: 'blazma', fontStyle: FontStyle.italic, fontSize: widget.fontSize),
                   ),
                 ),
               ),
