@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
-InputDecoration buildUniSysInputDecoration(String label, Color color) {
+InputDecoration buildUniSysInputDecoration(String label, Color borderColor) {
   return InputDecoration(
     labelText: label,
     alignLabelWithHint: true,
     focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: color),
+      borderSide: BorderSide(color: borderColor),
     ),
     border: const OutlineInputBorder(
       borderSide: BorderSide.none,

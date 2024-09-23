@@ -13,8 +13,22 @@ void showLocalSnackBar(GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey, S
     ..showSnackBar(snackBar);
 }
 
+///Shows a SnackBar the closest [ScaffoldMessenger] of context
+///Clears any existing SnackBars
+extension GetContextSnackbar on BuildContext {
+  void showSnackBar(String content) {
+    final snackBar = SnackBar(content: Text(content));
+    ScaffoldMessenger.of(this)
+      ..clearSnackBars()
+      ..showSnackBar(snackBar);
+  }
+}
+
 extension GetGlobalSnackBar on WidgetRef {
   ///Shows a SnackBar in the main Scaffold for the current [UserRole] in [LoginService], on top of existing ui if present.
+  ///
+  ///Must be logged in.
+  ///
   ///Clears any existing SnackBars
   void showGlobalSnackBar(String content) async {
     final snackBar = SnackBar(content: Text(content));
