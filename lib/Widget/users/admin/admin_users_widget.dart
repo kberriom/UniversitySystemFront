@@ -259,7 +259,7 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
                         if (filterByTeacher) {
                           filterByStudent = !filterByStudent;
                         } else {
-                          _showErrorOneFilterReq(context);
+                          showLocalSnackBar(scaffoldMessengerKey, context.localizations.oneFilterActiveRuleError);
                         }
                       });
                     }
@@ -276,7 +276,7 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
                         if (filterByStudent) {
                           filterByTeacher = !filterByTeacher;
                         } else {
-                          _showErrorOneFilterReq(context);
+                          showLocalSnackBar(scaffoldMessengerKey, context.localizations.oneFilterActiveRuleError);
                         }
                       });
                     }
@@ -286,10 +286,6 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
         ),
       ),
     );
-  }
-
-  void _showErrorOneFilterReq(BuildContext context) {
-    context.showLocalSnackBar(scaffoldMessengerKey, context.localizations.oneFilterActiveRuleError);
   }
 }
 

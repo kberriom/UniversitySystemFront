@@ -10,7 +10,7 @@ import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Util/snackbar_utils.dart';
 import 'package:university_system_front/Widget/common_components/animated_text_title.dart';
-import 'package:university_system_front/Widget/common_components/modals.dart';
+import 'package:university_system_front/Widget/common_components/modal_widgets.dart';
 import 'package:university_system_front/Widget/common_components/scaffold_background_decoration.dart';
 import 'package:university_system_front/Widget/navigation/leading_widgets.dart';
 import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
@@ -95,7 +95,7 @@ class _AdminEditSubjectWidgetState extends ConsumerState<AdminEditSubjectWidget>
                                               }, onError: (_) {
                                                 if (context.mounted) {
                                                   Navigator.of(context, rootNavigator: true).pop();
-                                                  context.showLocalSnackBar(
+                                                  showLocalSnackBar(
                                                       _scaffoldMessengerKey, context.localizations.verboseErrorTryAgain);
                                                 }
                                               });
@@ -161,7 +161,7 @@ class _AdminEditSubjectWidgetState extends ConsumerState<AdminEditSubjectWidget>
                               }
                             }, onError: (e) {
                               if (context.mounted) {
-                                context.showLocalSnackBar(
+                                showLocalSnackBar(
                                     _scaffoldMessengerKey,
                                     e is ArgumentError
                                         ? context.localizations.subjectNameAlreadyExist

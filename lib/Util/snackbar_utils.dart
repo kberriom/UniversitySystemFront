@@ -4,15 +4,13 @@ import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Widget/navigation/base_scaffold_navigation/admin_scaffold_navigation_widget.dart';
 
-extension GetSnackBar on BuildContext {
-  ///Shows a SnackBar in a local Scaffold that has a [ScaffoldMessenger] parent.
-  ///Clears any existing SnackBars
-  void showLocalSnackBar(GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey, String content) {
-    final snackBar = SnackBar(content: Text(content));
-    scaffoldMessengerKey.currentState
-      ?..clearSnackBars()
-      ..showSnackBar(snackBar);
-  }
+///Shows a SnackBar in a local Scaffold that has a [ScaffoldMessenger] parent.
+///Clears any existing SnackBars
+void showLocalSnackBar(GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey, String content) {
+  final snackBar = SnackBar(content: Text(content));
+  scaffoldMessengerKey.currentState
+    ?..clearSnackBars()
+    ..showSnackBar(snackBar);
 }
 
 extension GetGlobalSnackBar on WidgetRef {

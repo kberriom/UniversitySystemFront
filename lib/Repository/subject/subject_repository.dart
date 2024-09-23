@@ -112,20 +112,25 @@ class _SubjectRepositoryImpl implements SubjectRepository {
 
   @override
   Future<TeacherAssignation> modifyTeacherRole(int teacherId, String subjectName, String roleInClass) {
-    // TODO: implement modifyTeacherRole
     throw UnimplementedError();
   }
 
   @override
   Future<void> removeStudent(int studentId, String subjectName) {
-    // TODO: implement removeStudent
-    throw UnimplementedError();
+    final request = UniSystemRequest(
+        type: UniSysApiRequestType.delete,
+        query: {"studentId": studentId.toString(), "subjectName": subjectName},
+        endpoint: 'subject/removeStudent');
+    return _uniSystemApiService.makeRequest(request);
   }
 
   @override
   Future<void> removeTeacher(int teacherId, String subjectName) {
-    // TODO: implement removeTeacher
-    throw UnimplementedError();
+    final request = UniSystemRequest(
+        type: UniSysApiRequestType.delete,
+        query: {"teacherId": teacherId.toString(), "subjectName": subjectName},
+        endpoint: 'subject/removeTeacher');
+    return _uniSystemApiService.makeRequest(request);
   }
 
   @override
