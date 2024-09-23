@@ -100,12 +100,14 @@
   "adminSubjectDetailQuickActAddTeacher": "Add/Update Teacher",
   "adminSubjectDetailQuickActRemoveTeacher": "Remove Teacher",
   "adminSubjectDetailQuickActAddStudent": "Add Student",
-  "adminSubjectDetailQuickActRemoveStudent": "Remove Teacher",
+  "adminSubjectDetailQuickActRemoveStudent": "Remove Student",
   "subjectNoTeacherAsgmt": "No teacher assigned",
   "subjectNoStudentAsgmt": "No students assigned",
   "noMoreItems": "No more items",
   "selectTeacherForResult": "Select Teacher",
   "selectStudentForResult": "Select Student",
   "userAlreadyInSubjectError": "User is already in subject",
-  "teacherRole": "Teacher role"
+  "teacherRole": "Teacher role",
+  "userDeletedFromSubject": "User successfully removed from Subject",
+  "userDeleteGenericErrorFromSubject": "Could not remove user from subject"
 }

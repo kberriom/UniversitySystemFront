@@ -107,5 +107,7 @@
   "selectTeacherForResult": "Elegir Profesor",
   "selectStudentForResult": "Elegir Estudiante",
   "userAlreadyInSubjectError": "Este Usuario ya está asignado a la materia",
-  "teacherRole": "Rol Profesor"
+  "teacherRole": "Rol Profesor",
+  "userDeletedFromSubject": "Usuario removido exitosamente de la materia",
+  "userDeleteGenericErrorFromSubject": "No se pudo remover el Usuario de la materia"
 }
