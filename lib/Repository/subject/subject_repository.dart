@@ -71,9 +71,14 @@ class _SubjectRepositoryImpl implements SubjectRepository {
   }
 
   @override
-  Future<List<Subject>> getAllSubjects() {
-    // TODO: implement getAllSubject
-    throw UnimplementedError();
+  Future<List<Subject>> getAllSubjects() async {
+    const request = UniSystemRequest(type: UniSysApiRequestType.get, endpoint: 'subject/getAllSubjects');
+    List<dynamic> response = await _uniSystemApiService.makeRequest(request);
+    List<Subject> list = [];
+    for (var subjectJson in response) {
+      list.add(Subject.fromMap(subjectJson));
+    }
+    return list;
   }
 
   @override

@@ -8,9 +8,9 @@ import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:university_system_front/Util/snackbar_utils.dart';
 import 'package:university_system_front/Theme/dimensions.dart';
-import 'package:university_system_front/Widget/common_components/animated_text_title.dart';
+import 'package:university_system_front/Widget/common_components/title_widgets.dart';
 import 'package:university_system_front/Widget/common_components/modal_widgets.dart';
-import 'package:university_system_front/Widget/common_components/scaffold_background_decoration.dart';
+import 'package:university_system_front/Widget/common_components/background_decoration_widget.dart';
 import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
 import 'package:university_system_front/Widget/subjects/subject_form_widget.dart';
 
@@ -31,7 +31,7 @@ class _AddSubjectWidgetState extends ConsumerState<AddSubjectWidget> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: getAppBarAndroid(),
-        body: ScaffoldBackgroundDecoration(
+        body: UniSystemBackgroundDecoration(
           child: Align(
             alignment: Alignment.topCenter,
             child: ConstrainedBox(

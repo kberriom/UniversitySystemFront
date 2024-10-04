@@ -14,7 +14,8 @@ import 'package:university_system_front/Widget/common_components/infinite_list_w
 import 'package:university_system_front/Widget/common_components/loading_widgets.dart';
 import 'package:university_system_front/Widget/navigation/animated_status_bar_color.dart';
 import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
-import 'package:university_system_front/Widget/common_components/scaffold_background_decoration.dart';
+import 'package:university_system_front/Widget/common_components/background_decoration_widget.dart';
+import 'package:university_system_front/Widget/search/search_widgets.dart';
 
 typedef UserSelectionCallback = void Function(User user, UserRole role);
 
@@ -36,7 +37,6 @@ class AdminUsersWidget extends ConsumerStatefulWidget {
 
 class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with AnimationMixin {
   final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
-  late final SearchController searchController;
   late final ScrollController scrollController;
   late final TextEditingController searchTextController;
   late final AnimationController animationController;
@@ -44,13 +44,9 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
   late bool filterByStudent;
   late bool filterByTeacher;
 
-  int searchRequestKeyStrokeNumber = 0;
-  bool showFilters = false;
-
   @override
   void initState() {
     searchTextController = TextEditingController();
-    searchController = SearchController();
     scrollController = ScrollController();
     animationController = createController(unbounded: true, fps: 60);
     fixedExtentItemConstraints = FixedExtentItemConstraints(
@@ -66,9 +62,7 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
 
   @override
   void dispose() {
-    searchController.dispose();
     searchTextController.dispose();
-    scrollController.removeListener(() {});
     scrollController.dispose();
     super.dispose();
   }
@@ -76,19 +70,7 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: () {
-        final refreshFuture = Future.wait([
-          if (widget.forResultCallback != null && filterByTeacher)
-            ref.refresh(fullUserListProvider.call(UserRole.teacher).future),
-          if (widget.forResultCallback != null && filterByStudent)
-            ref.refresh(fullUserListProvider.call(UserRole.student).future),
-          ref.refresh(paginatedUserInfiniteListProvider.call(UserRole.student).future),
-          ref.refresh(paginatedUserInfiniteListProvider.call(UserRole.teacher).future),
-        ]).then(
-          (value) => setState(() {}),
-        );
-        return refreshFuture;
-      },
+      onRefresh: () => _refreshProviders(),
       edgeOffset: 150,
       displacement: 10,
       child: AnimatedStatusBarColor(
@@ -107,22 +89,56 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
                       },
                     )
                   : null,
-              body: ScaffoldBackgroundDecoration(
+              body: UniSystemBackgroundDecoration(
                 child: CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   controller: scrollController,
                   slivers: [
                     if (!context.isWindows) const UniSystemSliverAppBar(),
                     PinnedHeaderSliver(
-                      child: AnimatedSize(
-                        alignment: Alignment.topCenter,
-                        duration: Durations.short2,
-                        child: buildSearchBar(context),
-                      ),
+                      child: UniSystemFiltersSearchBar(
+                          hintText: context.localizations.adminUserListSearchBoxHint,
+                          filterRowWidgets: [
+                            FilterChip(
+                              label: Text(context.localizations.userTypeNameStudent(2)),
+                              showCheckmark: filterByStudent,
+                              selected: filterByStudent,
+                              onSelected: widget.forResultCallback == null
+                                  ? (bool value) {
+                                      setState(() {
+                                        if (filterByTeacher) {
+                                          filterByStudent = !filterByStudent;
+                                        } else {
+                                          showLocalSnackBar(scaffoldMessengerKey, context.localizations.oneFilterActiveRuleError);
+                                        }
+                                      });
+                                    }
+                                  : null,
+                            ),
+                            const SizedBox(width: 16),
+                            FilterChip(
+                              label: Text(context.localizations.userTypeNameTeacher(2)),
+                              showCheckmark: filterByTeacher,
+                              selected: filterByTeacher,
+                              onSelected: widget.forResultCallback == null
+                                  ? (bool value) {
+                                      setState(() {
+                                        if (filterByStudent) {
+                                          filterByTeacher = !filterByTeacher;
+                                        } else {
+                                          showLocalSnackBar(scaffoldMessengerKey, context.localizations.oneFilterActiveRuleError);
+                                        }
+                                      });
+                                    }
+                                  : null,
+                            ),
+                          ],
+                          onRefreshCallback: () => _refreshProviders(),
+                          searchTextController: searchTextController),
                     ),
                     FutureSelfAwareListBuilder(
                       providerFuture: ref.watch(adminUsersWidgetControllerProvider
-                          .call(filterByTeacher, filterByStudent, searchController.value.text,
+                          .call(filterByTeacher, filterByStudent, searchTextController.value.text,
                               getAll: widget.forResultCallback != null)
                           .future),
                       onDataWidgetBuilderCallback: (list) {
@@ -149,143 +165,13 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
     );
   }
 
-  Widget buildSearchBar(BuildContext context) {
-    return Material(
-      //Shadow if buildFiltersRow is being shown
-      elevation: showFilters ? 3 : 0,
-      child: Container(
-        color: Theme.of(context).colorScheme.surfaceContainerLow,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8, top: 8),
-          child: Column(
-            children: [
-              ConstrainedBox(
-                constraints: Theme.of(context).searchBarTheme.constraints!,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (context.isWindows) ...[
-                      //Windows has no pull to refresh, it needs a button
-                      AnimatedRefreshButton(
-                          onPressed: () => Future.wait([
-                                ref.refresh(paginatedUserInfiniteListProvider.call(UserRole.student).future),
-                                ref.refresh(paginatedUserInfiniteListProvider.call(UserRole.teacher).future),
-                              ])),
-                      const SizedBox(width: 16),
-                    ],
-                    Flexible(
-                      child: SearchAnchor(
-                        searchController: searchController,
-                        builder: (context, controller) {
-                          return SearchBar(
-                            controller: searchTextController,
-                            onChanged: (value) async {
-                              int thisRequestNumber = (searchRequestKeyStrokeNumber += 1);
-                              await Future.delayed(const Duration(milliseconds: 450));
-                              if ((thisRequestNumber == searchRequestKeyStrokeNumber) && mounted) {
-                                searchController.text = value;
-                              }
-                            },
-                            onSubmitted: (value) {
-                              searchController.text = value;
-                            },
-                            hintText: context.localizations.adminUserListSearchBoxHint,
-                            onTapOutside: (event) {
-                              FocusManager.instance.primaryFocus?.unfocus();
-                            },
-                            leading: Tooltip(
-                              message: context.localizations.adminUserListFiltersBoxTooltip,
-                              child: IconButton(
-                                  icon: const Icon(Icons.settings),
-                                  onPressed: () {
-                                    setState(() {
-                                      showFilters = !showFilters;
-                                    });
-                                  }),
-                            ),
-                            trailing: [
-                              if (searchController.value.text.isEmpty)
-                                const Padding(
-                                  padding: EdgeInsets.only(right: 13),
-                                  child: Icon(Icons.search),
-                                ),
-                              if (searchController.value.text.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 10),
-                                  child: IconButton(
-                                      icon: const Icon(Icons.close),
-                                      onPressed: () {
-                                        setState(() {
-                                          searchTextController.clear();
-                                          searchController.clear();
-                                        });
-                                      }),
-                                ),
-                            ],
-                          );
-                        },
-                        suggestionsBuilder: (BuildContext context, SearchController controller) {
-                          return [];
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (showFilters) buildFiltersRow(context),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildFiltersRow(BuildContext context) {
-    return ConstrainedBox(
-      constraints: Theme.of(context).searchBarTheme.constraints!,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            FilterChip(
-              label: Text(context.localizations.userTypeNameStudent(2)),
-              showCheckmark: filterByStudent,
-              selected: filterByStudent,
-              onSelected: widget.forResultCallback == null
-                  ? (bool value) {
-                      setState(() {
-                        if (filterByTeacher) {
-                          filterByStudent = !filterByStudent;
-                        } else {
-                          showLocalSnackBar(scaffoldMessengerKey, context.localizations.oneFilterActiveRuleError);
-                        }
-                      });
-                    }
-                  : null,
-            ),
-            const SizedBox(width: 16),
-            FilterChip(
-              label: Text(context.localizations.userTypeNameTeacher(2)),
-              showCheckmark: filterByTeacher,
-              selected: filterByTeacher,
-              onSelected: widget.forResultCallback == null
-                  ? (bool value) {
-                      setState(() {
-                        if (filterByStudent) {
-                          filterByTeacher = !filterByTeacher;
-                        } else {
-                          showLocalSnackBar(scaffoldMessengerKey, context.localizations.oneFilterActiveRuleError);
-                        }
-                      });
-                    }
-                  : null,
-            ),
-          ],
-        ),
-      ),
-    );
+  Future<List<Object>> _refreshProviders() {
+    return Future.wait([
+      if (widget.forResultCallback != null && filterByTeacher) ref.refresh(fullUserListProvider.call(UserRole.teacher).future),
+      if (widget.forResultCallback != null && filterByStudent) ref.refresh(fullUserListProvider.call(UserRole.student).future),
+      ref.refresh(paginatedUserInfiniteListProvider.call(UserRole.student).future),
+      ref.refresh(paginatedUserInfiniteListProvider.call(UserRole.teacher).future),
+    ]);
   }
 }
 
@@ -334,7 +220,7 @@ class UserListSliver extends ConsumerWidget {
               );
             }
             if (isComplete) {
-              return UserItem(
+              return UserListItem(
                 data: list[index]!,
                 userSelectionCallback: userSelectionCallback,
                 itemConstraints: itemConstraints,
@@ -363,7 +249,7 @@ class UserListSliver extends ConsumerWidget {
                   case ConnectionState.done:
                     if (snapshot.data != null && snapshot.data!.userData != null) {
                       User data = list[index] ?? snapshot.data!.userData!;
-                      return UserItem(
+                      return UserListItem(
                         data: data,
                         itemConstraints: itemConstraints,
                       );
@@ -382,8 +268,8 @@ class UserListSliver extends ConsumerWidget {
   }
 }
 
-class UserItem extends StatelessWidget {
-  const UserItem({
+class UserListItem extends StatelessWidget {
+  const UserListItem({
     super.key,
     required this.data,
     required this.itemConstraints,

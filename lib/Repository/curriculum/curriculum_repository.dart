@@ -10,21 +10,22 @@ import 'package:university_system_front/Service/uni_system_client/uni_system_api
 part 'curriculum_repository.g.dart';
 
 @Riverpod(keepAlive: true)
-CurriculumRepositoryImpl curriculumRepositoryImpl(CurriculumRepositoryImplRef ref) {
-  return CurriculumRepositoryImpl(ref);
+CurriculumRepository curriculumRepository(CurriculumRepositoryRef ref) {
+  return _CurriculumRepositoryImpl(ref);
 }
 
-class CurriculumRepositoryImpl implements CurriculumRepository {
-  late final UniSystemApiService uniSystemApiService;
+class _CurriculumRepositoryImpl implements CurriculumRepository {
+  late final UniSystemApiService _uniSystemApiService;
 
-  CurriculumRepositoryImpl(Ref ref) {
-    uniSystemApiService = UniSystemApiService(ref);
+  _CurriculumRepositoryImpl(Ref ref) {
+    _uniSystemApiService = UniSystemApiService(ref);
   }
 
   @override
-  Future<void> addSubject(String subjectName) {
-    // TODO: implement addSubject
-    throw UnimplementedError();
+  Future<void> addSubject(String curriculumName, String subjectName) {
+    final request = UniSystemRequest(
+        type: UniSysApiRequestType.put, query: {"subjectName": subjectName}, endpoint: 'curriculum/addSubject/$curriculumName');
+    return _uniSystemApiService.makeRequest(request);
   }
 
   @override
@@ -45,7 +46,7 @@ class CurriculumRepositoryImpl implements CurriculumRepository {
         type: UniSysApiRequestType.get,
         query: {"page": page.toString(), "size": size.toString()},
         endpoint: 'curriculum/getAllCurriculums/paged');
-    List<dynamic> response = await uniSystemApiService.makeRequest(request);
+    List<dynamic> response = await _uniSystemApiService.makeRequest(request);
     PageInfo pageInfo = PageInfo.fromMap(response[0]);
     response.removeAt(0);
     Set<Curriculum> set = {};
@@ -56,9 +57,14 @@ class CurriculumRepositoryImpl implements CurriculumRepository {
   }
 
   @override
-  Future<List<Subject>> getAllSubjects() {
-    // TODO: implement getAllSubjects
-    throw UnimplementedError();
+  Future<List<Subject>> getAllSubjects(String curriculumName) async {
+    final request = UniSystemRequest(type: UniSysApiRequestType.get, endpoint: 'curriculum/getAllSubjects/$curriculumName');
+    List<dynamic> response = await _uniSystemApiService.makeRequest(request);
+    List<Subject> list = [];
+    for (var subjectJson in response) {
+      list.add(Subject.fromMap(subjectJson));
+    }
+    return list;
   }
 
   @override
@@ -74,9 +80,12 @@ class CurriculumRepositoryImpl implements CurriculumRepository {
   }
 
   @override
-  Future<void> removeSubject(String subjectName) {
-    // TODO: implement removeSubject
-    throw UnimplementedError();
+  Future<void> removeSubject(String curriculumName, String subjectName) {
+    final request = UniSystemRequest(
+        type: UniSysApiRequestType.delete,
+        query: {"subjectName": subjectName},
+        endpoint: 'curriculum/removeSubject/$curriculumName');
+    return _uniSystemApiService.makeRequest(request);
   }
 
   @override

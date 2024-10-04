@@ -4,7 +4,7 @@ import 'package:university_system_front/Model/subject.dart';
 
 abstract interface class CurriculumRepository {
   ///URL param [curriculumName], ignore response
-  Future<void> addSubject(String subjectName);
+  Future<void> addSubject(String curriculumName, String subjectName);
 
   Future<Curriculum> createCurriculum(CurriculumDTO curriculumDto);
 
@@ -13,14 +13,14 @@ abstract interface class CurriculumRepository {
   Future<Curriculum> getCurriculum(String name);
 
   ///URL param [curriculumName]
-  Future<List<Subject>> getAllSubjects();
+  Future<List<Subject>> getAllSubjects(String curriculumName);
 
   Future<List<Curriculum>> getAllCurriculums();
 
   Future<PaginatedList<Curriculum>> getAllCurriculumsPaged(int page, int size);
 
   ///URL param [curriculumName]
-  Future<void> removeSubject(String subjectName);
+  Future<void> removeSubject(String curriculumName, String subjectName);
 
   Future<void> removeCurriculum(String name);
 }

@@ -249,3 +249,110 @@ class FutureSelfAwareListBuilder<T extends UniSystemModel> extends ConsumerWidge
     );
   }
 }
+
+class ListLayoutBuilder<T extends UniSystemModel> extends StatelessWidget {
+  final List<T> list;
+  final FixedExtentItemConstraints itemConstraints;
+  final Widget Function(T data, FixedExtentItemConstraints itemConstraints) itemWidget;
+  final int _childCount;
+  final int maxCrossAxisCount;
+  final double layoutDoubleBreakpoint;
+  final double layoutTriBreakpoint;
+
+  ///The minimum number of items in [list] required show [noMoreItemsWidget]
+  final int showNoMoreItemsMinLength;
+
+  ///A widget to indicate that all items are shown,
+  ///If null shows a icon with text.
+  final Widget? noMoreItemsWidget;
+
+  const ListLayoutBuilder({
+    super.key,
+    required this.itemWidget,
+    required this.list,
+    required this.itemConstraints,
+    this.showNoMoreItemsMinLength = 3,
+    this.noMoreItemsWidget,
+    this.maxCrossAxisCount = 1,
+    this.layoutTriBreakpoint = 1425,
+    this.layoutDoubleBreakpoint = 950,
+  }) : _childCount = list.length >= showNoMoreItemsMinLength ? list.length + 1 : list.length;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          late final int crossAxisCountPosible;
+          int childCount = _childCount;
+          if (list.length > 1) {
+            if (constraints.maxWidth >= layoutTriBreakpoint && maxCrossAxisCount >= 3) {
+              crossAxisCountPosible = 3;
+            } else if (constraints.maxWidth >= layoutDoubleBreakpoint) {
+              crossAxisCountPosible = maxCrossAxisCount >= 2 ? 2 : 1;
+            } else {
+              crossAxisCountPosible = 1;
+            }
+          } else {
+            crossAxisCountPosible = 1;
+          }
+          return GridView(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCountPosible, mainAxisExtent: itemConstraints.cardHeight + 16),
+            children: List.generate(childCount, (index) {
+              if (index == list.length) {
+                return noMoreItemsWidget ??
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [const Icon(Icons.playlist_add_check), Text(context.localizations.noMoreItems)],
+                    );
+              }
+              return itemWidget.call(list[index], itemConstraints);
+            }),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class FutureListBuilder<T> extends ConsumerWidget {
+  final Future<List<T>> providerFuture;
+  final Widget Function(List<T> list) onDataWidgetBuilderCallback;
+  final Widget loadingWidget;
+  final Widget errorWidget;
+  final Widget noDataWidget;
+
+  const FutureListBuilder({
+    super.key,
+    required this.onDataWidgetBuilderCallback,
+    required this.providerFuture,
+    required this.loadingWidget,
+    required this.errorWidget,
+    required this.noDataWidget,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FutureBuilder(
+      future: providerFuture,
+      builder: (BuildContext context, AsyncSnapshot<List<T>> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            if (!snapshot.hasData && snapshot.hasError) {
+              return errorWidget;
+            } else if (snapshot.hasData && snapshot.data!.isEmpty) {
+              return noDataWidget;
+            } else {
+              return onDataWidgetBuilderCallback.call(snapshot.data!);
+            }
+          case ConnectionState.none:
+          case ConnectionState.waiting:
+          case ConnectionState.active:
+            return loadingWidget;
+        }
+      },
+    );
+  }
+}

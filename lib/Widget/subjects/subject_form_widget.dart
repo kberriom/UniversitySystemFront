@@ -95,7 +95,7 @@ class _SubjectFormWidgetState extends State<SubjectFormWidget> {
             controller: _descriptionTextController,
             validator: FormBuilderValidators.required(),
             decoration: buildUniSysInputDecoration(
-                context.localizations.adminAddSubjectFormItemDescription, Theme.of(context).colorScheme.onSurfaceVariant),
+                context.localizations.formItemDescription, Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           Wrap(
             spacing: 16,

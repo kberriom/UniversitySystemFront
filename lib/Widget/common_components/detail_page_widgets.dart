@@ -27,3 +27,58 @@ class QuickActionButton extends StatelessWidget {
     );
   }
 }
+
+class UniSystemDetailHeader extends StatelessWidget {
+  const UniSystemDetailHeader({
+    super.key,
+    required this.header,
+  });
+
+  final Widget header;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.topCenter,
+      padding: const EdgeInsets.symmetric(horizontal: kBodyHorizontalPadding),
+      width: double.infinity,
+      color: Theme.of(context).colorScheme.surfaceContainerLow,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1000, minWidth: 300),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: header,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class UniSystemDetailBody extends StatelessWidget {
+  final List<Widget> children;
+
+  const UniSystemDetailBody({
+    super.key,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: SingleChildScrollView(
+        child: Container(
+          alignment: Alignment.topCenter,
+          padding: const EdgeInsets.symmetric(horizontal: kBodyHorizontalPadding),
+          width: double.infinity,
+          child: Column(
+            children: children,
+          ),
+        ),
+      ),
+    );
+  }
+}

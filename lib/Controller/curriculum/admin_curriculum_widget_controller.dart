@@ -39,7 +39,7 @@ class SelfAwareCurriculumListItem extends _$SelfAwareCurriculumListItem {
         return ref.watch(paginatedCurriculumInfiniteListProvider.future);
       },
       newPageCallback: (int page) {
-        return ref.read(curriculumRepositoryImplProvider).getAllCurriculumsPaged(page, preCacheAmount);
+        return ref.read(curriculumRepositoryProvider).getAllCurriculumsPaged(page, preCacheAmount);
       },
     );
     return CurriculumListItemPackage(itemData: await selfAwareListItem.computeItem(pageIndex));
@@ -49,7 +49,7 @@ class SelfAwareCurriculumListItem extends _$SelfAwareCurriculumListItem {
 @riverpod
 Future<PaginatedInfiniteList<Curriculum>> paginatedCurriculumInfiniteList(PaginatedCurriculumInfiniteListRef ref) async {
   PaginatedList<Curriculum> curriculumPage =
-      await ref.read(curriculumRepositoryImplProvider).getAllCurriculumsPaged(1, preCacheAmount);
+      await ref.read(curriculumRepositoryProvider).getAllCurriculumsPaged(1, preCacheAmount);
   return PaginatedInfiniteList<Curriculum>(curriculumPage);
 }
 

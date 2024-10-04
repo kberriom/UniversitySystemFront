@@ -16,7 +16,7 @@ abstract interface class ListItemPackage<T extends UniSystemModel> {
   late T? itemData;
 }
 
-bool bestMatch({required String search, required List<String> stringList, double threshold = 0.6}) {
+bool bestMatch({required String search, required List<String> stringList, double threshold = 0.5}) {
   final match = search.bestMatch(stringList);
   return (match.bestMatch.rating ?? 0) > threshold;
 }

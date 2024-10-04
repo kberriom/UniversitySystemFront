@@ -24,6 +24,9 @@ enum GoRouterRoutes {
   adminEditSubject(routeName: 'editSubject', userRole: UserRole.admin, isSubRoute: true),
   //Admin curriculums subtree
   adminCurriculums(routeName: '/adminCurriculums', userRole: UserRole.admin),
+  adminCurriculumDetail(routeName: 'curriculumDetail', userRole: UserRole.admin, isSubRoute: true),
+  adminAddCurriculum(routeName: 'addCurriculum', userRole: UserRole.admin, isSubRoute: true),
+  adminEditCurriculum(routeName: 'editCurriculum', userRole: UserRole.admin, isSubRoute: true),
 
   ///Start of the teacher navigation subtree
   teacherHome(routeName: '/teacherHome', userRole: UserRole.teacher),

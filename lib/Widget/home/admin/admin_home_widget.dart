@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Theme/theme.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
-import 'package:university_system_front/Widget/common_components/scaffold_background_decoration.dart';
+import 'package:university_system_front/Widget/common_components/background_decoration_widget.dart';
 import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
-import 'package:university_system_front/Widget/common_components/animated_text_title.dart';
+import 'package:university_system_front/Widget/common_components/title_widgets.dart';
 
 class AdminHomeWidget extends ConsumerStatefulWidget {
   const AdminHomeWidget({super.key});
@@ -19,7 +19,7 @@ class _HomeWidgetState extends ConsumerState<AdminHomeWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: getAppBarAndroid(),
-      body: ScaffoldBackgroundDecoration(
+      body: UniSystemBackgroundDecoration(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
