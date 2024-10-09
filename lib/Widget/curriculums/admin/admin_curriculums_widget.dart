@@ -86,8 +86,9 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
                           ref.watch(adminSubjectsWidgetControllerProvider.call(searchTextController.value.text).future),
                       onDataWidgetBuilderCallback: (list) {
                         return SelfAwareDataListSliver(
+                          maxCrossAxisCount: getCrossAxisCountForList(list),
                           itemConstraints: fixedExtentItemConstraints,
-                          currentStateList: list,
+                          list: list,
                           selfAwareItemFuture: (index) => ref.watch(selfAwareCurriculumListItemProvider.call(index).future),
                           loadingShimmerItem: (itemConstraints) => LoadingShimmerItem(itemConstraints: itemConstraints),
                           errorItem: (itemConstraints) => GenericErrorItem(itemConstraints: itemConstraints),

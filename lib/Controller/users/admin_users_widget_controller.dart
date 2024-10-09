@@ -1,8 +1,9 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:mutex/mutex.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Model/page_info.dart';
+import 'package:university_system_front/Model/uni_system_model.dart';
 import 'package:university_system_front/Model/users/student.dart';
 import 'package:university_system_front/Model/users/teacher.dart';
 import 'package:university_system_front/Model/users/user.dart';
@@ -12,16 +13,19 @@ import 'package:university_system_front/Util/provider_utils.dart';
 
 part 'admin_users_widget_controller.g.dart';
 
-part 'admin_users_widget_controller.freezed.dart';
+part 'admin_users_widget_controller.mapper.dart';
 
 ///Amount of users to fetch on a request.
 ///
 ///Must be the same for all PageInfo in PaginatedInfiniteList
 const int preCacheAmount = 20;
 
-@freezed
-class UserListItemPackage with _$UserListItemPackage {
-  const factory UserListItemPackage({User? userData}) = _UserListItemPackage;
+@MappableClass()
+class UserListItemPackage with UserListItemPackageMappable implements ListItemPackage<User> {
+  @override
+  User? itemData;
+
+  UserListItemPackage({this.itemData});
 }
 
 final selfAwareUserListItemLock = Mutex();
@@ -67,7 +71,7 @@ class SelfAwareUserListItem extends _$SelfAwareUserListItem {
       if (firstPageInfo.maxPages == lastPageInfo.currentPage) {
         if (lastPageInfo.currentPageSize == 0) {
           //Do not build => No more items, is on last posible page and current page has no items or no user type registered
-          return const UserListItemPackage(userData: null);
+          return UserListItemPackage(itemData: null);
         }
         //On last page and items
         final int totalPageIndex =
@@ -76,7 +80,7 @@ class SelfAwareUserListItem extends _$SelfAwareUserListItem {
           final fetchedItemFromCacheOfOnePage = _getItemAtLengthCached(type, pageIndex, pgTeacherList, pgStudentList);
           return fetchedItemFromCacheOfOnePage;
         } else {
-          return const UserListItemPackage(userData: null);
+          return UserListItemPackage(itemData: null);
         }
       }
       //On n-1 page and items
@@ -100,7 +104,7 @@ class SelfAwareUserListItem extends _$SelfAwareUserListItem {
           if (userPage.pageInfo.currentPageSize == 0) {
             //Oops new page is empty, so we are tying to get info that does not exist
             //Do not build any more
-            return const UserListItemPackage(userData: null);
+            return UserListItemPackage(itemData: null);
           }
           if (pgUserList.paginatedListsTree.last != userPage) {
             pgUserList.addPage(userPage);
@@ -117,9 +121,9 @@ class SelfAwareUserListItem extends _$SelfAwareUserListItem {
       UserRole type, int pageIndex, PaginatedInfiniteList<Teacher> pgTeacherList, PaginatedInfiniteList<Student> pgStudentList) {
     final int listIndex = pageIndex - 1;
     if (type == UserRole.student) {
-      return UserListItemPackage(userData: pgStudentList.getCacheOrTreeSnapshotAsList()[listIndex]);
+      return UserListItemPackage(itemData: pgStudentList.getCacheOrTreeSnapshotAsList()[listIndex]);
     } else {
-      return UserListItemPackage(userData: pgTeacherList.getCacheOrTreeSnapshotAsList()[listIndex]);
+      return UserListItemPackage(itemData: pgTeacherList.getCacheOrTreeSnapshotAsList()[listIndex]);
     }
   }
 }

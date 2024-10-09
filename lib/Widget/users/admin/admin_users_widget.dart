@@ -20,13 +20,11 @@ import 'package:university_system_front/Widget/search/search_widgets.dart';
 typedef UserSelectionCallback = void Function(User user, UserRole role);
 
 class AdminUsersWidget extends ConsumerStatefulWidget {
-  final UserSelectionCallback? forResultCallback;
   final bool filterByStudent;
   final bool filterByTeacher;
 
   const AdminUsersWidget({
     super.key,
-    this.forResultCallback,
     this.filterByStudent = true,
     this.filterByTeacher = true,
   });
@@ -81,14 +79,12 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
             key: scaffoldMessengerKey,
             child: Scaffold(
               resizeToAvoidBottomInset: false,
-              floatingActionButton: widget.forResultCallback == null
-                  ? FloatingActionButton(
-                      child: const Icon(Icons.add),
-                      onPressed: () {
-                        //todo add new user
-                      },
-                    )
-                  : null,
+              floatingActionButton: FloatingActionButton(
+                child: const Icon(Icons.add),
+                onPressed: () {
+                  //todo add new user
+                },
+              ),
               body: UniSystemBackgroundDecoration(
                 child: CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
@@ -103,34 +99,30 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
                               label: Text(context.localizations.userTypeNameStudent(2)),
                               showCheckmark: filterByStudent,
                               selected: filterByStudent,
-                              onSelected: widget.forResultCallback == null
-                                  ? (bool value) {
-                                      setState(() {
-                                        if (filterByTeacher) {
-                                          filterByStudent = !filterByStudent;
-                                        } else {
-                                          showLocalSnackBar(scaffoldMessengerKey, context.localizations.oneFilterActiveRuleError);
-                                        }
-                                      });
-                                    }
-                                  : null,
+                              onSelected: (bool value) {
+                                setState(() {
+                                  if (filterByTeacher) {
+                                    filterByStudent = !filterByStudent;
+                                  } else {
+                                    showLocalSnackBar(scaffoldMessengerKey, context.localizations.oneFilterActiveRuleError);
+                                  }
+                                });
+                              },
                             ),
                             const SizedBox(width: 16),
                             FilterChip(
                               label: Text(context.localizations.userTypeNameTeacher(2)),
                               showCheckmark: filterByTeacher,
                               selected: filterByTeacher,
-                              onSelected: widget.forResultCallback == null
-                                  ? (bool value) {
-                                      setState(() {
-                                        if (filterByStudent) {
-                                          filterByTeacher = !filterByTeacher;
-                                        } else {
-                                          showLocalSnackBar(scaffoldMessengerKey, context.localizations.oneFilterActiveRuleError);
-                                        }
-                                      });
-                                    }
-                                  : null,
+                              onSelected: (bool value) {
+                                setState(() {
+                                  if (filterByStudent) {
+                                    filterByTeacher = !filterByTeacher;
+                                  } else {
+                                    showLocalSnackBar(scaffoldMessengerKey, context.localizations.oneFilterActiveRuleError);
+                                  }
+                                });
+                              },
                             ),
                           ],
                           onRefreshCallback: () => _refreshProviders(),
@@ -138,17 +130,23 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
                     ),
                     FutureSelfAwareListBuilder(
                       providerFuture: ref.watch(adminUsersWidgetControllerProvider
-                          .call(filterByTeacher, filterByStudent, searchTextController.value.text,
-                              getAll: widget.forResultCallback != null)
+                          .call(filterByTeacher, filterByStudent, searchTextController.value.text, getAll: false)
                           .future),
                       onDataWidgetBuilderCallback: (list) {
-                        return UserListSliver(
-                          filterByTeacher: filterByTeacher,
-                          filterByStudent: filterByStudent,
-                          list: list,
+                        return SelfAwareDataListSliver(
+                          maxCrossAxisCount: getCrossAxisCountForList(list),
                           itemConstraints: fixedExtentItemConstraints,
-                          isComplete: list.last != null,
-                          userSelectionCallback: widget.forResultCallback,
+                          list: list,
+                          selfAwareItemFuture: (index) =>
+                              ref.watch(selfAwareUserListItemProvider.call(index, filterByTeacher, filterByStudent).future),
+                          loadingShimmerItem: (itemConstraints) => LoadingShimmerItem(itemConstraints: itemConstraints),
+                          errorItem: (itemConstraints) => GenericErrorItem(itemConstraints: itemConstraints),
+                          itemWidget: (data, itemConstraints) {
+                            return UserListItem(
+                              data: data,
+                              itemConstraints: itemConstraints,
+                            );
+                          },
                         );
                       },
                       loadingWidget: GenericSliverLoadingShimmer(fixedExtentItemConstraints: fixedExtentItemConstraints),
@@ -167,104 +165,155 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
 
   Future<List<Object>> _refreshProviders() {
     return Future.wait([
-      if (widget.forResultCallback != null && filterByTeacher) ref.refresh(fullUserListProvider.call(UserRole.teacher).future),
-      if (widget.forResultCallback != null && filterByStudent) ref.refresh(fullUserListProvider.call(UserRole.student).future),
       ref.refresh(paginatedUserInfiniteListProvider.call(UserRole.student).future),
       ref.refresh(paginatedUserInfiniteListProvider.call(UserRole.teacher).future),
     ]);
   }
 }
 
-class UserListSliver extends ConsumerWidget {
-  ///Must be ordered students then teachers
-  final List<User?> list;
-  final bool isComplete;
-  final UserSelectionCallback? userSelectionCallback;
-  final bool filterByTeacher;
+class AdminForResultUserWidget extends ConsumerStatefulWidget {
+  final UserSelectionCallback forResultCallback;
   final bool filterByStudent;
-  final FixedExtentItemConstraints itemConstraints;
-  final int _childCount;
+  final bool filterByTeacher;
+  final bool enableFilters;
 
-  const UserListSliver({
+  const AdminForResultUserWidget({
     super.key,
-    required this.filterByTeacher,
-    required this.filterByStudent,
-    required this.list,
-    required this.isComplete,
-    required this.itemConstraints,
-    this.userSelectionCallback,
-  }) : _childCount = list.length >= 6 ? list.length + 1 : list.length; //Show no more items if more than 7 items in list
+    required this.forResultCallback,
+    this.filterByStudent = true,
+    this.filterByTeacher = true,
+    this.enableFilters = false,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return SliverPadding(
-      padding: const EdgeInsets.only(top: 10),
-      sliver: SliverFixedExtentList(
-        delegate: SliverChildBuilderDelegate(
-          childCount: _childCount,
-          findChildIndexCallback: (key) {
-            final idKey = (key as ValueKey<int>).value;
-            final index = list.indexWhere((element) {
-              if (element == null) {
-                return false;
-              }
-              return element.id == idKey;
-            });
-            return index == -1 ? null : index;
-          },
-          (context, index) {
-            if (index == list.length) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [const Icon(Icons.playlist_add_check), Text(context.localizations.noMoreItems)],
-              );
-            }
-            if (isComplete) {
-              return UserListItem(
-                data: list[index]!,
-                userSelectionCallback: userSelectionCallback,
-                itemConstraints: itemConstraints,
-              );
-            }
-            return FutureBuilder(
-              future: ref.watch(selfAwareUserListItemProvider.call(index, filterByTeacher, filterByStudent).future),
-              builder: (context, snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.none:
-                  case ConnectionState.active:
-                  case ConnectionState.waiting:
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: FixedExtentShimmerList(
-                            animationController: itemConstraints.animationController,
-                            itemCount: 1,
-                            itemMaxWidth: itemConstraints.cardMaxWidthConstraints,
-                            itemMinWidth: itemConstraints.cardMinWidthConstraints,
-                            itemExtent: itemConstraints.cardHeight,
-                            itemsPadding: 0),
-                      ),
+  ConsumerState<AdminForResultUserWidget> createState() => _AdminForResultUserWidgetState();
+}
+
+class _AdminForResultUserWidgetState extends ConsumerState<AdminForResultUserWidget> with AnimationMixin {
+  final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+  late final TextEditingController searchTextController;
+  late final AnimationController animationController;
+  late final FixedExtentItemConstraints fixedExtentItemConstraints;
+  late bool filterByStudent;
+  late bool filterByTeacher;
+
+  @override
+  void initState() {
+    searchTextController = TextEditingController();
+    animationController = createController(unbounded: true, fps: 60);
+    fixedExtentItemConstraints = FixedExtentItemConstraints(
+      animationController: animationController,
+      cardHeight: 80,
+      cardMinWidthConstraints: 300,
+      cardMaxWidthConstraints: 800,
+    );
+    filterByStudent = widget.filterByStudent;
+    filterByTeacher = widget.filterByTeacher;
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    searchTextController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: () => _refreshProviders(),
+      edgeOffset: 70,
+      displacement: 5,
+      child: ScaffoldMessenger(
+        key: scaffoldMessengerKey,
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: UniSystemBackgroundDecoration(
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                PinnedHeaderSliver(
+                  child: UniSystemFiltersSearchBar(
+                      hintText: context.localizations.adminUserListSearchBoxHint,
+                      filterRowWidgets: [
+                        FilterChip(
+                          label: Text(context.localizations.userTypeNameStudent(2)),
+                          showCheckmark: filterByStudent,
+                          selected: filterByStudent,
+                          onSelected: widget.enableFilters && widget.filterByStudent
+                              ? (bool value) {
+                                  setState(() {
+                                    if (filterByTeacher) {
+                                      filterByStudent = !filterByStudent;
+                                    } else {
+                                      showLocalSnackBar(scaffoldMessengerKey, context.localizations.oneFilterActiveRuleError);
+                                    }
+                                  });
+                                }
+                              : null,
+                        ),
+                        const SizedBox(width: 16),
+                        FilterChip(
+                          label: Text(context.localizations.userTypeNameTeacher(2)),
+                          showCheckmark: filterByTeacher,
+                          selected: filterByTeacher,
+                          onSelected: widget.enableFilters && widget.filterByTeacher
+                              ? (bool value) {
+                                  setState(() {
+                                    if (filterByStudent) {
+                                      filterByTeacher = !filterByTeacher;
+                                    } else {
+                                      showLocalSnackBar(scaffoldMessengerKey, context.localizations.oneFilterActiveRuleError);
+                                    }
+                                  });
+                                }
+                              : null,
+                        ),
+                      ],
+                      onRefreshCallback: () => _refreshProviders(),
+                      searchTextController: searchTextController),
+                ),
+                FutureSelfAwareListBuilder(
+                  providerFuture: ref.watch(adminUsersWidgetControllerProvider
+                      .call(filterByTeacher, filterByStudent, searchTextController.value.text, getAll: true)
+                      .future),
+                  onDataWidgetBuilderCallback: (list) {
+                    return SelfAwareDataListSliver(
+                      maxCrossAxisCount: getCrossAxisCountForList(list),
+                      itemConstraints: fixedExtentItemConstraints,
+                      list: list,
+                      selfAwareItemFuture: (index) =>
+                          ref.watch(selfAwareUserListItemProvider.call(index, filterByTeacher, filterByStudent).future),
+                      loadingShimmerItem: (itemConstraints) => LoadingShimmerItem(itemConstraints: itemConstraints),
+                      errorItem: (itemConstraints) => GenericErrorItem(itemConstraints: itemConstraints),
+                      itemWidget: (data, itemConstraints) {
+                        return UserListItem(
+                          data: data,
+                          userSelectionCallback: widget.forResultCallback,
+                          itemConstraints: itemConstraints,
+                        );
+                      },
                     );
-                  case ConnectionState.done:
-                    if (snapshot.data != null && snapshot.data!.userData != null) {
-                      User data = list[index] ?? snapshot.data!.userData!;
-                      return UserListItem(
-                        data: data,
-                        itemConstraints: itemConstraints,
-                      );
-                    } else {
-                      return GenericErrorItem(itemConstraints: itemConstraints);
-                    }
-                }
-              },
-            );
-          },
+                  },
+                  loadingWidget: GenericSliverLoadingShimmer(fixedExtentItemConstraints: fixedExtentItemConstraints),
+                  errorWidget: GenericSliverWarning(errorMessage: context.localizations.verboseError),
+                  noDataWidget: GenericSliverWarning(errorMessage: context.localizations.adminUserListFetchNoData),
+                ),
+              ],
+            ),
+          ),
         ),
-        //cardHeight + (vertical padding) of each item so the content is really (cardHeight) and not a implicit (cardHeight - padding)
-        itemExtent: itemConstraints.cardHeight + 16,
       ),
     );
+  }
+
+  Future<List<Object>> _refreshProviders() {
+    return Future.wait([
+      if (filterByTeacher) ref.refresh(fullUserListProvider.call(UserRole.teacher).future),
+      if (filterByStudent) ref.refresh(fullUserListProvider.call(UserRole.student).future),
+      ref.refresh(paginatedUserInfiniteListProvider.call(UserRole.student).future),
+      ref.refresh(paginatedUserInfiniteListProvider.call(UserRole.teacher).future),
+    ]);
   }
 }
 

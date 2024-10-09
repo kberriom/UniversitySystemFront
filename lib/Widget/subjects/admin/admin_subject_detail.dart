@@ -256,7 +256,7 @@ class SelectStudentForSubjectWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ItemSelectionModal(
       title: context.localizations.selectStudentForResult,
-      child: AdminUsersWidget(
+      child: AdminForResultUserWidget(
         filterByTeacher: false,
         forResultCallback: (user, role) {
           final future = ref.read(subjectRepositoryProvider).addStudent(user.id, subject.name);
@@ -338,7 +338,7 @@ class _SelectTeacherForSubjectWidgetState extends ConsumerState<SelectTeacherFor
           ),
         ),
       ),
-      child: AdminUsersWidget(
+      child: AdminForResultUserWidget(
         filterByStudent: false,
         forResultCallback: (user, role) {
           if (_formKey.currentState?.validate() ?? false) {
