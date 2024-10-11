@@ -19,14 +19,14 @@ enum GoRouterRoutes {
   adminUsers(routeName: '/adminUsers', userRole: UserRole.admin),
   //Admin subjects subtree
   adminSubjects(routeName: '/adminSubjects', userRole: UserRole.admin),
-  adminSubjectDetail(routeName: 'subjectDetail', userRole: UserRole.admin, isSubRoute: true),
-  adminAddSubject(routeName: 'addSubject', userRole: UserRole.admin, isSubRoute: true),
-  adminEditSubject(routeName: 'editSubject', userRole: UserRole.admin, isSubRoute: true),
+  adminSubjectDetail(routeName: 'subjectDetail', userRole: UserRole.admin, isSubRoute: true, parent: GoRouterRoutes.adminSubjects),
+  adminAddSubject(routeName: 'addSubject', userRole: UserRole.admin, isSubRoute: true, parent: GoRouterRoutes.adminSubjects),
+  adminEditSubject(routeName: 'editSubject', userRole: UserRole.admin, isSubRoute: true, parent: GoRouterRoutes.adminSubjectDetail),
   //Admin curriculums subtree
   adminCurriculums(routeName: '/adminCurriculums', userRole: UserRole.admin),
-  adminCurriculumDetail(routeName: 'curriculumDetail', userRole: UserRole.admin, isSubRoute: true),
-  adminAddCurriculum(routeName: 'addCurriculum', userRole: UserRole.admin, isSubRoute: true),
-  adminEditCurriculum(routeName: 'editCurriculum', userRole: UserRole.admin, isSubRoute: true),
+  adminCurriculumDetail(routeName: 'curriculumDetail', userRole: UserRole.admin, isSubRoute: true, parent: GoRouterRoutes.adminCurriculums),
+  adminAddCurriculum(routeName: 'addCurriculum', userRole: UserRole.admin, isSubRoute: true, parent: GoRouterRoutes.adminCurriculums),
+  adminEditCurriculum(routeName: 'editCurriculum', userRole: UserRole.admin, isSubRoute: true, parent: GoRouterRoutes.adminCurriculumDetail),
 
   ///Start of the teacher navigation subtree
   teacherHome(routeName: '/teacherHome', userRole: UserRole.teacher),
@@ -37,9 +37,10 @@ enum GoRouterRoutes {
 
   final String routeName;
   final UserRole? userRole;
+  final GoRouterRoutes? parent;
 
   ///SubRoutes cannot have "/" in route name
   final bool isSubRoute;
 
-  const GoRouterRoutes({required this.routeName, required this.userRole, this.isSubRoute = false});
+  const GoRouterRoutes({required this.routeName, required this.userRole, this.isSubRoute = false, this.parent});
 }

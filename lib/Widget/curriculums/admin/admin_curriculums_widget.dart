@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 import 'package:university_system_front/Controller/curriculum/admin_curriculum_widget_controller.dart';
+import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Widget/common_components/infinite_list_widgets.dart';
@@ -66,7 +68,7 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
               floatingActionButton: FloatingActionButton(
                 child: const Icon(Icons.add),
                 onPressed: () {
-                  //TODO add new Curriculum
+                  GoRouter.of(context).goNamed(GoRouterRoutes.adminAddCurriculum.routeName);
                 },
               ),
               body: UniSystemBackgroundDecoration(

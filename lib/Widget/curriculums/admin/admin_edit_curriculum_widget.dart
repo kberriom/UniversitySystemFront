@@ -1,39 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:university_system_front/Controller/subject/admin_subjects_widget_controller.dart';
-import 'package:university_system_front/Model/subject.dart';
-import 'package:university_system_front/Repository/subject/subject_repository.dart';
+import 'package:university_system_front/Controller/curriculum/admin_curriculum_widget_controller.dart';
+import 'package:university_system_front/Model/curriculum.dart';
+import 'package:university_system_front/Repository/curriculum/curriculum_repository.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Util/router_utils.dart';
 import 'package:university_system_front/Util/snackbar_utils.dart';
-import 'package:university_system_front/Widget/common_components/title_widgets.dart';
-import 'package:university_system_front/Widget/common_components/modal_widgets.dart';
 import 'package:university_system_front/Widget/common_components/background_decoration_widget.dart';
+import 'package:university_system_front/Widget/common_components/modal_widgets.dart';
+import 'package:university_system_front/Widget/common_components/title_widgets.dart';
+import 'package:university_system_front/Widget/curriculums/curriculum_form_widget.dart';
 import 'package:university_system_front/Widget/navigation/leading_widgets.dart';
 import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
-import 'package:university_system_front/Widget/subjects/subject_form_widget.dart';
 
-class AdminEditSubjectWidget extends ConsumerStatefulWidget {
-  final Subject subject;
+class AdminEditCurriculumWidget extends ConsumerStatefulWidget {
+  final Curriculum curriculum;
 
-  const AdminEditSubjectWidget({super.key, required this.subject});
+  const AdminEditCurriculumWidget({super.key, required this.curriculum});
 
   @override
-  ConsumerState<AdminEditSubjectWidget> createState() => _AdminEditSubjectWidgetState();
+  ConsumerState<AdminEditCurriculumWidget> createState() => _AdminEditCurriculumWidgetState();
 }
 
-class _AdminEditSubjectWidgetState extends ConsumerState<AdminEditSubjectWidget> {
+class _AdminEditCurriculumWidgetState extends ConsumerState<AdminEditCurriculumWidget> {
   final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
-  final backRoute = '${GoRouterRoutes.adminSubjects.routeName}/${GoRouterRoutes.adminSubjectDetail.routeName}';
+  final backRoute = '${GoRouterRoutes.adminCurriculums.routeName}/${GoRouterRoutes.adminCurriculumDetail.routeName}';
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
       onPopInvokedWithResult: (didPop, result) =>
-          PlatformUtil.isAndroid ? context.goDetailPage(GoRouterRoutes.adminSubjectDetail, widget.subject) : null,
+          PlatformUtil.isAndroid ? context.goDetailPage(GoRouterRoutes.adminCurriculumDetail, widget.curriculum) : null,
       child: ScaffoldMessenger(
         key: _scaffoldMessengerKey,
         child: Scaffold(
@@ -41,7 +41,7 @@ class _AdminEditSubjectWidgetState extends ConsumerState<AdminEditSubjectWidget>
             leading: UniSystemCloseButton(
               //Windows leading must be configured on router
               route: backRoute,
-              extra: widget.subject,
+              extra: widget.curriculum,
             ),
           ),
           resizeToAvoidBottomInset: false,
@@ -72,7 +72,7 @@ class _AdminEditSubjectWidgetState extends ConsumerState<AdminEditSubjectWidget>
                                         TextButton(
                                             onPressed: () {
                                               final future =
-                                                  ref.read(subjectRepositoryProvider).deleteSubject(widget.subject.name);
+                                                  ref.read(curriculumRepositoryProvider).deleteCurriculum(widget.curriculum.name);
                                               showGeneralDialog(
                                                 barrierLabel: "",
                                                 barrierDismissible: false,
@@ -85,13 +85,14 @@ class _AdminEditSubjectWidgetState extends ConsumerState<AdminEditSubjectWidget>
                                               );
                                               future.then((value) {
                                                 if (context.mounted) {
-                                                  ref.invalidate(paginatedSubjectInfiniteListProvider);
-                                                  ref.showGlobalSnackBar(context.localizations.successfullyDeletedSubject);
-                                                  context.popFromModalDialogToParent(GoRouterRoutes.adminEditSubject);
+                                                  ref.invalidate(paginatedCurriculumInfiniteListProvider);
+                                                  ref.showGlobalSnackBar(context.localizations.successfullyDeletedCurriculum);
+
+                                                  context.popFromModalDialogToParent(GoRouterRoutes.adminEditCurriculum);
                                                 }
                                               }, onError: (_) {
                                                 if (context.mounted) {
-                                                  Navigator.of(context, rootNavigator: true).pop();
+                                                  context.popFromDialog();
                                                   showLocalSnackBar(
                                                       _scaffoldMessengerKey, context.localizations.verboseErrorTryAgain);
                                                 }
@@ -99,7 +100,7 @@ class _AdminEditSubjectWidgetState extends ConsumerState<AdminEditSubjectWidget>
                                             },
                                             child: Text(context.localizations.deleteModalAction)),
                                         TextButton(
-                                            onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+                                            onPressed: () => context.popFromDialog(),
                                             child: Text(context.localizations.cancelModalAction))
                                       ],
                                     ),
@@ -111,8 +112,8 @@ class _AdminEditSubjectWidgetState extends ConsumerState<AdminEditSubjectWidget>
                         Flexible(
                           child: AnimatedComboTextTitle(
                             widthFactor: 0.9,
-                            downText: widget.subject.name,
-                            upText: context.localizations.editSubject,
+                            downText: widget.curriculum.name,
+                            upText: context.localizations.editCurriculum,
                           ),
                         ),
                       ],
@@ -126,21 +127,11 @@ class _AdminEditSubjectWidgetState extends ConsumerState<AdminEditSubjectWidget>
                       padding: const EdgeInsets.only(left: kBodyHorizontalPadding, right: kBodyHorizontalPadding, top: 10),
                       child: ConstrainedBox(
                         constraints: kBodyHorizontalConstraints,
-                        child: SubjectFormWidget(
-                          existingSubject: widget.subject,
-                          onSubmitCallback: (formSubject) {
-                            Future<Subject> response = Future(() async {
-                              if (widget.subject.name != formSubject.name) {
-                                try {
-                                  await ref.read(subjectRepositoryProvider).getSubject(formSubject.name!);
-                                  return Future.error(ArgumentError("Name already exists"));
-                                } catch (e) {
-                                  return ref.read(subjectRepositoryProvider).updateSubject(formSubject, widget.subject.name);
-                                }
-                              } else {
-                                return ref.read(subjectRepositoryProvider).updateSubject(formSubject, widget.subject.name);
-                              }
-                            });
+                        child: CurriculumFormWidget(
+                          existingCurriculum: widget.curriculum,
+                          onSubmitCallback: (formCurriculum) {
+                            Future<Curriculum> response =
+                                ref.read(curriculumRepositoryProvider).updateCurriculum(widget.curriculum.name, formCurriculum);
                             showGeneralDialog(
                               barrierLabel: "",
                               barrierDismissible: false,
@@ -152,21 +143,25 @@ class _AdminEditSubjectWidgetState extends ConsumerState<AdminEditSubjectWidget>
                               },
                             );
                             response.then((value) {
-                              ref.invalidate(paginatedSubjectInfiniteListProvider);
+                              //On edit successful
+                              ref.invalidate(paginatedCurriculumInfiniteListProvider);
                               if (context.mounted) {
-                                context.goDetailPage(GoRouterRoutes.adminSubjectDetail, value);
+                                context.goDetailPage(GoRouterRoutes.adminCurriculumDetail, value);
                               }
                             }, onError: (e) {
                               if (context.mounted) {
-                                showLocalSnackBar(
-                                    _scaffoldMessengerKey,
-                                    e is ArgumentError
-                                        ? context.localizations.subjectNameAlreadyExist
-                                        : context.localizations.couldNotUpdateSubject);
+                                if (e is Exception) {
+                                  switch (e.toString()) {
+                                    case String error when error.contains("409"):
+                                      showLocalSnackBar(_scaffoldMessengerKey, context.localizations.curriculumNameAlreadyExist);
+                                  }
+                                } else {
+                                  showLocalSnackBar(_scaffoldMessengerKey, context.localizations.verboseErrorTryAgain);
+                                }
                               }
                             });
                           },
-                          buttonContent: Text(context.localizations.updateSubjectButton),
+                          buttonContent: Text(context.localizations.updateCurriculumButton),
                         ),
                       ),
                     ),

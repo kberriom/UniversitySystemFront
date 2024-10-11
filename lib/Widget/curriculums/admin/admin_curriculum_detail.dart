@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:university_system_front/Model/curriculum.dart';
 import 'package:university_system_front/Repository/curriculum/curriculum_repository.dart';
 import 'package:university_system_front/Repository/subject/subject_repository.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
+import 'package:university_system_front/Util/router_utils.dart';
 import 'package:university_system_front/Util/snackbar_utils.dart';
 import 'package:university_system_front/Widget/common_components/detail_page_widgets.dart';
 import 'package:university_system_front/Widget/common_components/modal_widgets.dart';
@@ -36,7 +36,7 @@ class _AdminCurriculumDetailState extends ConsumerState<AdminCurriculumDetail> {
         appBar: getAppBarAndroid(),
         floatingActionButton: FloatingActionButton(
             onPressed: () {
-              context.goNamed(GoRouterRoutes.adminEditCurriculum.routeName, extra: widget.curriculum);
+              context.goEditPage(GoRouterRoutes.adminEditCurriculum, widget.curriculum);
             },
             child: const Icon(Icons.mode_edit)),
         body: UniSystemBackgroundDecoration(
@@ -108,7 +108,7 @@ class _AdminCurriculumDetailState extends ConsumerState<AdminCurriculumDetail> {
                                           future.then(
                                             (value) {
                                               if (context.mounted) {
-                                                Navigator.of(context, rootNavigator: true).pop();
+                                                context.popFromDialog();
                                                 showLocalSnackBar(_scaffoldMessengerKey,
                                                     context.localizations.curriculumDetailAddSubjectModalSuccess);
                                               }
@@ -152,7 +152,7 @@ class _AdminCurriculumDetailState extends ConsumerState<AdminCurriculumDetail> {
                                           future.then(
                                             (value) {
                                               if (context.mounted) {
-                                                Navigator.of(context, rootNavigator: true).pop();
+                                                context.popFromDialog();
                                                 showLocalSnackBar(_scaffoldMessengerKey,
                                                     context.localizations.curriculumDetailRemoveSubjectModalSuccess);
                                               }
@@ -173,14 +173,12 @@ class _AdminCurriculumDetailState extends ConsumerState<AdminCurriculumDetail> {
                 ),
               ),
               Expanded(
-                  child: SubjectForResultWidget(
-                key: UniqueKey(),
-                listCallback: () => ref.watch(curriculumRepositoryProvider).getAllSubjects(widget.curriculum.name),
-                onResultCallback: (subject) {
-                  context.go("${GoRouterRoutes.adminSubjects.routeName}/${GoRouterRoutes.adminSubjectDetail.routeName}",
-                      extra: subject);
-                },
-              )),
+                child: SubjectForResultWidget(
+                  key: UniqueKey(),
+                  listCallback: () => ref.watch(curriculumRepositoryProvider).getAllSubjects(widget.curriculum.name),
+                  onResultCallback: (subject) => context.goDetailPage(GoRouterRoutes.adminSubjectDetail, subject),
+                ),
+              ),
             ],
           ),
         ),

@@ -63,7 +63,7 @@ class _SubjectFormWidgetState extends State<SubjectFormWidget> {
             controller: _nameTextController,
             validator: FormBuilderValidators.required(),
             decoration: buildUniSysInputDecoration(
-                context.localizations.adminAddSubjectFormItemName, Theme.of(context).colorScheme.onSurfaceVariant),
+                context.localizations.adminAddFormItemName, Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           Wrap(
             runSpacing: 16,
@@ -104,7 +104,7 @@ class _SubjectFormWidgetState extends State<SubjectFormWidget> {
               SizedBox(
                 width: 160,
                 child: UniSysDateSelector(
-                  label: context.localizations.adminAddSubjectFormItemStartDate,
+                  label: context.localizations.adminAddFormItemStartDate,
                   textEditingController: _startDateTextController,
                   validator: FormBuilderValidators.date(),
                 ),
@@ -112,7 +112,7 @@ class _SubjectFormWidgetState extends State<SubjectFormWidget> {
               SizedBox(
                 width: 160,
                 child: UniSysDateSelector(
-                  label: context.localizations.adminAddSubjectFormItemEndDate,
+                  label: context.localizations.adminAddFormItemEndDate,
                   textEditingController: _endDateTextController,
                   validator: FormBuilderValidators.date(),
                 ),

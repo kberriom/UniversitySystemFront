@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
@@ -13,6 +12,7 @@ import 'package:university_system_front/Repository/subject/subject_repository.da
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
+import 'package:university_system_front/Util/router_utils.dart';
 import 'package:university_system_front/Util/snackbar_utils.dart';
 import 'package:university_system_front/Widget/common_components/title_widgets.dart';
 import 'package:university_system_front/Widget/common_components/carousel_widgets.dart';
@@ -65,9 +65,7 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
         appBar: getAppBarAndroid(),
         floatingActionButton: FloatingActionButton(
             onPressed: () {
-              GoRouter.of(context).pushReplacement(
-                  '${GoRouterRoutes.adminSubjects.routeName}/${GoRouterRoutes.adminSubjectDetail.routeName}/${GoRouterRoutes.adminEditSubject.routeName}',
-                  extra: widget.subject);
+              context.goEditPage(GoRouterRoutes.adminEditSubject, widget.subject);
             },
             child: const Icon(Icons.mode_edit)),
         body: UniSystemBackgroundDecoration(

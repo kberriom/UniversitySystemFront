@@ -22,5 +22,5 @@ abstract interface class CurriculumRepository {
   ///URL param [curriculumName]
   Future<void> removeSubject(String curriculumName, String subjectName);
 
-  Future<void> removeCurriculum(String name);
+  Future<void> deleteCurriculum(String name);
 }

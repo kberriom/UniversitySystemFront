@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:university_system_front/Model/curriculum.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
+import 'package:university_system_front/Util/router_utils.dart';
 import 'package:university_system_front/Widget/common_components/infinite_list_widgets.dart';
 
 class CurriculumListItem extends StatelessWidget {
@@ -40,10 +40,7 @@ class CurriculumListItem extends StatelessWidget {
               if (onPressedCallback != null) {
                 onPressedCallback!.call(data);
               } else {
-                GoRouter.of(context).go(
-                  '${GoRouterRoutes.adminCurriculums.routeName}/${GoRouterRoutes.adminCurriculumDetail.routeName}',
-                  extra: data,
-                );
+                context.goDetailPage(GoRouterRoutes.adminCurriculumDetail, data);
               }
             },
             child: Row(

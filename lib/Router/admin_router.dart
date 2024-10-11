@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:university_system_front/Model/curriculum.dart';
 import 'package:university_system_front/Model/subject.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
+import 'package:university_system_front/Widget/curriculums/admin/admin_add_curriculum_widget.dart';
 import 'package:university_system_front/Widget/curriculums/admin/admin_curriculum_detail.dart';
 import 'package:university_system_front/Widget/curriculums/admin/admin_curriculums_widget.dart';
+import 'package:university_system_front/Widget/curriculums/admin/admin_edit_curriculum_widget.dart';
 import 'package:university_system_front/Widget/home/admin/admin_home_widget.dart';
 import 'package:university_system_front/Widget/navigation/base_scaffold_navigation/admin_scaffold_navigation_widget.dart';
 import 'package:university_system_front/Widget/navigation/leading_widgets.dart';
@@ -140,7 +142,7 @@ StatefulShellBranch _curriculumStatefulShellBranch(Ref ref) {
           key: ValueKey(GoRouterRoutes.adminCurriculums.routeName),
           child: const AdminCurriculumsWidget(),
         ),
-        routes: <GoRoute>[
+        routes: [
           GoRoute(
             path: GoRouterRoutes.adminAddCurriculum.routeName,
             name: GoRouterRoutes.adminAddCurriculum.routeName,
@@ -151,8 +153,7 @@ StatefulShellBranch _curriculumStatefulShellBranch(Ref ref) {
               return true;
             },
             pageBuilder: (context, state) {
-              return NoTransitionPage(
-                  child: setLeadingOnWindows(state.pageKey, const Placeholder())); //todo replace adminAddCurriculum
+              return NoTransitionPage(child: setLeadingOnWindows(state.pageKey, const AdminAddCurriculumWidget()));
             },
           ),
           GoRoute(
@@ -165,6 +166,7 @@ StatefulShellBranch _curriculumStatefulShellBranch(Ref ref) {
               return true;
             },
             pageBuilder: (context, state) {
+              assert(state.extra != null);
               Curriculum curriculum = _getExtra<Curriculum>(state, (extra) => Curriculum.fromJson(extra),
                   errorMsg: "invalid extra arg in adminCurriculumDetail");
               return NoTransitionPage(child: setLeadingOnWindows(state.pageKey, AdminCurriculumDetail(curriculum: curriculum)));
@@ -181,6 +183,7 @@ StatefulShellBranch _curriculumStatefulShellBranch(Ref ref) {
                   return true;
                 },
                 pageBuilder: (context, state) {
+                  assert(state.extra != null);
                   Curriculum curriculum = _getExtra<Curriculum>(state, (extra) => Curriculum.fromJson(extra),
                       errorMsg: "invalid extra arg in adminEditCurriculum");
                   return NoTransitionPage(
@@ -190,7 +193,7 @@ StatefulShellBranch _curriculumStatefulShellBranch(Ref ref) {
                         extra: curriculum,
                       ),
                       state.pageKey,
-                      const Placeholder(), //todo replace adminEditCurriculum
+                      AdminEditCurriculumWidget(curriculum: curriculum),
                     ),
                   );
                 },

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:university_system_front/Model/subject.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
+import 'package:university_system_front/Util/router_utils.dart';
 import 'package:university_system_front/Util/string_utils.dart';
 import 'package:university_system_front/Widget/common_components/infinite_list_widgets.dart';
 
@@ -42,8 +42,7 @@ class SubjectListItem extends StatelessWidget {
               if (onPressedCallback != null) {
                 onPressedCallback!.call(data);
               } else {
-                GoRouter.of(context)
-                    .go('${GoRouterRoutes.adminSubjects.routeName}/${GoRouterRoutes.adminSubjectDetail.routeName}', extra: data);
+                context.goDetailPage(GoRouterRoutes.adminSubjectDetail, data);
               }
             },
             child: Row(

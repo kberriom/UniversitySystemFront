@@ -29,9 +29,11 @@ class _CurriculumRepositoryImpl implements CurriculumRepository {
   }
 
   @override
-  Future<Curriculum> createCurriculum(CurriculumDTO curriculumDto) {
-    // TODO: implement createCurriculum
-    throw UnimplementedError();
+  Future<Curriculum> createCurriculum(CurriculumDTO curriculumDto) async {
+    final request =
+        UniSystemRequest(type: UniSysApiRequestType.post, endpoint: 'curriculum/createCurriculum', body: curriculumDto.toMap());
+    Json response = await _uniSystemApiService.makeRequest(request);
+    return Curriculum.fromMap(response);
   }
 
   @override
@@ -68,15 +70,17 @@ class _CurriculumRepositoryImpl implements CurriculumRepository {
   }
 
   @override
-  Future<Curriculum> getCurriculum(String name) {
-    // TODO: implement getCurriculum
-    throw UnimplementedError();
+  Future<Curriculum> getCurriculum(String name) async {
+    final request = UniSystemRequest(type: UniSysApiRequestType.get, query: {"name": name}, endpoint: 'curriculum/getCurriculum');
+    Json response = await _uniSystemApiService.makeRequest(request);
+    return Curriculum.fromMap(response);
   }
 
   @override
-  Future<void> removeCurriculum(String name) {
-    // TODO: implement removeCurriculum
-    throw UnimplementedError();
+  Future<void> deleteCurriculum(String name) {
+    final request =
+        UniSystemRequest(type: UniSysApiRequestType.delete, query: {"name": name}, endpoint: 'curriculum/deleteCurriculum');
+    return _uniSystemApiService.makeRequest(request);
   }
 
   @override
@@ -89,8 +93,10 @@ class _CurriculumRepositoryImpl implements CurriculumRepository {
   }
 
   @override
-  Future<Curriculum> updateCurriculum(String name, CurriculumDTO curriculumDto) {
-    // TODO: implement updateCurriculum
-    throw UnimplementedError();
+  Future<Curriculum> updateCurriculum(String name, CurriculumDTO curriculumDto) async {
+    final request = UniSystemRequest(
+        type: UniSysApiRequestType.patch, body: curriculumDto.toMap(), endpoint: 'curriculum/updateCurriculum/$name');
+    Json response = await _uniSystemApiService.makeRequest(request);
+    return Curriculum.fromMap(response);
   }
 }
