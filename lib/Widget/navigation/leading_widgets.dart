@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:university_system_front/Router/go_router_config.dart';
+import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Theme/theme_mode_provider.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -25,7 +26,8 @@ class UniSystemAppBarLeading extends _$UniSystemAppBarLeading {
   }
 }
 
-Widget setLeadingOnWindows(ValueKey<String> key, Widget widget, {UniSystemSmartLeadButton leading = const UniSystemBackButton()}) {
+Widget setLeadingOnWindows(ValueKey<String> key, Widget widget,
+    {UniSystemSmartLeadButton leading = const UniSystemBackButton()}) {
   if (PlatformUtil.isWindows) {
     switch (leading) {
       case UniSystemBackButton():
@@ -102,7 +104,7 @@ class _UniSystemThemeButtonState extends ConsumerState<UniSystemThemeButton> {
     super.didChangeDependencies();
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: () {
@@ -132,14 +134,26 @@ class UniSystemBackButton extends ConsumerWidget implements UniSystemSmartLeadBu
 class UniSystemCloseButton extends ConsumerWidget implements UniSystemSmartLeadButton {
   final String? route;
   final Object? extra;
-  const UniSystemCloseButton({super.key, this.route, this.extra});
+  final GoRouterRoutes? routerRoute;
+
+  const UniSystemCloseButton({super.key, this.route, this.extra, this.routerRoute});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return CloseButton(onPressed: () {
       if (route == null) {
         ref.read(goRouterInstanceProvider).routerDelegate.pop();
-      }else {
+      } else if (routerRoute != null) {
+        GoRouterRoutes? currentParent = routerRoute!;
+        String routeString = "/${currentParent.routeName}";
+
+        currentParent = currentParent.parent;
+        while (currentParent != null) {
+          routeString = "/${currentParent.routeName}$routeString";
+          currentParent = currentParent.parent;
+        }
+        ref.read(goRouterInstanceProvider).pushReplacement(routeString, extra: extra);
+      } else {
         ref.read(goRouterInstanceProvider).pushReplacement(route!, extra: extra);
       }
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) => VisibilityDetectorController.instance.notifyNow());

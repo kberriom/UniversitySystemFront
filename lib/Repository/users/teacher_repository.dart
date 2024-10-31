@@ -14,11 +14,17 @@ TeacherRepository teacherRepository(TeacherRepositoryRef ref) {
   return TeacherRepository(ref);
 }
 
-class TeacherRepository implements UserRepository<Teacher, TeacherDto> {
-  late final UniSystemApiService uniSystemApiService;
+class TeacherRepository implements UserRepository<Teacher, TeacherUpdateDto> {
+  late final UniSystemApiService _uniSystemApiService;
 
   TeacherRepository(Ref ref) {
-    uniSystemApiService = UniSystemApiService(ref);
+    _uniSystemApiService = UniSystemApiService(ref);
+  }
+
+  Future<Teacher> createTeacher(TeacherCreationDto dto) async {
+    final request = UniSystemRequest(type: UniSysApiRequestType.post, body: dto.toMap(), endpoint: 'auth/createTeacher');
+    Json response = await _uniSystemApiService.makeRequest(request);
+    return Teacher.fromMap(response);
   }
 
   @override
@@ -28,15 +34,18 @@ class TeacherRepository implements UserRepository<Teacher, TeacherDto> {
   }
 
   @override
-  Future<void> deleteUserTypeInfoById(int id) {
-    // TODO: implement deleteUserTypeInfoById
-    throw UnimplementedError();
+  Future<void> deleteUserTypeInfoById(int id) async {
+    final request = UniSystemRequest(
+      type: UniSysApiRequestType.delete,
+      endpoint: 'teacher/deleteTeacherInfo/$id',
+    );
+    return await _uniSystemApiService.makeRequest(request);
   }
 
   @override
   Future<List<Teacher>> getAllUserTypeInfo() async {
     const request = UniSystemRequest(type: UniSysApiRequestType.get, endpoint: 'teacher/getAllTeacherInfo');
-    List<dynamic> response = await uniSystemApiService.makeRequest(request);
+    List<dynamic> response = await _uniSystemApiService.makeRequest(request);
     List<Teacher> list = response.map((teacherJson) => Teacher.fromMap(teacherJson)).toList(growable: false);
     return list;
   }
@@ -47,7 +56,7 @@ class TeacherRepository implements UserRepository<Teacher, TeacherDto> {
         type: UniSysApiRequestType.get,
         query: {"page": page.toString(), "size": size.toString()},
         endpoint: 'teacher/getAllTeacherInfo/paged');
-    List<dynamic> response = await uniSystemApiService.makeRequest(request);
+    List<dynamic> response = await _uniSystemApiService.makeRequest(request);
     PageInfo pageInfo = PageInfo.fromMap(response[0]);
     response.removeAt(0);
     Set<Teacher> set = {};
@@ -64,20 +73,26 @@ class TeacherRepository implements UserRepository<Teacher, TeacherDto> {
   }
 
   @override
-  Future<Teacher> getUserTypeInfoById(int id) {
-    // TODO: implement getUserTypeInfoById
-    throw UnimplementedError();
+  Future<Teacher> getUserTypeInfoById(int id) async {
+    final request = UniSystemRequest(type: UniSysApiRequestType.get, endpoint: 'teacher/getTeacherInfo/$id');
+    Json response = await _uniSystemApiService.makeRequest(request);
+    return Teacher.fromMap(response);
   }
 
   @override
-  Future<Teacher> updateUserTypeInfo(TeacherDto userDto) {
+  Future<Teacher> updateUserTypeInfo(TeacherUpdateDto updateDto) {
     // TODO: implement updateUserTypeInfo
     throw UnimplementedError();
   }
 
   @override
-  Future<Teacher> updateUserTypeInfoById(int id) {
-    // TODO: implement updateUserTypeInfoById
-    throw UnimplementedError();
+  Future<Teacher> updateUserTypeInfoById(int id, TeacherUpdateDto updateDto) async {
+    final request = UniSystemRequest(
+      type: UniSysApiRequestType.patch,
+      body: updateDto.toMap(),
+      endpoint: 'teacher/updateTeacherInfo/$id',
+    );
+    Json response = await _uniSystemApiService.makeRequest(request);
+    return Teacher.fromMap(response);
   }
 }

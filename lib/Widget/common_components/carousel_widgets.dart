@@ -108,12 +108,14 @@ class UserListCarousel<T> extends ConsumerWidget {
     required this.future,
     required this.noAssignedMsg,
     required this.onDataWidgetCallback,
+    required this.onTapCallBack,
     required this.userRole, //todo remove when flutter/issues/154701 is resolved.
   });
 
   final Future<List<T>> future;
   final String noAssignedMsg;
   final Widget Function(T data, int index) onDataWidgetCallback; //todo remove [index] when flutter/issues/154701 is resolved.
+  final Function(T data) onTapCallBack;
   final UserRole userRole; //todo remove when flutter/issues/154701 is resolved.
 
   @override
@@ -146,6 +148,7 @@ class UserListCarousel<T> extends ConsumerWidget {
                 return onDataWidgetCallback.call(data, index);
               }),
               onTapCallBack: (index) {
+                onTapCallBack(snapshot.data![index]);
                 //todo remove when flutter/issues/154701 is resolved.
                 ref.read(userCarouselOnTapProvider.call(userRole, index).notifier).hasTaped();
               },

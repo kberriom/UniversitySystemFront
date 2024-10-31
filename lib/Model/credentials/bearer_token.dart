@@ -1,7 +1,8 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'bearer_token.freezed.dart';
-
+part 'bearer_token.mapper.dart';
 part 'bearer_token.g.dart';
 
 @freezed
@@ -30,6 +31,7 @@ enum BearerTokenType {
   jwt;
 }
 
+@MappableEnum()
 enum UserRole {
   admin(roleName: "ROLE_ADMIN"),
   teacher(roleName: "ROLE_TEACHER"),

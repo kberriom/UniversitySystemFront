@@ -17,16 +17,21 @@ enum GoRouterRoutes {
   adminHome(routeName: '/adminHome', userRole: UserRole.admin),
   //Admin users subtree
   adminUsers(routeName: '/adminUsers', userRole: UserRole.admin),
+  adminStudentDetail(routeName: 'studentDetail', userRole: UserRole.admin, parent: GoRouterRoutes.adminUsers),
+  adminTeacherDetail(routeName: 'teacherDetail', userRole: UserRole.admin, parent: GoRouterRoutes.adminUsers),
+  adminAddUser(routeName: 'addUser', userRole: UserRole.admin, parent: GoRouterRoutes.adminUsers),
+  adminEditStudent(routeName: 'editStudent', userRole: UserRole.admin, parent: GoRouterRoutes.adminStudentDetail),
+  adminEditTeacher(routeName: 'editTeacher', userRole: UserRole.admin, parent: GoRouterRoutes.adminTeacherDetail),
   //Admin subjects subtree
   adminSubjects(routeName: '/adminSubjects', userRole: UserRole.admin),
-  adminSubjectDetail(routeName: 'subjectDetail', userRole: UserRole.admin, isSubRoute: true, parent: GoRouterRoutes.adminSubjects),
-  adminAddSubject(routeName: 'addSubject', userRole: UserRole.admin, isSubRoute: true, parent: GoRouterRoutes.adminSubjects),
-  adminEditSubject(routeName: 'editSubject', userRole: UserRole.admin, isSubRoute: true, parent: GoRouterRoutes.adminSubjectDetail),
+  adminSubjectDetail(routeName: 'subjectDetail', userRole: UserRole.admin, parent: GoRouterRoutes.adminSubjects),
+  adminAddSubject(routeName: 'addSubject', userRole: UserRole.admin, parent: GoRouterRoutes.adminSubjects),
+  adminEditSubject(routeName: 'editSubject', userRole: UserRole.admin, parent: GoRouterRoutes.adminSubjectDetail),
   //Admin curriculums subtree
   adminCurriculums(routeName: '/adminCurriculums', userRole: UserRole.admin),
-  adminCurriculumDetail(routeName: 'curriculumDetail', userRole: UserRole.admin, isSubRoute: true, parent: GoRouterRoutes.adminCurriculums),
-  adminAddCurriculum(routeName: 'addCurriculum', userRole: UserRole.admin, isSubRoute: true, parent: GoRouterRoutes.adminCurriculums),
-  adminEditCurriculum(routeName: 'editCurriculum', userRole: UserRole.admin, isSubRoute: true, parent: GoRouterRoutes.adminCurriculumDetail),
+  adminCurriculumDetail(routeName: 'curriculumDetail', userRole: UserRole.admin, parent: GoRouterRoutes.adminCurriculums),
+  adminAddCurriculum(routeName: 'addCurriculum', userRole: UserRole.admin, parent: GoRouterRoutes.adminCurriculums),
+  adminEditCurriculum(routeName: 'editCurriculum', userRole: UserRole.admin, parent: GoRouterRoutes.adminCurriculumDetail),
 
   ///Start of the teacher navigation subtree
   teacherHome(routeName: '/teacherHome', userRole: UserRole.teacher),
@@ -37,10 +42,9 @@ enum GoRouterRoutes {
 
   final String routeName;
   final UserRole? userRole;
+
+  ///routes with a parent cannot have "/" in route name
   final GoRouterRoutes? parent;
 
-  ///SubRoutes cannot have "/" in route name
-  final bool isSubRoute;
-
-  const GoRouterRoutes({required this.routeName, required this.userRole, this.isSubRoute = false, this.parent});
+  const GoRouterRoutes({required this.routeName, required this.userRole, this.parent});
 }

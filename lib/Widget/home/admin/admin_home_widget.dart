@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:university_system_front/Theme/dimensions.dart';
-import 'package:university_system_front/Theme/theme.dart';
+import 'package:university_system_front/Model/credentials/bearer_token.dart';
+import 'package:university_system_front/Router/go_router_routes.dart';
+import 'package:university_system_front/Router/route_extra/admin_add_user_widget_extra.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
+import 'package:university_system_front/Util/router_utils.dart';
 import 'package:university_system_front/Widget/common_components/background_decoration_widget.dart';
+import 'package:university_system_front/Widget/common_components/button_widgets.dart';
 import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
 import 'package:university_system_front/Widget/common_components/title_widgets.dart';
 
@@ -38,13 +41,23 @@ class _HomeWidgetState extends ConsumerState<AdminHomeWidget> {
                         QuickAccessIconButton(
                           text: context.localizations.adminQuickAccessAddStudent,
                           icon: const BigIconWithCompanion(mainIcon: Icons.person, companionIcon: Icons.plus_one),
-                          onPressed: () {},
+                          onPressed: () {
+                            context.goDetailPage(
+                              GoRouterRoutes.adminAddUser,
+                              AdminAddUserWidgetExtra(selectedUserType: <UserRole>{UserRole.student}),
+                            );
+                          },
                         ),
                         const SizedBox(height: 18),
                         QuickAccessIconButton(
                           text: context.localizations.adminQuickAccessAddTeacher,
                           icon: const BigIconWithCompanion(mainIcon: Icons.school, companionIcon: Icons.plus_one),
-                          onPressed: () {},
+                          onPressed: () {
+                            context.goDetailPage(
+                              GoRouterRoutes.adminAddUser,
+                              AdminAddUserWidgetExtra(selectedUserType: <UserRole>{UserRole.teacher}),
+                            );
+                          },
                         ),
                         const SizedBox(height: 18),
                         QuickAccessIconButton(
@@ -61,93 +74,6 @@ class _HomeWidgetState extends ConsumerState<AdminHomeWidget> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class QuickAccessIconButton extends StatelessWidget {
-  final Widget icon;
-  final String text;
-  final VoidCallback onPressed;
-
-  const QuickAccessIconButton({
-    super.key,
-    required this.icon,
-    required this.text,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton(
-      style: OutlinedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusBig))),
-      onPressed: onPressed,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 300, maxWidth: 600, minHeight: 80, maxHeight: 80),
-        child: Row(
-          children: [
-            Text(text, style: const TextStyle(fontSize: 24)),
-            const Spacer(),
-            icon,
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class BigIconWithCompanion extends StatefulWidget {
-  final IconData mainIcon;
-  final IconData? companionIcon;
-
-  const BigIconWithCompanion({
-    super.key,
-    required this.mainIcon,
-    this.companionIcon,
-  });
-
-  @override
-  State<BigIconWithCompanion> createState() => _BigIconWithCompanionState();
-}
-
-class _BigIconWithCompanionState extends State<BigIconWithCompanion> {
-  late Brightness _currentThemeMode;
-  Color? _mainIconColor;
-  late Color _companionColor;
-
-  @override
-  void didChangeDependencies() {
-    _currentThemeMode = Theme.of(context).brightness;
-    _mainIconColor = switch (_currentThemeMode) {
-      Brightness.dark => null,
-      Brightness.light => Theme.of(context).colorScheme.onSecondaryFixed,
-    };
-    _companionColor = switch (_currentThemeMode) {
-      Brightness.dark => MaterialTheme.darkFilledButton.value,
-      Brightness.light => Theme.of(context).colorScheme.onSecondaryFixed,
-    };
-    super.didChangeDependencies();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 65,
-      width: 90,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Icon(widget.mainIcon, size: 42, color: _mainIconColor),
-          if (widget.companionIcon != null)
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: Icon(widget.companionIcon, size: 32, color: _companionColor),
-            ),
-        ],
       ),
     );
   }

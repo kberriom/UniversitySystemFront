@@ -4,14 +4,12 @@ import 'package:university_system_front/Router/go_router_routes.dart';
 
 extension PopFromDialog on BuildContext {
   void goEditPage(GoRouterRoutes editPage, Object extra) {
-    assert(editPage.isSubRoute);
     assert(editPage.parent != null && editPage.parent?.parent != null);
     GoRouter.of(this).pushReplacement('${editPage.parent!.parent!.routeName}/${editPage.parent!.routeName}/${editPage.routeName}',
         extra: extra);
   }
 
   void goDetailPage(GoRouterRoutes detailPage, Object extra) {
-    assert(detailPage.isSubRoute);
     assert(detailPage.parent != null);
     GoRouter.of(this).go('${detailPage.parent!.routeName}/${detailPage.routeName}', extra: extra);
   }
@@ -22,7 +20,6 @@ extension PopFromDialog on BuildContext {
 
   ///Used for going to parent from edit page with opened modal
   void popFromModalDialogToParent(GoRouterRoutes editPage) {
-    assert(editPage.isSubRoute);
     assert(editPage.parent != null && editPage.parent?.parent != null);
     Navigator.of(this, rootNavigator: true)
       ..pop()

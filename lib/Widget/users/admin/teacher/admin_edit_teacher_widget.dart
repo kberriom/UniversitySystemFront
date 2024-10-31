@@ -1,50 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:university_system_front/Controller/subject/admin_subjects_widget_controller.dart';
-import 'package:university_system_front/Model/subject.dart';
-import 'package:university_system_front/Repository/subject/subject_repository.dart';
+import 'package:university_system_front/Controller/users/admin_users_widget_controller.dart';
+import 'package:university_system_front/Model/users/teacher.dart';
+import 'package:university_system_front/Repository/users/teacher_repository.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Util/router_utils.dart';
 import 'package:university_system_front/Util/snackbar_utils.dart';
-import 'package:university_system_front/Widget/common_components/title_widgets.dart';
-import 'package:university_system_front/Widget/common_components/modal_widgets.dart';
 import 'package:university_system_front/Widget/common_components/background_decoration_widget.dart';
+import 'package:university_system_front/Widget/common_components/modal_widgets.dart';
+import 'package:university_system_front/Widget/common_components/title_widgets.dart';
 import 'package:university_system_front/Widget/navigation/leading_widgets.dart';
 import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
-import 'package:university_system_front/Widget/subjects/subject_form_widget.dart';
+import 'package:university_system_front/Widget/users/teacher_form_widget.dart';
 
-class AdminEditSubjectWidget extends ConsumerStatefulWidget {
-  final Subject subject;
+class AdminEditTeacherWidget extends ConsumerStatefulWidget {
+  final Teacher teacher;
 
-  const AdminEditSubjectWidget({super.key, required this.subject});
+  const AdminEditTeacherWidget({super.key, required this.teacher});
 
   @override
-  ConsumerState<AdminEditSubjectWidget> createState() => _AdminEditSubjectWidgetState();
+  ConsumerState<AdminEditTeacherWidget> createState() => _AdminEditTeacherWidgetState();
 }
 
-class _AdminEditSubjectWidgetState extends ConsumerState<AdminEditSubjectWidget> {
+class _AdminEditTeacherWidgetState extends ConsumerState<AdminEditTeacherWidget> {
   final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
-  final backRoute = '${GoRouterRoutes.adminSubjects.routeName}/${GoRouterRoutes.adminSubjectDetail.routeName}';
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
       onPopInvokedWithResult: (didPop, result) =>
-          PlatformUtil.isAndroid ? context.goDetailPage(GoRouterRoutes.adminSubjectDetail, widget.subject) : null,
+          PlatformUtil.isAndroid ? context.goDetailPage(GoRouterRoutes.adminTeacherDetail, widget.teacher) : null,
       child: ScaffoldMessenger(
         key: _scaffoldMessengerKey,
         child: Scaffold(
-          appBar: getAppBarAndroid(
-            leading: UniSystemCloseButton(
-              //Windows leading must be configured on router
-              route: backRoute,
-              extra: widget.subject,
-            ),
-          ),
           resizeToAvoidBottomInset: false,
+          appBar: getAppBarAndroid(
+              leading: UniSystemCloseButton(routerRoute: GoRouterRoutes.adminTeacherDetail, extra: widget.teacher)),
           body: UniSystemBackgroundDecoration(
             child: Column(
               children: [
@@ -72,7 +66,7 @@ class _AdminEditSubjectWidgetState extends ConsumerState<AdminEditSubjectWidget>
                                         TextButton(
                                             onPressed: () {
                                               final future =
-                                                  ref.read(subjectRepositoryProvider).deleteSubject(widget.subject.name);
+                                                  ref.read(teacherRepositoryProvider).deleteUserTypeInfoById(widget.teacher.id);
                                               showGeneralDialog(
                                                 barrierLabel: "",
                                                 barrierDismissible: false,
@@ -85,16 +79,17 @@ class _AdminEditSubjectWidgetState extends ConsumerState<AdminEditSubjectWidget>
                                               );
                                               future.then((value) {
                                                 if (context.mounted) {
-                                                  ref.invalidate(paginatedSubjectInfiniteListProvider);
-                                                  ref.showGlobalSnackBar(context.localizations.successfullyDeletedSubject);
-                                                  context.popFromModalDialogToParent(GoRouterRoutes.adminEditSubject);
+                                                  ref.invalidate(paginatedUserInfiniteListProvider);
+                                                  ref.showGlobalSnackBar(context.localizations.adminTeacherDeleteSuccess);
+
+                                                  context.popFromModalDialogToParent(GoRouterRoutes.adminEditTeacher);
                                                 }
                                               }, onError: (e) {
                                                 if (context.mounted) {
                                                   context.popFromDialog();
                                                   if (e is Exception && e.toString().contains("409")) {
                                                     return showLocalSnackBar(
-                                                        _scaffoldMessengerKey, context.localizations.errorDeleteSubjectConflict);
+                                                        _scaffoldMessengerKey, context.localizations.errorDeleteTeacherConflict);
                                                   }
                                                   showLocalSnackBar(
                                                       _scaffoldMessengerKey, context.localizations.verboseErrorTryAgain);
@@ -103,7 +98,7 @@ class _AdminEditSubjectWidgetState extends ConsumerState<AdminEditSubjectWidget>
                                             },
                                             child: Text(context.localizations.deleteModalAction)),
                                         TextButton(
-                                            onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+                                            onPressed: () => context.popFromDialog(),
                                             child: Text(context.localizations.cancelModalAction))
                                       ],
                                     ),
@@ -115,8 +110,8 @@ class _AdminEditSubjectWidgetState extends ConsumerState<AdminEditSubjectWidget>
                         Flexible(
                           child: AnimatedComboTextTitle(
                             widthFactor: 0.9,
-                            downText: widget.subject.name,
-                            upText: context.localizations.editSubject,
+                            downText: widget.teacher.name,
+                            upText: context.localizations.adminEditTeacherPageTitle,
                           ),
                         ),
                       ],
@@ -130,21 +125,12 @@ class _AdminEditSubjectWidgetState extends ConsumerState<AdminEditSubjectWidget>
                       padding: const EdgeInsets.only(left: kBodyHorizontalPadding, right: kBodyHorizontalPadding, top: 10),
                       child: ConstrainedBox(
                         constraints: kBodyHorizontalConstraints,
-                        child: SubjectFormWidget(
-                          existingSubject: widget.subject,
-                          onSubmitCallback: (formSubject) {
-                            Future<Subject> response = Future(() async {
-                              if (widget.subject.name != formSubject.name) {
-                                try {
-                                  await ref.read(subjectRepositoryProvider).getSubject(formSubject.name!);
-                                  return Future.error(ArgumentError("Name already exists"));
-                                } catch (e) {
-                                  return ref.read(subjectRepositoryProvider).updateSubject(formSubject, widget.subject.name);
-                                }
-                              } else {
-                                return ref.read(subjectRepositoryProvider).updateSubject(formSubject, widget.subject.name);
-                              }
-                            });
+                        child: TeacherFormWidget(
+                          existingTeacher: widget.teacher,
+                          onSubmitCallback: (formTeacher) {
+                            Future<Teacher> response = ref
+                                .read(teacherRepositoryProvider)
+                                .updateUserTypeInfoById(widget.teacher.id, formTeacher as TeacherUpdateDto);
                             showGeneralDialog(
                               barrierLabel: "",
                               barrierDismissible: false,
@@ -156,22 +142,18 @@ class _AdminEditSubjectWidgetState extends ConsumerState<AdminEditSubjectWidget>
                               },
                             );
                             response.then((value) {
-                              ref.invalidate(paginatedSubjectInfiniteListProvider);
+                              //On edit successful
+                              ref.invalidate(paginatedUserInfiniteListProvider);
                               if (context.mounted) {
-                                context.goDetailPage(GoRouterRoutes.adminSubjectDetail, value);
+                                context.goDetailPage(GoRouterRoutes.adminTeacherDetail, value);
                               }
                             }, onError: (e) {
                               if (context.mounted) {
-                                showLocalSnackBar(
-                                  _scaffoldMessengerKey,
-                                  e is ArgumentError
-                                      ? context.localizations.subjectNameAlreadyExist
-                                      : context.localizations.couldNotUpdateSubject,
-                                );
+                                showLocalSnackBar(_scaffoldMessengerKey, context.localizations.verboseErrorTryAgain);
                               }
                             });
                           },
-                          buttonContent: Text(context.localizations.updateSubjectButton),
+                          buttonContent: Text(context.localizations.adminEditTeacherFormSubmitButton),
                         ),
                       ),
                     ),

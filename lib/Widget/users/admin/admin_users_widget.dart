@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 import 'package:university_system_front/Controller/users/admin_users_widget_controller.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Model/users/student.dart';
 import 'package:university_system_front/Model/users/teacher.dart';
 import 'package:university_system_front/Model/users/user.dart';
+import 'package:university_system_front/Router/go_router_routes.dart';
+import 'package:university_system_front/Router/route_extra/admin_add_user_widget_extra.dart';
 import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
+import 'package:university_system_front/Util/router_utils.dart';
 import 'package:university_system_front/Util/snackbar_utils.dart';
 import 'package:university_system_front/Widget/common_components/infinite_list_widgets.dart';
 import 'package:university_system_front/Widget/common_components/loading_widgets.dart';
@@ -82,7 +86,10 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
               floatingActionButton: FloatingActionButton(
                 child: const Icon(Icons.add),
                 onPressed: () {
-                  //todo add new user
+                  GoRouter.of(context).goNamed(
+                    GoRouterRoutes.adminAddUser.routeName,
+                    extra: AdminAddUserWidgetExtra(selectedUserType: <UserRole>{}),
+                  );
                 },
               ),
               body: UniSystemBackgroundDecoration(
@@ -348,14 +355,27 @@ class UserListItem extends StatelessWidget {
               backgroundColor: Theme.of(context).colorScheme.surface,
             ),
             onPressed: () {
+              final UserRole role = switch (data) {
+                Student() => UserRole.student,
+                Teacher() => UserRole.teacher,
+                User() => throw UnimplementedError(),
+              };
               if (userSelectionCallback != null) {
-                if (data is Student) {
-                  userSelectionCallback!(data, UserRole.student);
-                } else if (data is Teacher) {
-                  userSelectionCallback!(data, UserRole.teacher);
+                switch (role) {
+                  case UserRole.admin:
+                    throw UnimplementedError();
+                  case UserRole.student || UserRole.teacher:
+                    return userSelectionCallback!(data, role);
                 }
               }
-              //TODO Detail view
+              switch (role) {
+                case UserRole.admin:
+                  throw UnimplementedError();
+                case UserRole.student:
+                  context.goDetailPage(GoRouterRoutes.adminStudentDetail, data);
+                case UserRole.teacher:
+                  context.goDetailPage(GoRouterRoutes.adminTeacherDetail, data);
+              }
             },
             child: Row(
               children: [

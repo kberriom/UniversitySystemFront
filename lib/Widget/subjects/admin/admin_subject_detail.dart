@@ -9,6 +9,8 @@ import 'package:university_system_front/Model/subject.dart';
 import 'package:university_system_front/Model/users/student.dart';
 import 'package:university_system_front/Model/users/teacher.dart';
 import 'package:university_system_front/Repository/subject/subject_repository.dart';
+import 'package:university_system_front/Repository/users/student_repository.dart';
+import 'package:university_system_front/Repository/users/teacher_repository.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
@@ -156,6 +158,14 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                   UserListCarousel<TeacherAssignation>(
                     userRole: UserRole.teacher,
                     future: ref.watch(subjectRepositoryProvider).getAllTeachers(widget.subject.name),
+                    onTapCallBack: (data) async {
+                      if (!ref.read(userCarouselDeleteModeProvider.call(UserRole.teacher))) {
+                        context.goDetailPage(
+                          GoRouterRoutes.adminTeacherDetail,
+                          await ref.read(teacherRepositoryProvider).getUserTypeInfoById(data.id.teacherUserId),
+                        );
+                      }
+                    },
                     noAssignedMsg: context.localizations.subjectNoTeacherAsgmt,
                     onDataWidgetCallback: (data, index) {
                       return UserCarouselItem(
@@ -175,7 +185,7 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                             maxLines: 1,
                           ),
                           Text(
-                            "Role: ${data.roleInClass}",
+                            "${context.localizations.carouselUserItemTeacherRole}: ${data.roleInClass}",
                             maxLines: 1,
                           ),
                         ],
@@ -194,6 +204,14 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                   UserListCarousel<StudentSubjectRegistration>(
                     userRole: UserRole.student,
                     future: ref.watch(subjectRepositoryProvider).getAllRegisteredStudents(widget.subject.name),
+                    onTapCallBack: (data) async {
+                      if (!ref.read(userCarouselDeleteModeProvider.call(UserRole.student))) {
+                        context.goDetailPage(
+                          GoRouterRoutes.adminStudentDetail,
+                          await ref.read(studentRepositoryProvider).getUserTypeInfoById(data.id.studentUserId),
+                        );
+                      }
+                    },
                     noAssignedMsg: context.localizations.subjectNoStudentAsgmt,
                     onDataWidgetCallback: (data, index) {
                       return UserCarouselItem(

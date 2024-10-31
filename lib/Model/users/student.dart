@@ -40,21 +40,49 @@ class Student extends User with StudentMappable {
 }
 
 @MappableClass()
-class StudentDto with StudentDtoMappable {
+class StudentUpdateDto with StudentUpdateDtoMappable {
   String? name;
   String? lastName;
   String? mobilePhone;
   String? landPhone;
 
-  StudentDto({
+  StudentUpdateDto({
     this.name,
     this.lastName,
     this.mobilePhone,
     this.landPhone,
   });
 
-  static const fromMap = StudentDtoMapper.fromMap;
-  static const fromJson = StudentDtoMapper.fromJson;
+  static const fromMap = StudentUpdateDtoMapper.fromMap;
+  static const fromJson = StudentUpdateDtoMapper.fromJson;
+}
+
+@MappableClass()
+class StudentCreationDto with StudentCreationDtoMappable {
+  String name;
+  String lastName;
+  String governmentId;
+  String email;
+  String? mobilePhone;
+  String? landPhone;
+  String birthdate;
+  String username;
+  String userPassword;
+
+  StudentCreationDto({
+    required this.name,
+    required this.lastName,
+    required this.governmentId,
+    required this.email,
+    this.mobilePhone,
+    this.landPhone,
+    required this.birthdate,
+    required this.username,
+    required this.userPassword,
+  });
+
+  static const fromMap = StudentCreationDtoMapper.fromMap;
+  static const fromJson = StudentCreationDtoMapper.fromJson;
 }
 
 @MappableClass()

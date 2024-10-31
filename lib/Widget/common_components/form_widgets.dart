@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:university_system_front/Util/localization_utils.dart';
 
 InputDecoration buildUniSysInputDecoration(String label, Color borderColor) {
   return InputDecoration(
@@ -13,6 +14,61 @@ InputDecoration buildUniSysInputDecoration(String label, Color borderColor) {
     ),
     filled: true,
   );
+}
+
+class UniSysPasswordInput extends StatefulWidget {
+  final TextEditingController textEditingController;
+  final bool enabled;
+  final String label;
+  final FormFieldValidator<String>? validator;
+  final VoidCallback? onEditingComplete;
+
+  const UniSysPasswordInput({
+    super.key,
+    required this.textEditingController,
+    this.enabled = true,
+    required this.label,
+    this.validator,
+    this.onEditingComplete,
+  });
+
+  @override
+  State<UniSysPasswordInput> createState() => _UniSysPasswordInputState();
+}
+
+class _UniSysPasswordInputState extends State<UniSysPasswordInput> {
+  bool _isPasswordObscured = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      enabled: widget.enabled,
+      onEditingComplete: widget.onEditingComplete,
+      controller: widget.textEditingController,
+      obscureText: _isPasswordObscured,
+      enableSuggestions: false,
+      autocorrect: false,
+      validator: widget.validator ?? FormBuilderValidators.password(),
+      decoration: buildUniSysInputDecoration(widget.label, Theme.of(context).colorScheme.onSurfaceVariant).copyWith(
+        suffixIcon: Tooltip(
+          message: _isPasswordObscured
+              ? context.localizations.passwordFieldShowTooltip
+              : context.localizations.passwordFieldHideTooltip,
+          child: IconButton(
+            onPressed: () => setState(() => _isPasswordObscured = !_isPasswordObscured),
+            icon: _getPasswordVisibilityIcon(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _getPasswordVisibilityIcon() {
+    if (_isPasswordObscured) {
+      return const Icon(Icons.remove_red_eye);
+    }
+    return const Icon(Icons.remove_red_eye_outlined);
+  }
 }
 
 class UniSysCheckbox extends StatefulWidget {
@@ -73,12 +129,16 @@ class UniSysDateSelector extends StatefulWidget {
   final TextEditingController textEditingController;
   final String label;
   final FormFieldValidator<String>? validator;
+  final bool requireDateNowOrFuture;
+  final bool enabled;
 
   const UniSysDateSelector({
     super.key,
     required this.textEditingController,
     required this.label,
     this.validator,
+    this.enabled = true,
+    this.requireDateNowOrFuture = true,
   });
 
   @override
@@ -92,18 +152,23 @@ class _UniSysDateSelectorState extends State<UniSysDateSelector> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      enabled: widget.enabled,
       keyboardType: TextInputType.datetime,
       validator: widget.validator ??
           FormBuilderValidators.compose([
-            FormBuilderValidators.date(errorText: "Valid date required"),
-            FormBuilderValidators.dateRange(DateTime(now.year, now.month, now.day), DateTime(9999),
-                errorText: "Valid date required"),
+            FormBuilderValidators.date(errorText: context.localizations.dateFieldValidRequired),
+            FormBuilderValidators.dateRange(
+                widget.requireDateNowOrFuture ? DateTime(now.year, now.month, now.day) : DateTime(1800), DateTime(9999),
+                errorText: context.localizations.dateFieldValidRequired),
           ]),
       controller: widget.textEditingController,
       decoration: InputDecoration(
         prefixIcon: IconButton(
-            onPressed: () async =>
-                showDatePicker(context: context, currentDate: selectedDate, firstDate: now, lastDate: DateTime(9999))
+            onPressed: () async => showDatePicker(
+                        context: context,
+                        currentDate: selectedDate,
+                        firstDate: widget.requireDateNowOrFuture ? now : DateTime(1800),
+                        lastDate: DateTime(9999))
                     .then((value) {
                   if (value != null) {
                     widget.textEditingController.text = value.toString().substring(0, 10);

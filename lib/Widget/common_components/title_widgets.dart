@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 
+///Requires a [Flexible] or [Expanded] if it shares width with other widgets
 class AnimatedTextTitle extends StatefulWidget {
   final String text;
   final double fontSize;
   final TextOverflow textOverflow;
   final double widthFactor;
+  final BoxConstraints constraints;
 
   const AnimatedTextTitle({
     super.key,
@@ -13,6 +15,7 @@ class AnimatedTextTitle extends StatefulWidget {
     this.fontSize = 32,
     this.textOverflow = TextOverflow.ellipsis,
     this.widthFactor = 0.7,
+    this.constraints = const BoxConstraints(maxWidth: 650),
   });
 
   @override
@@ -29,7 +32,7 @@ class _AnimatedTextTitleState extends State<AnimatedTextTitle> with AnimationMix
     return Align(
       alignment: Alignment.centerLeft,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 650),
+        constraints: widget.constraints,
         child: FractionallySizedBox(
           widthFactor: widget.widthFactor,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
