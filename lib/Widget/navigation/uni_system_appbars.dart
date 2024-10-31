@@ -47,18 +47,26 @@ class DynamicUniSystemAppBar extends ConsumerWidget implements PreferredSizeWidg
       ),
       actions: [
         if (!isInLogin)
-          IconButton(
-            //Keep IconButton to maintain built-in padding to the left
-            iconSize: 32,
-            icon: PopupMenuButton(
-              child: const Icon(Icons.account_circle_sharp),
-              itemBuilder: (context) => <PopupMenuEntry>[
-                PopupMenuItem(
-                    child: Text(context.localizations.signOutPopupMenu),
-                    onTap: () => ref.read(loginServiceProvider.notifier).signOut()),
-              ],
-            ),
-            onPressed: () {},
+          MenuAnchor(
+            menuChildren: [
+              MenuItemButton(
+                onPressed: () => ref.read(loginServiceProvider.notifier).signOut(),
+                child: Text(context.localizations.signOutPopupMenu),
+              ),
+            ],
+            builder: (context, controller, child) {
+              return IconButton(
+                onPressed: () {
+                  if (controller.isOpen) {
+                    controller.close();
+                  } else {
+                    controller.open();
+                  }
+                },
+                icon: const Icon(Icons.account_circle_sharp),
+                iconSize: 32,
+              );
+            },
           ),
         if (context.isWindows) ...<Widget>[
           SizedBox(
