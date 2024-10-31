@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
+import 'package:university_system_front/Controller/subject/admin_subject_detail_controller.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Model/subject.dart';
 import 'package:university_system_front/Model/users/student.dart';
@@ -19,29 +18,10 @@ import 'package:university_system_front/Util/snackbar_utils.dart';
 import 'package:university_system_front/Widget/common_components/title_widgets.dart';
 import 'package:university_system_front/Widget/common_components/carousel_widgets.dart';
 import 'package:university_system_front/Widget/common_components/detail_page_widgets.dart';
-import 'package:university_system_front/Widget/common_components/form_widgets.dart';
 import 'package:university_system_front/Widget/common_components/modal_widgets.dart';
 import 'package:university_system_front/Widget/common_components/background_decoration_widget.dart';
 import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
-import 'package:university_system_front/Widget/users/admin/admin_users_widget.dart';
-
-part 'admin_subject_detail.g.dart';
-
-@riverpod
-class UserCarouselDeleteMode extends _$UserCarouselDeleteMode {
-  @override
-  bool build(UserRole userRole) {
-    return false;
-  }
-
-  void setMode(bool mode) {
-    state = mode;
-  }
-
-  void toggleMode() {
-    state = !state;
-  }
-}
+import 'package:university_system_front/Widget/subjects/admin/admin_user_for_subject_selectors.dart';
 
 class AdminSubjectDetailWidget extends ConsumerStatefulWidget {
   final Subject subject;
@@ -78,8 +58,8 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                   widthFactor: 0.9,
                   upText: context.localizations.subjectItemName,
                   downText: widget.subject.name,
-                  downWidget: SubjectLocationsIndicator(subject: widget.subject),
-                  underlineWidget: SubjectUnderlineInfo(subject: widget.subject),
+                  downWidget: SubjectDetailLocationsIndicator(subject: widget.subject),
+                  underlineWidget: SubjectDetailUnderlineInfo(subject: widget.subject),
                 ),
               ),
               UniSystemDetailBody(
@@ -95,9 +75,12 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                     controlAffinity: ListTileControlAffinity.leading,
                     children: <Widget>[
                       ListTile(
-                          title: Text(
-                              "${context.localizations.adminAddSubjectFormItemCreditsValue}: ${widget.subject.creditsValue}")),
-                      ListTile(title: Text("${context.localizations.formItemDescription}: ${widget.subject.description}")),
+                        title:
+                            Text("${context.localizations.adminAddSubjectFormItemCreditsValue}: ${widget.subject.creditsValue}"),
+                      ),
+                      ListTile(
+                        title: Text("${context.localizations.formItemDescription}: ${widget.subject.description}"),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -156,10 +139,14 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                     ],
                   ),
                   UserListCarousel<TeacherAssignation>(
-                    userRole: UserRole.teacher,
                     future: ref.watch(subjectRepositoryProvider).getAllTeachers(widget.subject.name),
                     onTapCallBack: (data) async {
-                      if (!ref.read(userCarouselDeleteModeProvider.call(UserRole.teacher))) {
+                      if (ref.read(userCarouselDeleteModeProvider.call(UserRole.teacher))) {
+                        _deleteUserFromSubject(
+                          ref.read(subjectRepositoryProvider).removeTeacher(data.id.teacherUserId, widget.subject.name),
+                          UserRole.teacher,
+                        );
+                      } else {
                         context.goDetailPage(
                           GoRouterRoutes.adminTeacherDetail,
                           await ref.read(teacherRepositoryProvider).getUserTypeInfoById(data.id.teacherUserId),
@@ -167,13 +154,8 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                       }
                     },
                     noAssignedMsg: context.localizations.subjectNoTeacherAsgmt,
-                    onDataWidgetCallback: (data, index) {
-                      return UserCarouselItem(
-                        carouselIndex: index,
-                        //todo remove when flutter/issues/154701 is resolved.
-                        parentScaffoldKey: _scaffoldMessengerKey,
-                        subject: widget.subject,
-                        userId: data.id.teacherUserId,
+                    onDataWidgetCallback: (data) {
+                      return SubjectCarouselUserItem(
                         userRole: UserRole.teacher,
                         image: const Image(
                           image: NetworkImage("https://placehold.co/300x300/png"), //todo FIX url
@@ -202,10 +184,14 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                     ],
                   ),
                   UserListCarousel<StudentSubjectRegistration>(
-                    userRole: UserRole.student,
                     future: ref.watch(subjectRepositoryProvider).getAllRegisteredStudents(widget.subject.name),
                     onTapCallBack: (data) async {
-                      if (!ref.read(userCarouselDeleteModeProvider.call(UserRole.student))) {
+                      if (ref.read(userCarouselDeleteModeProvider.call(UserRole.student))) {
+                        _deleteUserFromSubject(
+                          ref.read(subjectRepositoryProvider).removeStudent(data.id.studentUserId, widget.subject.name),
+                          UserRole.student,
+                        );
+                      } else {
                         context.goDetailPage(
                           GoRouterRoutes.adminStudentDetail,
                           await ref.read(studentRepositoryProvider).getUserTypeInfoById(data.id.studentUserId),
@@ -213,13 +199,8 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                       }
                     },
                     noAssignedMsg: context.localizations.subjectNoStudentAsgmt,
-                    onDataWidgetCallback: (data, index) {
-                      return UserCarouselItem(
-                        carouselIndex: index,
-                        //todo remove when flutter/issues/154701 is resolved.
-                        parentScaffoldKey: _scaffoldMessengerKey,
-                        subject: widget.subject,
-                        userId: data.id.studentUserId,
+                    onDataWidgetCallback: (data) {
+                      return SubjectCarouselUserItem(
                         userRole: UserRole.student,
                         image: const Image(
                           image: NetworkImage("https://placehold.co/300x300/png"), //todo FIX url
@@ -243,6 +224,30 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
       ),
     );
   }
+
+  void _deleteUserFromSubject(Future deleteFuture, UserRole role) {
+    showGeneralDialog(
+      barrierLabel: "",
+      barrierDismissible: false,
+      context: context,
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return BackgroundWaitModal(
+          future: deleteFuture,
+        );
+      },
+    );
+    deleteFuture.then((value) {
+      if (mounted) {
+        showLocalSnackBar(_scaffoldMessengerKey, context.localizations.userDeletedFromSubject);
+      }
+      ref.invalidate(subjectRepositoryProvider);
+    }, onError: (e) {
+      if (mounted) {
+        showLocalSnackBar(_scaffoldMessengerKey, context.localizations.userDeleteGenericErrorFromSubject);
+      }
+    });
+    deleteFuture.whenComplete(() => ref.read(userCarouselDeleteModeProvider.call(role).notifier).setMode(false));
+  }
 }
 
 class SubjectUserDeleteModeIconButton extends ConsumerWidget {
@@ -263,166 +268,28 @@ class SubjectUserDeleteModeIconButton extends ConsumerWidget {
   }
 }
 
-class SelectStudentForSubjectWidget extends ConsumerWidget {
-  final Subject subject;
-
-  const SelectStudentForSubjectWidget({super.key, required this.subject});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ItemSelectionModal(
-      title: context.localizations.selectStudentForResult,
-      child: AdminForResultUserWidget(
-        filterByTeacher: false,
-        forResultCallback: (user, role) {
-          final future = ref.read(subjectRepositoryProvider).addStudent(user.id, subject.name);
-          showGeneralDialog(
-            barrierLabel: "",
-            barrierDismissible: false,
-            context: context,
-            pageBuilder: (context, animation, secondaryAnimation) {
-              return BackgroundWaitModal(
-                future: future,
-              );
-            },
-          );
-          future.then((value) {
-            if (context.mounted) {
-              ref.invalidate(subjectRepositoryProvider);
-              Navigator.of(context, rootNavigator: true).pop();
-            }
-          }, onError: (e) {
-            if (context.mounted) {
-              if (e is Exception && e.toString().contains("409")) {
-                ScaffoldMessenger.of(context)
-                  ..clearSnackBars()
-                  ..showSnackBar(SnackBar(content: Text(context.localizations.userAlreadyInSubjectError)));
-              } else {
-                ScaffoldMessenger.of(context)
-                  ..clearSnackBars()
-                  ..showSnackBar(SnackBar(content: Text(context.localizations.verboseErrorTryAgain)));
-              }
-            }
-          });
-        },
-      ),
-    );
-  }
-}
-
-class SelectTeacherForSubjectWidget extends ConsumerStatefulWidget {
-  final Subject subject;
-
-  const SelectTeacherForSubjectWidget({
-    super.key,
-    required this.subject,
-  });
-
-  @override
-  ConsumerState<SelectTeacherForSubjectWidget> createState() => _SelectTeacherForSubjectWidgetState();
-}
-
-class _SelectTeacherForSubjectWidgetState extends ConsumerState<SelectTeacherForSubjectWidget> {
-  final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _teacherRoleController;
-
-  @override
-  void initState() {
-    _teacherRoleController = TextEditingController();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _teacherRoleController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ItemSelectionModal(
-      title: context.localizations.selectTeacherForResult,
-      headerWidget: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Form(
-          key: _formKey,
-          child: TextFormField(
-            controller: _teacherRoleController,
-            validator: FormBuilderValidators.required(),
-            decoration:
-                buildUniSysInputDecoration(context.localizations.teacherRole, Theme.of(context).colorScheme.onSurfaceVariant),
-          ),
-        ),
-      ),
-      child: AdminForResultUserWidget(
-        filterByStudent: false,
-        forResultCallback: (user, role) {
-          if (_formKey.currentState?.validate() ?? false) {
-            final future =
-                ref.read(subjectRepositoryProvider).addTeacher(user.id, widget.subject.name, _teacherRoleController.value.text);
-            showGeneralDialog(
-              barrierLabel: "",
-              barrierDismissible: false,
-              context: context,
-              pageBuilder: (context, animation, secondaryAnimation) {
-                return BackgroundWaitModal(
-                  future: future,
-                );
-              },
-            );
-            future.then(
-              (value) {
-                if (context.mounted) {
-                  ref.invalidate(subjectRepositoryProvider);
-                  Navigator.of(context, rootNavigator: true).pop();
-                }
-              },
-              onError: (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context)
-                    ..clearSnackBars()
-                    ..showSnackBar(SnackBar(content: Text(context.localizations.verboseErrorTryAgain)));
-                }
-              },
-            );
-          }
-        },
-      ),
-    );
-  }
-}
-
-class UserCarouselItem extends ConsumerStatefulWidget {
-  const UserCarouselItem({
+class SubjectCarouselUserItem extends ConsumerStatefulWidget {
+  const SubjectCarouselUserItem({
     super.key,
     required this.image,
     required this.footer,
     required this.userRole,
-    required this.subject,
-    required this.parentScaffoldKey,
-    required this.userId,
-    required this.carouselIndex, //todo remove when flutter/issues/154701 is resolved.
   });
 
   final Widget image;
   final List<Widget> footer;
-  final int userId;
   final UserRole userRole;
-  final Subject subject;
-  final GlobalKey<ScaffoldMessengerState> parentScaffoldKey;
-  final int carouselIndex; //todo remove when flutter/issues/154701 is resolved.
 
   @override
-  ConsumerState<UserCarouselItem> createState() => _UserCarouselItemState();
+  ConsumerState<SubjectCarouselUserItem> createState() => _UserCarouselItemState();
 }
 
-class _UserCarouselItemState extends ConsumerState<UserCarouselItem> with AnimationMixin {
+class _UserCarouselItemState extends ConsumerState<SubjectCarouselUserItem> with AnimationMixin {
   final Tween<double> _shiverAnimationTween = Tween(begin: -0.005, end: 0.005);
   final Tween<double> _noAnimationTween = Tween(begin: 0, end: 0);
   late Tween<double> _currentTween;
 
   bool deleteMode = false;
-  bool isPressedHandled = false; //todo remove when flutter/issues/154701 is resolved.
 
   @override
   void initState() {
@@ -449,53 +316,6 @@ class _UserCarouselItemState extends ConsumerState<UserCarouselItem> with Animat
         });
       },
     );
-    ref.listenManual(
-      //todo remove when flutter/issues/154701 is resolved.
-      fireImmediately: true,
-      userCarouselOnTapProvider.call(widget.userRole, widget.carouselIndex),
-      (previous, next) {
-        if (next) {
-          if (!isPressedHandled && ref.read(userCarouselDeleteModeProvider.call(widget.userRole))) {
-            if (context.mounted) {
-              _onPressedDelete();
-              ref.read(userCarouselDeleteModeProvider.call(widget.userRole).notifier).setMode(false);
-            }
-          }
-        }
-        Future(() => ref.read(userCarouselOnTapProvider.call(widget.userRole, widget.carouselIndex).notifier).reset());
-      },
-    );
-  }
-
-  void _onPressedDelete() {
-    //todo inline when flutter/issues/154701 is resolved.
-    Future future;
-    if (widget.userRole == UserRole.student) {
-      future = ref.read(subjectRepositoryProvider).removeStudent(widget.userId, widget.subject.name);
-    } else {
-      future = ref.read(subjectRepositoryProvider).removeTeacher(widget.userId, widget.subject.name);
-    }
-    showGeneralDialog(
-      barrierLabel: "",
-      barrierDismissible: false,
-      context: context,
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return BackgroundWaitModal(
-          future: future,
-        );
-      },
-    );
-    future.then((value) {
-      if (mounted) {
-        showLocalSnackBar(widget.parentScaffoldKey, context.localizations.userDeletedFromSubject);
-      }
-      ref.invalidate(subjectRepositoryProvider);
-    }, onError: (e) {
-      if (mounted) {
-        showLocalSnackBar(widget.parentScaffoldKey, context.localizations.userDeleteGenericErrorFromSubject);
-      }
-    });
-    future.whenComplete(() => isPressedHandled = true);
   }
 
   @override
@@ -520,11 +340,9 @@ class _UserCarouselItemState extends ConsumerState<UserCarouselItem> with Animat
                       right: 0,
                       child: Tooltip(
                         message: context.localizations.deleteModalAction,
-                        child: IconButton(
-                          onPressed: () {
-                            //todo inline _onPressedDelete here and delete userCarouselOnTapProvider when Flutter issue https://github.com/flutter/flutter/issues/154701 is resolved
-                          },
-                          icon: const Icon(
+                        child: const Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Icon(
                             Icons.delete,
                             color: Colors.red,
                             size: 30,
@@ -551,10 +369,10 @@ class _UserCarouselItemState extends ConsumerState<UserCarouselItem> with Animat
   }
 }
 
-class SubjectLocationsIndicator extends StatelessWidget {
+class SubjectDetailLocationsIndicator extends StatelessWidget {
   final Subject subject;
 
-  const SubjectLocationsIndicator({
+  const SubjectDetailLocationsIndicator({
     super.key,
     required this.subject,
   });
@@ -571,10 +389,10 @@ class SubjectLocationsIndicator extends StatelessWidget {
   }
 }
 
-class SubjectUnderlineInfo extends StatelessWidget {
+class SubjectDetailUnderlineInfo extends StatelessWidget {
   final Subject subject;
 
-  const SubjectUnderlineInfo({
+  const SubjectDetailUnderlineInfo({
     super.key,
     required this.subject,
   });

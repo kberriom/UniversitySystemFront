@@ -1,32 +1,10 @@
 import 'dart:ui' show PointerDeviceKind;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
-import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Widget/common_components/infinite_list_widgets.dart';
 import 'package:university_system_front/Widget/common_components/loading_widgets.dart';
-
-part 'carousel_widgets.g.dart';
-
-///Flutter framework bug workaround. See issue https://github.com/flutter/flutter/issues/154701
-@riverpod
-class UserCarouselOnTap extends _$UserCarouselOnTap {
-  @override
-  bool build(UserRole userRole, int index) {
-    return false;
-  }
-
-  void reset() {
-    state = false;
-  }
-
-  void hasTaped() {
-    state = true;
-  }
-}
 
 class _AllDeviceScrollBehavior extends MaterialScrollBehavior {
   @override
@@ -102,24 +80,22 @@ class _UniSystemBaseCarouselState extends State<UniSystemBaseCarousel> with Anim
   }
 }
 
-class UserListCarousel<T> extends ConsumerWidget {
+class UserListCarousel<T> extends StatelessWidget {
   const UserListCarousel({
     super.key,
     required this.future,
     required this.noAssignedMsg,
     required this.onDataWidgetCallback,
     required this.onTapCallBack,
-    required this.userRole, //todo remove when flutter/issues/154701 is resolved.
   });
 
   final Future<List<T>> future;
   final String noAssignedMsg;
-  final Widget Function(T data, int index) onDataWidgetCallback; //todo remove [index] when flutter/issues/154701 is resolved.
+  final Widget Function(T data) onDataWidgetCallback;
   final Function(T data) onTapCallBack;
-  final UserRole userRole; //todo remove when flutter/issues/154701 is resolved.
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return FutureBuilder(
       future: future,
       builder: (context, snapshot) {
@@ -145,12 +121,10 @@ class UserListCarousel<T> extends ConsumerWidget {
               size: const Size(200, 200),
               list: List<Widget>.generate(growable: false, snapshot.data!.length, (index) {
                 var data = snapshot.data![index];
-                return onDataWidgetCallback.call(data, index);
+                return onDataWidgetCallback.call(data);
               }),
               onTapCallBack: (index) {
                 onTapCallBack(snapshot.data![index]);
-                //todo remove when flutter/issues/154701 is resolved.
-                ref.read(userCarouselOnTapProvider.call(userRole, index).notifier).hasTaped();
               },
             );
         }
