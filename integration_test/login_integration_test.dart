@@ -134,15 +134,15 @@ void main() {
       var currentRute = router.routeInformationProvider.value.uri.path;
       expect(currentRute, GoRouterRoutes.adminHome.routeName);
 
-      final popupMenuFinder = find.byType(PopupMenuButton);
-      expect(popupMenuFinder, findsOne);
+      final menuAnchorFinder = find.byType(MenuAnchor);
+      expect(menuAnchorFinder, findsOne);
 
-      await widgetTester.tap(popupMenuFinder);
-      await widgetTester.pumpAndSettle();
+      await widgetTester.tap(menuAnchorFinder);
+      await widgetTester.pump();
 
       final popupMenuItemFinder = find.ancestor(
-          of: find.text(AppLocalizations.of(widgetTester.element(popupMenuFinder))!.signOutPopupMenu),
-          matching: find.byType(PopupMenuItem));
+          of: find.text(AppLocalizations.of(widgetTester.element(menuAnchorFinder))!.signOutPopupMenu),
+          matching: find.byType(MenuItemButton));
       expect(popupMenuItemFinder, findsOne);
 
       await widgetTester.tap(popupMenuItemFinder);

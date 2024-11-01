@@ -46,7 +46,7 @@ void main() {
 
       await widgetTester.pumpAndSettle();
 
-      final currentRute = getGoRouter(widgetTester, find.byType(AppBar)).routeInformationProvider.value.uri.path;
+      final currentRute = getGoRouter(widgetTester, find.byType(Image)).routeInformationProvider.value.uri.path;
       expect(currentRute, GoRouterRoutes.adminHome.routeName);
       expect(await SecureStorageAdapter().readValue(BearerTokenType.jwt.name), isNotEmpty);
     });
