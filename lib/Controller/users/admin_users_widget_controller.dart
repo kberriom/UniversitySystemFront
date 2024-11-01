@@ -1,4 +1,5 @@
 import 'package:dart_mappable/dart_mappable.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mutex/mutex.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
@@ -129,7 +130,7 @@ class SelfAwareUserListItem extends _$SelfAwareUserListItem {
 }
 
 @riverpod
-Future<PaginatedInfiniteList<User>> paginatedUserInfiniteList(PaginatedUserInfiniteListRef ref, UserRole type) async {
+Future<PaginatedInfiniteList<User>> paginatedUserInfiniteList(Ref ref, UserRole type) async {
   if (type == UserRole.student) {
     PaginatedList<Student> studentPage = await ref.read(studentRepositoryProvider).getAllUserTypeInfoPaged(1, preCacheAmount);
     return PaginatedInfiniteList<Student>(studentPage);
@@ -217,7 +218,7 @@ class AdminUsersWidgetController extends _$AdminUsersWidgetController {
 }
 
 @riverpod
-Future<List<User>> fullUserList(FullUserListRef ref, UserRole userRole) async {
+Future<List<User>> fullUserList(Ref ref, UserRole userRole) async {
   switch (userRole) {
     case UserRole.admin:
       throw UnimplementedError();

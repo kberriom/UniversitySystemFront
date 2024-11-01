@@ -9,7 +9,7 @@ import 'package:university_system_front/Service/uni_system_client/uni_system_api
 part 'grade_repository.g.dart';
 
 @Riverpod(keepAlive: true)
-GradeRepositoryImpl gradeRepositoryImpl(GradeRepositoryImplRef ref) {
+GradeRepositoryImpl gradeRepositoryImpl(Ref ref) {
   return GradeRepositoryImpl(ref);
 }
 

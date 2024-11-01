@@ -49,7 +49,7 @@ class ProviderLogger extends ProviderObserver {
   }
 }
 
-extension ProviderKeepForExtension on AutoDisposeRef<Object?> {
+extension ProviderKeepForExtension on Ref<Object?> {
   /// Keeps the provider alive for [duration].
   void keepFor(Duration duration) {
     final link = keepAlive();

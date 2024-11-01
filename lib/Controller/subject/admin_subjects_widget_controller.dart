@@ -1,4 +1,5 @@
 import 'package:dart_mappable/dart_mappable.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mutex/mutex.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:university_system_front/Controller/paginated_infinite_list_generic_controller.dart';
@@ -47,7 +48,7 @@ class SelfAwareSubjectListItem extends _$SelfAwareSubjectListItem {
 }
 
 @riverpod
-Future<PaginatedInfiniteList<Subject>> paginatedSubjectInfiniteList(PaginatedSubjectInfiniteListRef ref) async {
+Future<PaginatedInfiniteList<Subject>> paginatedSubjectInfiniteList(Ref ref) async {
   PaginatedList<Subject> subjectPage = await ref.read(subjectRepositoryProvider).getAllSubjectsPaged(1, preCacheAmount);
   return PaginatedInfiniteList<Subject>(subjectPage);
 }

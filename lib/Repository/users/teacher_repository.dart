@@ -10,7 +10,7 @@ import 'package:university_system_front/Service/uni_system_client/uni_system_api
 part 'teacher_repository.g.dart';
 
 @Riverpod(keepAlive: true)
-TeacherRepository teacherRepository(TeacherRepositoryRef ref) {
+TeacherRepository teacherRepository(Ref ref) {
   return TeacherRepository(ref);
 }
 

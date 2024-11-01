@@ -12,7 +12,7 @@ import 'package:university_system_front/Util/provider_utils.dart';
 part 'subject_repository.g.dart';
 
 @riverpod
-SubjectRepository subjectRepository(SubjectRepositoryRef ref) {
+SubjectRepository subjectRepository(Ref ref) {
   ref.keepFor(const Duration(minutes: 20));
   return _SubjectRepositoryImpl(ref);
 }

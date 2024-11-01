@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
@@ -73,7 +74,7 @@ class GoRouterInstance extends _$GoRouterInstance {
 ///Redirects the user for login related events such as token expired, sign out or unexpected token expiration from server
 ///only evaluates on a update event of [loginServiceProvider]
 @riverpod
-void loginRedirection(LoginRedirectionRef ref) async {
+void loginRedirection(Ref ref) async {
   ref.listen(loginServiceProvider, (previous, next) {
     switch (next) {
       case AsyncValue<BearerToken>(:final value?):
@@ -107,7 +108,7 @@ bool _isNotLocatedInLoginRelatedRute(String currentRute) {
 ///Redirects the user to the appropriate nav tree, can be seen as the "entry point" to the application
 ///If a bearer token has a role it implies that the token is valid
 @riverpod
-void userRoleRedirection(UserRoleRedirectionRef ref, BearerToken bearerToken) async {
+void userRoleRedirection(Ref ref, BearerToken bearerToken) async {
   final goRouter = ref.read(goRouterInstanceProvider);
   switch (bearerToken.role) {
     case UserRole.admin:
