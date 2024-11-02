@@ -21,9 +21,7 @@ extension PopFromDialog on BuildContext {
   ///Used for going to parent from edit page with opened modal
   void popFromModalDialogToParent(GoRouterRoutes editPage) {
     assert(editPage.parent != null && editPage.parent?.parent != null);
-    Navigator.of(this, rootNavigator: true)
-      ..pop()
-      ..pop();
+    GoRouter.of(this).pop();
     GoRouter.of(this).go(editPage.parent!.parent!.routeName);
   }
 }

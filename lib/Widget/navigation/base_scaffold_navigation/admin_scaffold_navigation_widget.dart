@@ -8,8 +8,6 @@ import 'package:university_system_front/Widget/navigation/uni_system_appbars.dar
 import 'package:visibility_detector/visibility_detector.dart';
 import 'common_scaffold_navigation_widgets.dart';
 
-final adminScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
-
 class AdminScaffoldNavigationWidget extends ConsumerWidget {
   final StatefulNavigationShell navigationShell;
 
@@ -27,7 +25,6 @@ class AdminScaffoldNavigationWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return CustomAdaptiveScaffold(
-      scaffoldMessengerKey: adminScaffoldMessengerKey,
       //Windows has a permanent appBar that is also the title bar
       appBar: context.isWindows ? const DynamicUniSystemAppBar(isInLogin: false) : null,
       appBarBreakpoint: context.isWindows ? Breakpoints.smallAndUp : null,

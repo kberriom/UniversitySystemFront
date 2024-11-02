@@ -9,6 +9,7 @@ import 'package:university_system_front/Theme/theme.dart' as theme;
 import 'package:university_system_front/Theme/theme_mode_provider.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Util/provider_utils.dart';
+import 'package:university_system_front/Util/snackbar_utils.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
@@ -29,6 +30,7 @@ class UniversitySystemUi extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return _LoginInitialization(
       child: MaterialApp.router(
+        scaffoldMessengerKey: rootScaffoldMessengerKey,
         debugShowCheckedModeBanner: false,
         title: 'University System UI',
         localizationsDelegates: AppLocalizations.localizationsDelegates,
