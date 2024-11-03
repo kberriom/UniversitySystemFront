@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
+import 'package:university_system_front/Widget/common_components/modal_widgets.dart';
 import 'package:window_manager/window_manager.dart';
 import 'leading_widgets.dart';
 
@@ -52,6 +53,21 @@ class DynamicUniSystemAppBar extends ConsumerWidget implements PreferredSizeWidg
               MenuItemButton(
                 onPressed: () => ref.read(loginServiceProvider.notifier).signOut(),
                 child: Text(context.localizations.signOutPopupMenu),
+              ),
+              MenuItemButton(
+                onPressed: () => showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return const DialogModal(
+                      canPop: true,
+                      child: LicensePage(
+                        applicationLegalese: "Copyright 2024, Keneth Berrio.",
+                      ),
+                    );
+                  },
+                ),
+                child: Text(context.localizations.aboutPageButton),
               ),
             ],
             builder: (context, controller, child) {

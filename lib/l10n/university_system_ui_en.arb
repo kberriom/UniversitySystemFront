@@ -62,6 +62,7 @@
       }
     }
   },
+  "aboutPageButton": "About",
   "adminUserListSearchBoxHint": "Search Users",
   "adminSubjectSearchBoxHint": "Search Subjects",
   "adminCurriculumSearchBoxHint": "Search Curriculums",
