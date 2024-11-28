@@ -5,8 +5,9 @@ import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:university_system_front/Widget/common_components/modal_widgets.dart';
+import 'package:university_system_front/l10n/locale_controller.dart';
 import 'package:window_manager/window_manager.dart';
-import 'leading_widgets.dart';
+import 'package:university_system_front/Widget/navigation/leading_widgets.dart';
 
 DynamicUniSystemAppBar? getAppBarAndroid({UniSystemSmartLeadButton? leading}) {
   if (PlatformUtil.isWindows) {
@@ -23,9 +24,18 @@ DynamicUniSystemAppBar? getAppBarAndroid({UniSystemSmartLeadButton? leading}) {
 class DynamicUniSystemAppBar extends ConsumerWidget implements PreferredSizeWidget {
   final bool isInLogin;
   final bool forceShowLogo;
+  final bool forceShowUserIcon;
+  final bool enableUserIconMenu;
   final UniSystemSmartLeadButton? androidLeading;
 
-  const DynamicUniSystemAppBar({super.key, required this.isInLogin, this.forceShowLogo = false, this.androidLeading});
+  const DynamicUniSystemAppBar({
+    super.key,
+    required this.isInLogin,
+    this.forceShowLogo = false,
+    this.forceShowUserIcon = false,
+    this.enableUserIconMenu = true,
+    this.androidLeading,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -47,43 +57,7 @@ class DynamicUniSystemAppBar extends ConsumerWidget implements PreferredSizeWidg
         ),
       ),
       actions: [
-        if (!isInLogin)
-          MenuAnchor(
-            menuChildren: [
-              MenuItemButton(
-                onPressed: () => ref.read(loginServiceProvider.notifier).signOut(),
-                child: Text(context.localizations.signOutPopupMenu),
-              ),
-              MenuItemButton(
-                onPressed: () => showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (BuildContext context) {
-                    return const DialogModal(
-                      canPop: true,
-                      child: LicensePage(
-                        applicationLegalese: "Copyright 2024, Keneth Berrio.",
-                      ),
-                    );
-                  },
-                ),
-                child: Text(context.localizations.aboutPageButton),
-              ),
-            ],
-            builder: (context, controller, child) {
-              return IconButton(
-                onPressed: () {
-                  if (controller.isOpen) {
-                    controller.close();
-                  } else {
-                    controller.open();
-                  }
-                },
-                icon: const Icon(Icons.account_circle_sharp),
-                iconSize: 32,
-              );
-            },
-          ),
+        if (!isInLogin || forceShowUserIcon) UserMenuButton(enabled: enableUserIconMenu),
         if (context.isWindows) ...<Widget>[
           SizedBox(
             height: double.infinity,
@@ -168,6 +142,76 @@ class DynamicUniSystemAppBar extends ConsumerWidget implements PreferredSizeWidg
   Size get preferredSize => AppBar().preferredSize;
 }
 
+class UserMenuButton extends ConsumerWidget {
+  const UserMenuButton({
+    super.key,
+    required this.enabled,
+  });
+
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return MenuAnchor(
+      menuChildren: [
+        MenuItemButton(
+          onPressed: () => ref.read(loginServiceProvider.notifier).signOut(),
+          child: Text(context.localizations.signOutPopupMenu),
+        ),
+        SubmenuButton(
+          menuChildren: [
+            MenuItemButton(
+              onPressed: () {
+                ref.read(currentLocaleProvider.notifier).changeLocale(UniSystemLocale.en);
+              },
+              trailingIcon: ref.watch(currentLocaleProvider) == UniSystemLocale.en.locale ? Icon(Icons.check_rounded) : null,
+              child: Text("${UniSystemLocale.en.localeName} (${UniSystemLocale.en.localeString})"),
+            ),
+            MenuItemButton(
+              onPressed: () {
+                ref.read(currentLocaleProvider.notifier).changeLocale(UniSystemLocale.es);
+              },
+              trailingIcon: ref.watch(currentLocaleProvider) == UniSystemLocale.es.locale ? Icon(Icons.check_rounded) : null,
+              child: Text("${UniSystemLocale.es.localeName} (${UniSystemLocale.es.localeString})"),
+            )
+          ],
+          child: Text(context.localizations.setLang),
+        ),
+        MenuItemButton(
+          onPressed: () => showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return const DialogModal(
+                canPop: true,
+                child: LicensePage(
+                  applicationLegalese: "Copyright 2024, Keneth Berrio.",
+                ),
+              );
+            },
+          ),
+          child: Text(context.localizations.aboutPageButton),
+        ),
+      ],
+      builder: (context, controller, child) {
+        return IconButton(
+          onPressed: !enabled
+              ? null
+              : () {
+                  if (controller.isOpen) {
+                    controller.close();
+                  } else {
+                    controller.open();
+                  }
+                },
+          icon: const Icon(Icons.account_circle_sharp),
+          iconSize: 32,
+        );
+      },
+    );
+  }
+}
+
 class UniSystemSliverAppBar extends ConsumerWidget implements PreferredSizeWidget {
   const UniSystemSliverAppBar({super.key});
 
@@ -185,19 +229,7 @@ class UniSystemSliverAppBar extends ConsumerWidget implements PreferredSizeWidge
         child: Image.asset('assets/logo_full_nobg_v1.png', cacheWidth: 200),
       ),
       actions: [
-        IconButton(
-          //Keep IconButton to maintain built-in padding to the left
-          iconSize: 32,
-          icon: PopupMenuButton(
-            child: const Icon(Icons.account_circle_sharp),
-            itemBuilder: (context) => <PopupMenuEntry>[
-              PopupMenuItem(
-                  child: Text(context.localizations.signOutPopupMenu),
-                  onTap: () => ref.read(loginServiceProvider.notifier).signOut()),
-            ],
-          ),
-          onPressed: () {},
-        ),
+        UserMenuButton(enabled: true),
       ],
     );
   }

@@ -5,6 +5,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
+import 'package:university_system_front/Widget/home/student_home_widget.dart';
+import 'package:university_system_front/Widget/home/teacher_home_widget.dart';
 import 'package:university_system_front/Widget/login/animated_login_widget.dart';
 import 'package:university_system_front/Widget/login/login_splash_widget.dart';
 import 'package:university_system_front/Widget/login/login_widget.dart';
@@ -59,6 +61,28 @@ class GoRouterInstance extends _$GoRouterInstance {
               transitionsBuilder: _fadeTransition),
         ),
         getAdminRouteTree(ref),
+        GoRoute(
+          path: GoRouterRoutes.studentHome.routeName,
+          name: GoRouterRoutes.studentHome.routeName,
+          pageBuilder: (context, state) {
+            return CustomTransitionPage(
+              key: ValueKey(GoRouterRoutes.studentHome.routeName),
+              child: const StudentHomeWidget(),
+              transitionsBuilder: _fadeTransition,
+            );
+          },
+        ),
+        GoRoute(
+          path: GoRouterRoutes.teacherHome.routeName,
+          name: GoRouterRoutes.teacherHome.routeName,
+          pageBuilder: (context, state) {
+            return CustomTransitionPage(
+              key: ValueKey(GoRouterRoutes.teacherHome.routeName),
+              child: const TeacherHomeWidget(),
+              transitionsBuilder: _fadeTransition,
+            );
+          },
+        ),
       ],
     );
   }
@@ -114,9 +138,9 @@ void userRoleRedirection(Ref ref, BearerToken bearerToken) async {
     case UserRole.admin:
       goRouter.goNamed(GoRouterRoutes.adminHome.routeName);
     case UserRole.teacher:
-    // TODO: Handle this case.
+      goRouter.goNamed(GoRouterRoutes.teacherHome.routeName);
     case UserRole.student:
-    // TODO: Handle this case.
+      goRouter.goNamed(GoRouterRoutes.studentHome.routeName);
     case null:
       goRouter.goNamed(GoRouterRoutes.animatedLogin.routeName);
   }

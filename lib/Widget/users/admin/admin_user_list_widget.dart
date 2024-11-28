@@ -23,22 +23,22 @@ import 'package:university_system_front/Widget/search/search_widgets.dart';
 
 typedef UserSelectionCallback = void Function(User user, UserRole role);
 
-class AdminUsersWidget extends ConsumerStatefulWidget {
+class AdminUserListWidget extends ConsumerStatefulWidget {
   final bool filterByStudent;
   final bool filterByTeacher;
 
-  const AdminUsersWidget({
+  const AdminUserListWidget({
     super.key,
     this.filterByStudent = true,
     this.filterByTeacher = true,
   });
 
   @override
-  ConsumerState<AdminUsersWidget> createState() => _AdminUsersWidgetState();
+  ConsumerState<AdminUserListWidget> createState() => _AdminUsersWidgetState();
 }
 
-class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with AnimationMixin {
-  final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+class _AdminUsersWidgetState extends ConsumerState<AdminUserListWidget> with AnimationMixin {
+  final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   late final ScrollController scrollController;
   late final TextEditingController searchTextController;
   late final AnimationController animationController;
@@ -80,7 +80,7 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
         child: SafeArea(
           bottom: false,
           child: ScaffoldMessenger(
-            key: scaffoldMessengerKey,
+            key: _scaffoldMessengerKey,
             child: Scaffold(
               resizeToAvoidBottomInset: false,
               floatingActionButton: FloatingActionButton(
@@ -111,7 +111,7 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
                                   if (filterByTeacher) {
                                     filterByStudent = !filterByStudent;
                                   } else {
-                                    showLocalSnackBar(scaffoldMessengerKey, context.localizations.oneFilterActiveRuleError);
+                                    _scaffoldMessengerKey.showTextSnackBar(context.localizations.oneFilterActiveRuleError);
                                   }
                                 });
                               },
@@ -126,7 +126,7 @@ class _AdminUsersWidgetState extends ConsumerState<AdminUsersWidget> with Animat
                                   if (filterByStudent) {
                                     filterByTeacher = !filterByTeacher;
                                   } else {
-                                    showLocalSnackBar(scaffoldMessengerKey, context.localizations.oneFilterActiveRuleError);
+                                    _scaffoldMessengerKey.showTextSnackBar(context.localizations.oneFilterActiveRuleError);
                                   }
                                 });
                               },
@@ -253,7 +253,7 @@ class _AdminForResultUserWidgetState extends ConsumerState<AdminForResultUserWid
                                     if (filterByTeacher) {
                                       filterByStudent = !filterByStudent;
                                     } else {
-                                      showLocalSnackBar(scaffoldMessengerKey, context.localizations.oneFilterActiveRuleError);
+                                      scaffoldMessengerKey.showTextSnackBar(context.localizations.oneFilterActiveRuleError);
                                     }
                                   });
                                 }
@@ -270,7 +270,7 @@ class _AdminForResultUserWidgetState extends ConsumerState<AdminForResultUserWid
                                     if (filterByStudent) {
                                       filterByTeacher = !filterByTeacher;
                                     } else {
-                                      showLocalSnackBar(scaffoldMessengerKey, context.localizations.oneFilterActiveRuleError);
+                                      scaffoldMessengerKey.showTextSnackBar(context.localizations.oneFilterActiveRuleError);
                                     }
                                   });
                                 }
@@ -365,16 +365,17 @@ class UserListItem extends StatelessWidget {
                   case UserRole.admin:
                     throw UnimplementedError();
                   case UserRole.student || UserRole.teacher:
-                    return userSelectionCallback!(data, role);
+                    userSelectionCallback!(data, role);
                 }
-              }
-              switch (role) {
-                case UserRole.admin:
-                  throw UnimplementedError();
-                case UserRole.student:
-                  context.goDetailPage(GoRouterRoutes.adminStudentDetail, data);
-                case UserRole.teacher:
-                  context.goDetailPage(GoRouterRoutes.adminTeacherDetail, data);
+              } else {
+                switch (role) {
+                  case UserRole.student:
+                    context.goDetailPage(GoRouterRoutes.adminStudentDetail, data);
+                  case UserRole.teacher:
+                    context.goDetailPage(GoRouterRoutes.adminTeacherDetail, data);
+                  case _:
+                    throw UnimplementedError();
+                }
               }
             },
             child: Row(

@@ -7,6 +7,7 @@ import 'package:university_system_front/Router/go_router_config.dart';
 import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Theme/theme.dart' as theme;
 import 'package:university_system_front/Theme/theme_mode_provider.dart';
+import 'package:university_system_front/l10n/locale_controller.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Util/provider_utils.dart';
 import 'package:university_system_front/Util/snackbar_utils.dart';
@@ -34,10 +35,8 @@ class UniversitySystemUi extends ConsumerWidget {
         debugShowCheckedModeBanner: false,
         title: 'University System UI',
         localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: const [
-          Locale('en'),
-          Locale('es'),
-        ],
+        supportedLocales: UniSystemLocale.values.map((localeCode) => localeCode.locale).toList(growable: false),
+        locale: ref.watch(currentLocaleProvider),
         theme: const theme.MaterialTheme().light(),
         darkTheme: const theme.MaterialTheme().dark(),
         themeMode: ref.watch(currentThemeModeProvider),

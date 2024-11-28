@@ -161,5 +161,41 @@
   "adminAddTeacherFormSubmitButton": "Añadir Profesor",
   "adminAddUserConflictGovId": "Documento de identidad ya asociado a otro Usuario, no es posible crear Usuario",
   "adminAddUserConflictUsername": "UUID ya asociado a otro Usuario, no es posible crear Usuario",
-  "adminAddUserConflictEmail": "Correo electrónico ya asociado a otro Usuario, no es posible crear Usuario"
+  "adminAddUserConflictEmail": "Correo electrónico ya asociado a otro Usuario, no es posible crear Usuario",
+  "refreshButtonTooltip": "Refrescar",
+  "gradeDescriptionName": "Descripción calificación / Nombre",
+  "gradeValueFieldName": "Valor calificación",
+  "gradePercentageValueFieldName" : "Valor porcentaje calificación",
+  "editFinalGrade": "Editar Calificación Final",
+  "studentSubjectProgress": "Progreso del Estudiante",
+  "studentNameSubjectProgress": "Progreso de {userName}",
+  "@studentNameSubjectProgress" : {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "setFinalGrade": "Establecer calificación final",
+  "addNewGrade": "Añadir nueva calificación",
+  "finalGrade": "Calificación final",
+  "addGradeSuccess": "Calificación añadida exitosamente",
+  "gradeValidationValueConstraints": "El valor de la Calificación debe estar entre 0.0 y 5.0",
+  "gradeValidationPercentageConstraints": "La suma porcentual de las calificaciones de la materia no puede superar 100%",
+  "invalidGrade": "Calificación invalida",
+  "addGrade": "Añadir calificación",
+  "setGrade": "Establecer calificación",
+  "autoFinalGrade": "Calificación final automática",
+  "autoGradeSuccess": "Calificación final automática establecida exitosamente",
+  "deleteFinalGrade": "Eliminar Calificación final",
+  "deleteFinalGradeSuccess": "Calificación final removida exitosamente",
+  "approxFinalGrade": "Calificación final aproximada",
+  "deleteGrade": "Eliminar Calificación",
+  "deleteGradeSuccess": "Calificación removida exitosamente",
+  "deleteGradeError": "No fue posible remover la calificación, inténtalo de nuevo luego",
+  "noGradesRegistered": "Sin calificaciónes registradas",
+  "setLang": "Cambiar lenguaje",
+  "adminPassEditMode": "Modo editar contraseña",
+  "passwordChangeSuccess": "Cambio de contraseña realizado exitosamente",
+  "registeredSubjectsForUser": "Materias asignadas"
 }

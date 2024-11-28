@@ -36,8 +36,8 @@ Widget setLeadingOnWindows(ValueKey<String> key, Widget widget,
           leading: leading,
           widget: widget,
         );
-      case UniSystemCloseButton():
-        return VisibilityLeadingWrapper<UniSystemCloseButton>(
+      case UniSystemCustomBackButton():
+        return VisibilityLeadingWrapper<UniSystemCustomBackButton>(
           pageKey: key,
           leading: leading,
           widget: widget,
@@ -119,6 +119,12 @@ class _UniSystemThemeButtonState extends ConsumerState<UniSystemThemeButton> {
 
 sealed class UniSystemSmartLeadButton implements Widget {}
 
+enum UniSystemSmartLeadButtonIcons {
+  close,
+  back,
+}
+
+///Button that does a simple pop
 class UniSystemBackButton extends ConsumerWidget implements UniSystemSmartLeadButton {
   const UniSystemBackButton({super.key});
 
@@ -131,32 +137,41 @@ class UniSystemBackButton extends ConsumerWidget implements UniSystemSmartLeadBu
   }
 }
 
-class UniSystemCloseButton extends ConsumerWidget implements UniSystemSmartLeadButton {
+class UniSystemCustomBackButton extends ConsumerWidget implements UniSystemSmartLeadButton {
+  final UniSystemSmartLeadButtonIcons icon;
   final String? route;
   final Object? extra;
   final GoRouterRoutes? routerRoute;
 
-  const UniSystemCloseButton({super.key, this.route, this.extra, this.routerRoute});
+  ///Button that returns to a configurable previous page
+  const UniSystemCustomBackButton(
+      {super.key, this.route, this.extra, this.routerRoute, this.icon = UniSystemSmartLeadButtonIcons.close})
+      : assert(route != null || routerRoute != null, "Set a manual route OR auto route (routerRoute) in UniSystemCloseButton");
+
+  void customClose(WidgetRef ref) {
+    if (routerRoute != null) {
+      GoRouterRoutes? currentParent = routerRoute!;
+      String routeString = "${currentParent.routeName.substring(0, 1) == "/" ? "" : "/"}${currentParent.routeName}";
+
+      currentParent = currentParent.parent;
+      while (currentParent != null) {
+        routeString = "${currentParent.routeName.substring(0, 1) == "/" ? "" : "/"}${currentParent.routeName}$routeString";
+        currentParent = currentParent.parent;
+      }
+      ref.read(goRouterInstanceProvider).pushReplacement(routeString, extra: extra);
+    } else if (route != null) {
+      ref.read(goRouterInstanceProvider).pushReplacement(route!, extra: extra);
+    } else {
+      ref.read(goRouterInstanceProvider).routerDelegate.pop();
+    }
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) => VisibilityDetectorController.instance.notifyNow());
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return CloseButton(onPressed: () {
-      if (route == null) {
-        ref.read(goRouterInstanceProvider).routerDelegate.pop();
-      } else if (routerRoute != null) {
-        GoRouterRoutes? currentParent = routerRoute!;
-        String routeString = "/${currentParent.routeName}";
-
-        currentParent = currentParent.parent;
-        while (currentParent != null) {
-          routeString = "/${currentParent.routeName}$routeString";
-          currentParent = currentParent.parent;
-        }
-        ref.read(goRouterInstanceProvider).pushReplacement(routeString, extra: extra);
-      } else {
-        ref.read(goRouterInstanceProvider).pushReplacement(route!, extra: extra);
-      }
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) => VisibilityDetectorController.instance.notifyNow());
-    });
+    return switch (icon) {
+      UniSystemSmartLeadButtonIcons.close => CloseButton(onPressed: () => customClose(ref)),
+      UniSystemSmartLeadButtonIcons.back => BackButton(onPressed: () => customClose(ref)),
+    };
   }
 }

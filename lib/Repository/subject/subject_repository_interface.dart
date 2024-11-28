@@ -17,10 +17,16 @@ abstract interface class SubjectRepository {
 
   Future<Subject> getSubject(String name);
 
+  Future<Subject> getSubjectById(int id);
+
   ///URL param [subjectName]
   Future<List<TeacherAssignation>> getAllTeachers(String subjectName);
 
+  Future<List<Subject>> getAllSubjectsByTeacherId(int teacherId);
+
   Future<List<Subject>> getAllSubjects();
+
+  Future<List<Subject>> getAllSubjectsByStudentId(int studentId);
 
   Future<PaginatedList<Subject>> getAllSubjectsPaged(int page, int size);
 

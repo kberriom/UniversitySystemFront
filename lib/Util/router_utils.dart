@@ -9,7 +9,7 @@ extension PopFromDialog on BuildContext {
         extra: extra);
   }
 
-  void goDetailPage(GoRouterRoutes detailPage, Object extra) {
+  void goDetailPage(GoRouterRoutes detailPage, Object? extra) {
     assert(detailPage.parent != null);
     GoRouter.of(this).go('${detailPage.parent!.routeName}/${detailPage.routeName}', extra: extra);
   }

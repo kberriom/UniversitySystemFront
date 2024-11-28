@@ -63,25 +63,29 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                 ),
               ),
               UniSystemDetailBody(
+                padding: EdgeInsets.zero,
                 children: [
                   const SizedBox(height: 10),
-                  ExpansionTile(
-                    collapsedBackgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-                    backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-                    collapsedShape: const RoundedRectangleBorder(),
-                    shape: const RoundedRectangleBorder(),
-                    title: Text(context.localizations.detailSeeMoreInfo),
-                    dense: true,
-                    controlAffinity: ListTileControlAffinity.leading,
-                    children: <Widget>[
-                      ListTile(
-                        title:
-                            Text("${context.localizations.adminAddSubjectFormItemCreditsValue}: ${widget.subject.creditsValue}"),
-                      ),
-                      ListTile(
-                        title: Text("${context.localizations.formItemDescription}: ${widget.subject.description}"),
-                      ),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: kBodyHorizontalPadding),
+                    child: ExpansionTile(
+                      collapsedBackgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+                      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+                      collapsedShape: const RoundedRectangleBorder(),
+                      shape: const RoundedRectangleBorder(),
+                      title: Text(context.localizations.detailSeeMoreInfo),
+                      dense: true,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      children: <Widget>[
+                        ListTile(
+                          title: Text(
+                              "${context.localizations.adminAddSubjectFormItemCreditsValue}: ${widget.subject.creditsValue}"),
+                        ),
+                        ListTile(
+                          title: Text("${context.localizations.formItemDescription}: ${widget.subject.description}"),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Wrap(
@@ -90,6 +94,7 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                     alignment: WrapAlignment.spaceEvenly,
                     children: [
                       QuickActionButton(
+                        height: 40,
                         text: context.localizations.adminSubjectDetailQuickActAddTeacher,
                         icon: const Icon(Icons.add),
                         onPressed: () {
@@ -109,6 +114,7 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                         },
                       ),
                       QuickActionButton(
+                        height: 40,
                         text: context.localizations.adminSubjectDetailQuickActAddStudent,
                         icon: const Icon(Icons.add),
                         onPressed: () {
@@ -129,15 +135,28 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                       ),
                     ],
                   ),
-                  Row(
-                    children: [
-                      Tooltip(
-                        message: context.localizations.adminSubjectDetailQuickActRemoveTeacher,
-                        child: const SubjectUserDeleteModeIconButton(UserRole.teacher),
+                  const SizedBox(height: 10),
+                  UniSystemDetailHeader(
+                    alignment: Alignment.centerLeft,
+                    backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                    header: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        children: [
+                          Tooltip(
+                            message: context.localizations.adminSubjectDetailQuickActRemoveTeacher,
+                            child: const SubjectUserDeleteModeIconButton(UserRole.teacher),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            context.localizations.userTypeNameTeacher(2),
+                            style: downTextStyle,
+                          ),
+                        ],
                       ),
-                      Flexible(child: AnimatedTextTitle(text: context.localizations.userTypeNameTeacher(2))),
-                    ],
+                    ),
                   ),
+                  const SizedBox(height: 10),
                   UserListCarousel<TeacherAssignation>(
                     future: ref.watch(subjectRepositoryProvider).getAllTeachers(widget.subject.name),
                     onTapCallBack: (data) async {
@@ -162,9 +181,20 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                           fit: BoxFit.cover,
                         ),
                         footer: [
-                          Text(
-                            "${context.localizations.idTooltip}: ${data.id.teacherUserId}",
-                            maxLines: 1,
+                          FutureBuilder(
+                            future: ref.watch(teacherRepositoryProvider).getUserTypeInfoById(data.id.teacherUserId),
+                            builder: (context, snapshot) {
+                              String name = "";
+                              if (snapshot.connectionState == ConnectionState.done && !snapshot.hasError) {
+                                name = ("${snapshot.data?.name} ${snapshot.data?.lastName}");
+                              } else {
+                                name = context.localizations.teacherItemName;
+                              }
+                              return Text(
+                                name,
+                                maxLines: 1,
+                              );
+                            },
                           ),
                           Text(
                             "${context.localizations.carouselUserItemTeacherRole}: ${data.roleInClass}",
@@ -174,15 +204,28 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                       );
                     },
                   ),
-                  Row(
-                    children: [
-                      Tooltip(
-                        message: context.localizations.adminSubjectDetailQuickActRemoveStudent,
-                        child: const SubjectUserDeleteModeIconButton(UserRole.student),
+                  const SizedBox(height: 10),
+                  UniSystemDetailHeader(
+                    alignment: Alignment.centerLeft,
+                    backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                    header: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        children: [
+                          Tooltip(
+                            message: context.localizations.adminSubjectDetailQuickActRemoveStudent,
+                            child: const SubjectUserDeleteModeIconButton(UserRole.student),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            context.localizations.userTypeNameStudent(2),
+                            style: downTextStyle,
+                          ),
+                        ],
                       ),
-                      Flexible(child: AnimatedTextTitle(text: context.localizations.userTypeNameStudent(2))),
-                    ],
+                    ),
                   ),
+                  const SizedBox(height: 10),
                   UserListCarousel<StudentSubjectRegistration>(
                     future: ref.watch(subjectRepositoryProvider).getAllRegisteredStudents(widget.subject.name),
                     onTapCallBack: (data) async {
@@ -192,10 +235,8 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                           UserRole.student,
                         );
                       } else {
-                        context.goDetailPage(
-                          GoRouterRoutes.adminStudentDetail,
-                          await ref.read(studentRepositoryProvider).getUserTypeInfoById(data.id.studentUserId),
-                        );
+                        data.subject = widget.subject;
+                        context.goEditPage(GoRouterRoutes.adminSubjectStudentGrade, data);
                       }
                     },
                     noAssignedMsg: context.localizations.subjectNoStudentAsgmt,
@@ -207,6 +248,21 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                           fit: BoxFit.cover,
                         ),
                         footer: [
+                          FutureBuilder(
+                            future: ref.watch(studentRepositoryProvider).getUserTypeInfoById(data.id.studentUserId),
+                            builder: (context, snapshot) {
+                              String name = "";
+                              if (snapshot.connectionState == ConnectionState.done && !snapshot.hasError) {
+                                name = ("${snapshot.data?.name} ${snapshot.data?.lastName}");
+                              } else {
+                                name = context.localizations.studentItemName;
+                              }
+                              return Text(
+                                name,
+                                maxLines: 1,
+                              );
+                            },
+                          ),
                           Text(
                             "${context.localizations.idTooltip}: ${data.id.studentUserId}",
                             maxLines: 1,
@@ -215,7 +271,7 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                       );
                     },
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 88),
                 ],
               ),
             ],
@@ -238,12 +294,12 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
     );
     deleteFuture.then((value) {
       if (mounted) {
-        showLocalSnackBar(_scaffoldMessengerKey, context.localizations.userDeletedFromSubject);
+        _scaffoldMessengerKey.showTextSnackBar(context.localizations.userDeletedFromSubject);
       }
       ref.invalidate(subjectRepositoryProvider);
     }, onError: (e) {
       if (mounted) {
-        showLocalSnackBar(_scaffoldMessengerKey, context.localizations.userDeleteGenericErrorFromSubject);
+        _scaffoldMessengerKey.showTextSnackBar(context.localizations.userDeleteGenericErrorFromSubject);
       }
     });
     deleteFuture.whenComplete(() => ref.read(userCarouselDeleteModeProvider.call(role).notifier).setMode(false));

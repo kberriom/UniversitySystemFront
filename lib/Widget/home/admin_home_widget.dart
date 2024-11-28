@@ -29,7 +29,7 @@ class _HomeWidgetState extends ConsumerState<AdminHomeWidget> {
             AnimatedTextTitle(text: context.localizations.upperCaseHomeTitleAndUserName('ADMIN')),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
                     const Spacer(),
@@ -58,12 +58,6 @@ class _HomeWidgetState extends ConsumerState<AdminHomeWidget> {
                               AdminAddUserWidgetExtra(selectedUserType: <UserRole>{UserRole.teacher}),
                             );
                           },
-                        ),
-                        const SizedBox(height: 18),
-                        QuickAccessIconButton(
-                          text: context.localizations.adminQuickAccessCalGrades,
-                          icon: const BigIconWithCompanion(mainIcon: Icons.grading),
-                          onPressed: () {},
                         ),
                       ],
                     ),

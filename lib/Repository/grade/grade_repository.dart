@@ -5,25 +5,35 @@ import 'package:university_system_front/Model/grade.dart';
 import 'package:university_system_front/Model/users/student.dart';
 import 'package:university_system_front/Repository/grade/grade_repository_interface.dart';
 import 'package:university_system_front/Service/uni_system_client/uni_system_api.dart';
+import 'package:university_system_front/Service/uni_system_client/uni_system_api_request.dart';
+import 'package:university_system_front/Util/provider_utils.dart';
 
 part 'grade_repository.g.dart';
 
 @Riverpod(keepAlive: true)
-GradeRepositoryImpl gradeRepositoryImpl(Ref ref) {
-  return GradeRepositoryImpl(ref);
+GradeRepository gradeRepository(Ref ref) {
+  ref.keepFor(const Duration(minutes: 20));
+  return _GradeRepositoryImpl(ref);
 }
 
-class GradeRepositoryImpl implements GradeRepository {
-  late final UniSystemApiService uniSystemApiService;
+class _GradeRepositoryImpl implements GradeRepository {
+  late final UniSystemApiService _uniSystemApiService;
 
-  GradeRepositoryImpl(Ref ref) {
-    uniSystemApiService = UniSystemApiService(ref);
+  _GradeRepositoryImpl(Ref ref) {
+    _uniSystemApiService = UniSystemApiService(ref);
   }
 
   @override
-  Future<StudentSubjectRegistration> addStudentGrade(int subjectId, int studentId, GradeDto gradeDto) {
-    // TODO: implement addStudentGrade
-    throw UnimplementedError();
+  Future<StudentSubjectRegistration> addStudentGrade(int subjectId, int studentId, GradeDto gradeDto) async {
+    final request = UniSystemRequest(
+      type: UniSysApiRequestType.post,
+      body: gradeDto.toMap(),
+      query: {"subjectId": subjectId.toString(), "studentId": studentId.toString()},
+      endpoint: 'grade/addStudentGrade',
+      includeResponseBodyOnException: true,
+    );
+    Json response = await _uniSystemApiService.makeRequest(request);
+    return StudentSubjectRegistration.fromMap(response);
   }
 
   @override
@@ -45,9 +55,21 @@ class GradeRepositoryImpl implements GradeRepository {
   }
 
   @override
-  Future<List<Grade>> getOneStudentGrades(int subjectId, int studentId) {
-    // TODO: implement getOneStudentGrades
-    throw UnimplementedError();
+  Future<List<Grade>> getOneStudentGrades(int subjectId, int studentId) async {
+    final request = UniSystemRequest(
+      type: UniSysApiRequestType.get,
+      endpoint: 'grade/getOneStudentGrades',
+      query: {
+        "subjectId": subjectId.toString(),
+        "studentId": studentId.toString(),
+      },
+    );
+    List<dynamic> response = await _uniSystemApiService.makeRequest(request);
+    List<Grade> list = [];
+    for (var gradeJson in response) {
+      list.add(Grade.fromMap(gradeJson));
+    }
+    return list;
   }
 
   @override
@@ -57,20 +79,72 @@ class GradeRepositoryImpl implements GradeRepository {
   }
 
   @override
-  Future<void> removeStudentGrade(int subjectId, int studentId, int gradeId) {
-    // TODO: implement removeStudentGrade
-    throw UnimplementedError();
+  Future<StudentSubjectRegistration> getStudentSubjectRegistration(int subjectId, int studentId) async {
+    final request = UniSystemRequest(
+      type: UniSysApiRequestType.get,
+      query: {
+        "subjectId": subjectId.toString(),
+        "studentId": studentId.toString(),
+      },
+      endpoint: 'grade/getStudentSubjectRegistration',
+    );
+    Json response = await _uniSystemApiService.makeRequest(request);
+    return StudentSubjectRegistration.fromMap(response);
   }
 
   @override
-  Future<StudentSubjectRegistration> setStudentFinalGrade(int subjectId, int studentId, double finalGrade) {
-    // TODO: implement setStudentFinalGrade
-    throw UnimplementedError();
+  Future<void> removeStudentGrade(int subjectId, int studentId, int gradeId) async {
+    final request = UniSystemRequest(
+      type: UniSysApiRequestType.delete,
+      query: {
+        "subjectId": subjectId.toString(),
+        "studentId": studentId.toString(),
+        "gradeId": gradeId.toString(),
+      },
+      endpoint: 'grade/removeStudentGrade',
+    );
+    return await _uniSystemApiService.makeRequest(request);
   }
 
   @override
-  Future<StudentSubjectRegistration> setStudentFinalGradeAuto(int subjectId, int studentId) {
-    // TODO: implement setStudentFinalGradeAuto
-    throw UnimplementedError();
+  Future<StudentSubjectRegistration> setStudentFinalGrade(int subjectId, int studentId, String finalGrade) async {
+    final request = UniSystemRequest(
+      type: UniSysApiRequestType.put,
+      query: {
+        "subjectId": subjectId.toString(),
+        "studentId": studentId.toString(),
+        "finalGrade": finalGrade,
+      },
+      endpoint: 'grade/setStudentFinalGrade',
+    );
+    Json response = await _uniSystemApiService.makeRequest(request);
+    return StudentSubjectRegistration.fromMap(response);
+  }
+
+  @override
+  Future<StudentSubjectRegistration> setStudentFinalGradeAuto(int subjectId, int studentId) async {
+    final request = UniSystemRequest(
+      type: UniSysApiRequestType.put,
+      query: {
+        "subjectId": subjectId.toString(),
+        "studentId": studentId.toString(),
+      },
+      endpoint: 'grade/setStudentFinalGradeAuto',
+    );
+    Json response = await _uniSystemApiService.makeRequest(request);
+    return StudentSubjectRegistration.fromMap(response);
+  }
+
+  @override
+  Future<void> deleteStudentFinalGrade(int subjectId, int studentId) async {
+    final request = UniSystemRequest(
+      type: UniSysApiRequestType.delete,
+      query: {
+        "subjectId": subjectId.toString(),
+        "studentId": studentId.toString(),
+      },
+      endpoint: 'grade/deleteStudentFinalGrade',
+    );
+    return await _uniSystemApiService.makeRequest(request);
   }
 }

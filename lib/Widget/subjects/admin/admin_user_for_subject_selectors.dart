@@ -6,7 +6,7 @@ import 'package:university_system_front/Repository/subject/subject_repository.da
 import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:university_system_front/Widget/common_components/form_widgets.dart';
 import 'package:university_system_front/Widget/common_components/modal_widgets.dart';
-import 'package:university_system_front/Widget/users/admin/admin_users_widget.dart';
+import 'package:university_system_front/Widget/users/admin/admin_user_list_widget.dart';
 
 class SelectStudentForSubjectWidget extends ConsumerWidget {
   final Subject subject;

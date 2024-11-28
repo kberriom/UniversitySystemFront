@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:university_system_front/Router/route_extra/admin_add_user_widget_extra.dart';
 import 'package:university_system_front/Router/uni_system_router_tools.dart';
+import 'package:university_system_front/Widget/subjects/admin/admin_subject_student_grade_detail.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
@@ -17,16 +18,16 @@ import 'package:university_system_front/Widget/users/admin/teacher/admin_edit_te
 import 'package:university_system_front/Widget/users/admin/teacher/admin_teacher_detail_widget.dart';
 import 'package:university_system_front/Widget/curriculums/admin/admin_add_curriculum_widget.dart';
 import 'package:university_system_front/Widget/curriculums/admin/admin_curriculum_detail.dart';
-import 'package:university_system_front/Widget/curriculums/admin/admin_curriculums_widget.dart';
+import 'package:university_system_front/Widget/curriculums/admin/admin_curriculum_list_widget.dart';
 import 'package:university_system_front/Widget/curriculums/admin/admin_edit_curriculum_widget.dart';
-import 'package:university_system_front/Widget/home/admin/admin_home_widget.dart';
+import 'package:university_system_front/Widget/home/admin_home_widget.dart';
 import 'package:university_system_front/Widget/navigation/base_scaffold_navigation/admin_scaffold_navigation_widget.dart';
 import 'package:university_system_front/Widget/navigation/leading_widgets.dart';
 import 'package:university_system_front/Widget/subjects/admin/admin_add_subject_widget.dart';
 import 'package:university_system_front/Widget/subjects/admin/admin_edit_subject_widget.dart';
 import 'package:university_system_front/Widget/subjects/admin/admin_subject_detail.dart';
-import 'package:university_system_front/Widget/subjects/admin/admin_subjects_widget.dart';
-import 'package:university_system_front/Widget/users/admin/admin_users_widget.dart';
+import 'package:university_system_front/Widget/subjects/admin/admin_subject_list_widget.dart';
+import 'package:university_system_front/Widget/users/admin/admin_user_list_widget.dart';
 
 ///Models must have its json mapper initialized for Router state restoration
 void _initAdminMappers() {
@@ -34,6 +35,7 @@ void _initAdminMappers() {
   SubjectMapper.ensureInitialized();
   StudentMapper.ensureInitialized();
   TeacherMapper.ensureInitialized();
+  StudentSubjectRegistrationMapper.ensureInitialized();
   AdminAddUserWidgetExtraMapper.ensureInitialized();
 }
 
@@ -48,9 +50,9 @@ StatefulShellRoute getAdminRouteTree(Ref ref) {
         GoRoute(
           path: GoRouterRoutes.adminHome.routeName,
           name: GoRouterRoutes.adminHome.routeName,
-          pageBuilder: (context, state) => NoTransitionPage(
-            key: ValueKey(GoRouterRoutes.adminHome.routeName),
-            child: const AdminHomeWidget(),
+          pageBuilder: (context, state) => const NoTransitionPage(
+            key: ValueKey(GoRouterRoutes.adminHome),
+            child: AdminHomeWidget(),
           ),
         ),
       ]),
@@ -67,9 +69,9 @@ StatefulShellBranch _userStatefulShellBranch(Ref ref) {
       GoRoute(
           path: GoRouterRoutes.adminUsers.routeName,
           name: GoRouterRoutes.adminUsers.routeName,
-          pageBuilder: (context, state) => NoTransitionPage(
-                key: ValueKey(GoRouterRoutes.adminUsers.routeName),
-                child: const AdminUsersWidget(),
+          pageBuilder: (context, state) => const NoTransitionPage(
+                key: ValueKey(GoRouterRoutes.adminUsers),
+                child: AdminUserListWidget(),
               ),
           routes: <GoRoute>[
             buildRootChildRouteWithExtra<AdminAddUserWidgetExtra>(
@@ -83,10 +85,10 @@ StatefulShellBranch _userStatefulShellBranch(Ref ref) {
               route: GoRouterRoutes.adminStudentDetail,
               widgetBuilder: (item) => AdminStudentDetailWidget(student: item),
               routes: [
-                buildCloseButtonChildSubRoute<Student>(
+                buildChildSubRoute<Student>(
                   ref: ref,
                   childSubRoute: GoRouterRoutes.adminEditStudent,
-                  widgetBuilder: (item) => AdminEditStudentWidget(student: item),
+                  widgetBuilder: (item) => AdminEditStudentWidget(student: item!),
                   parentSubRoute: GoRouterRoutes.adminStudentDetail,
                 ),
               ],
@@ -96,10 +98,10 @@ StatefulShellBranch _userStatefulShellBranch(Ref ref) {
               route: GoRouterRoutes.adminTeacherDetail,
               widgetBuilder: (item) => AdminTeacherDetailWidget(teacher: item),
               routes: [
-                buildCloseButtonChildSubRoute<Teacher>(
+                buildChildSubRoute<Teacher>(
                   ref: ref,
                   childSubRoute: GoRouterRoutes.adminEditTeacher,
-                  widgetBuilder: (item) => AdminEditTeacherWidget(teacher: item),
+                  widgetBuilder: (item) => AdminEditTeacherWidget(teacher: item!),
                   parentSubRoute: GoRouterRoutes.adminTeacherDetail,
                 ),
               ],
@@ -111,12 +113,14 @@ StatefulShellBranch _userStatefulShellBranch(Ref ref) {
 
 StatefulShellBranch _subjectStatefulShellBranch(Ref ref) {
   return StatefulShellBranch(
-    routes: [
+    routes: <RouteBase>[
       GoRoute(
         path: GoRouterRoutes.adminSubjects.routeName,
         name: GoRouterRoutes.adminSubjects.routeName,
-        pageBuilder: (context, state) =>
-            NoTransitionPage(key: ValueKey(GoRouterRoutes.adminSubjects.routeName), child: const AdminSubjectsWidget()),
+        pageBuilder: (context, state) => const NoTransitionPage(
+          key: ValueKey(GoRouterRoutes.adminSubjects),
+          child: AdminSubjectListWidget(),
+        ),
         routes: [
           GoRoute(
             path: GoRouterRoutes.adminAddSubject.routeName,
@@ -131,45 +135,27 @@ StatefulShellBranch _subjectStatefulShellBranch(Ref ref) {
               return NoTransitionPage(child: setLeadingOnWindows(state.pageKey, const AddSubjectWidget()));
             },
           ),
-          GoRoute(
-            path: GoRouterRoutes.adminSubjectDetail.routeName,
-            name: GoRouterRoutes.adminSubjectDetail.routeName,
-            onExit: (context, state) {
-              if (PlatformUtil.isWindows) {
-                WidgetsBinding.instance.addPostFrameCallback((timeStamp) => ref.invalidate(uniSystemAppBarLeadingProvider));
-              }
-              return true;
-            },
-            pageBuilder: (context, state) {
-              assert(state.extra != null);
-              Subject subject = getExtra<Subject>(state, errorMsg: "invalid extra arg in adminSubjectDetail");
-              return NoTransitionPage(child: setLeadingOnWindows(state.pageKey, AdminSubjectDetailWidget(subject: subject)));
-            },
-            routes: <GoRoute>[
-              GoRoute(
-                path: GoRouterRoutes.adminEditSubject.routeName,
-                name: GoRouterRoutes.adminEditSubject.routeName,
-                onExit: (context, state) {
-                  if (PlatformUtil.isWindows) {
-                    WidgetsBinding.instance.addPostFrameCallback((timeStamp) => ref.invalidate(uniSystemAppBarLeadingProvider));
-                    VisibilityDetectorController.instance.notifyNow();
-                  }
-                  return true;
-                },
-                pageBuilder: (context, state) {
-                  assert(state.extra != null);
-                  Subject subject = getExtra<Subject>(state, errorMsg: "invalid extra arg in adminEditSubject");
-                  return NoTransitionPage(
-                    child: setLeadingOnWindows(
-                      leading: UniSystemCloseButton(
-                        route: '${GoRouterRoutes.adminSubjects.routeName}/${GoRouterRoutes.adminSubjectDetail.routeName}',
-                        extra: subject,
-                      ),
-                      state.pageKey,
-                      AdminEditSubjectWidget(subject: subject),
-                    ),
-                  );
-                },
+          buildRootChildRouteWithExtra<Subject>(
+            ref: ref,
+            route: GoRouterRoutes.adminSubjectDetail,
+            widgetBuilder: (item) => AdminSubjectDetailWidget(subject: item),
+            routes: [
+              buildChildSubRoute<Subject>(
+                ref: ref,
+                childSubRoute: GoRouterRoutes.adminEditSubject,
+                widgetBuilder: (item) => AdminEditSubjectWidget(subject: item!),
+                parentSubRoute: GoRouterRoutes.adminSubjectDetail,
+              ),
+              buildChildSubRoute<StudentSubjectRegistration>(
+                ref: ref,
+                childSubRoute: GoRouterRoutes.adminSubjectStudentGrade,
+                widgetBuilder: (item) => SubjectStudentGradeDetail(initialStudentSubjectRegistration: item!),
+                parentSubRoute: GoRouterRoutes.adminSubjectDetail,
+                leadingBuilder: (item) => UniSystemCustomBackButton(
+                  icon: UniSystemSmartLeadButtonIcons.back,
+                  routerRoute: GoRouterRoutes.adminSubjectDetail,
+                  extra: item!.subject,
+                ),
               ),
             ],
           ),
@@ -185,9 +171,9 @@ StatefulShellBranch _curriculumStatefulShellBranch(Ref ref) {
       GoRoute(
         path: GoRouterRoutes.adminCurriculums.routeName,
         name: GoRouterRoutes.adminCurriculums.routeName,
-        pageBuilder: (context, state) => NoTransitionPage(
-          key: ValueKey(GoRouterRoutes.adminCurriculums.routeName),
-          child: const AdminCurriculumsWidget(),
+        pageBuilder: (context, state) => const NoTransitionPage(
+          key: ValueKey(GoRouterRoutes.adminCurriculums),
+          child: AdminCurriculumListWidget(),
         ),
         routes: [
           GoRoute(
@@ -233,7 +219,7 @@ StatefulShellBranch _curriculumStatefulShellBranch(Ref ref) {
                   Curriculum curriculum = getExtra<Curriculum>(state, errorMsg: "invalid extra arg in adminEditCurriculum");
                   return NoTransitionPage(
                     child: setLeadingOnWindows(
-                      leading: UniSystemCloseButton(
+                      leading: UniSystemCustomBackButton(
                         route: '${GoRouterRoutes.adminCurriculums.routeName}/${GoRouterRoutes.adminCurriculumDetail.routeName}',
                         extra: curriculum,
                       ),

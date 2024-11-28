@@ -15,6 +15,7 @@ import 'package:university_system_front/Util/router_utils.dart';
 import 'package:university_system_front/Util/snackbar_utils.dart';
 import 'package:university_system_front/Widget/common_components/background_decoration_widget.dart';
 import 'package:university_system_front/Widget/common_components/button_widgets.dart';
+import 'package:university_system_front/Widget/common_components/keyboard_bottom_inset.dart';
 import 'package:university_system_front/Widget/common_components/modal_widgets.dart';
 import 'package:university_system_front/Widget/common_components/title_widgets.dart';
 import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
@@ -60,88 +61,90 @@ class _AdminAddUserState extends ConsumerState<AdminAddUser> {
   Widget build(BuildContext context) {
     return ScaffoldMessenger(
       key: _scaffoldMessengerKey,
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: getAppBarAndroid(),
-        body: UniSystemBackgroundDecoration(
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: ConstrainedBox(
-              constraints: kBodyHorizontalConstraints,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: kBodyHorizontalPadding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        if (userRoleCreationType != null)
-                          BackButton(
-                              onPressed: () => setState(() {
-                                    userRoleCreationType = null;
-                                  })),
-                        Flexible(
-                          child: AnimatedTextTitle(
-                            widthFactor: 0.8,
-                            fontSize: 31,
-                            text: switch (userRoleCreationType) {
-                              UserRole.student => context.localizations.adminAddStudentPageTitle,
-                              UserRole.teacher => context.localizations.adminAddTeacherPageTitle,
-                              _ => context.localizations.adminAddUserPageTitle,
-                            },
+      child: UniSystemKeyboardBottomInset(
+        child: Scaffold(
+          appBar: getAppBarAndroid(),
+          body: UniSystemBackgroundDecoration(
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: kBodyHorizontalConstraints,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: kBodyHorizontalPadding),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          if (userRoleCreationType != null)
+                            BackButton(
+                                onPressed: () => setState(() {
+                                      userRoleCreationType = null;
+                                    })),
+                          Flexible(
+                            child: AnimatedTextTitle(
+                              widthFactor: 0.8,
+                              fontSize: 31,
+                              maxLines: 2,
+                              text: switch (userRoleCreationType) {
+                                UserRole.student => context.localizations.adminAddStudentPageTitle,
+                                UserRole.teacher => context.localizations.adminAddTeacherPageTitle,
+                                _ => context.localizations.adminAddUserPageTitle,
+                              },
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Expanded(
-                      child: AnimatedCrossFade(
-                        layoutBuilder: (topChild, topChildKey, bottomChild, bottomChildKey) {
-                          return Stack(
-                            alignment: Alignment.center,
-                            clipBehavior: Clip.none,
-                            fit: StackFit.expand,
-                            children: [
-                              bottomChild,
-                              topChild,
-                            ],
-                          );
-                        },
-                        crossFadeState: userRoleCreationType != null ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-                        firstChild: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            QuickAccessIconButton(
-                              text: context.localizations.adminQuickAccessAddStudent,
-                              icon: const BigIconWithCompanion(mainIcon: Icons.person, companionIcon: Icons.plus_one),
-                              onPressed: () {
-                                setState(() {
-                                  userRoleCreationType = UserRole.student;
-                                  form = const AddStudentWidget();
-                                });
-                              },
-                            ),
-                            const SizedBox(height: 10),
-                            QuickAccessIconButton(
-                              text: context.localizations.adminQuickAccessAddTeacher,
-                              icon: const BigIconWithCompanion(mainIcon: Icons.school, companionIcon: Icons.plus_one),
-                              onPressed: () {
-                                setState(() {
-                                  userRoleCreationType = UserRole.teacher;
-                                  form = const AddTeacherWidget();
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                        secondChild: SingleChildScrollView(
-                          padding: EdgeInsets.only(right: PlatformUtil.isWindows ? 31 : 0, top: 2),
-                          child: form ?? const SizedBox(),
-                        ),
-                        duration: Durations.medium1,
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      Expanded(
+                        child: AnimatedCrossFade(
+                          layoutBuilder: (topChild, topChildKey, bottomChild, bottomChildKey) {
+                            return Stack(
+                              alignment: Alignment.center,
+                              clipBehavior: Clip.none,
+                              fit: StackFit.expand,
+                              children: [
+                                bottomChild,
+                                topChild,
+                              ],
+                            );
+                          },
+                          crossFadeState: userRoleCreationType != null ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                          firstChild: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              QuickAccessIconButton(
+                                text: context.localizations.adminQuickAccessAddStudent,
+                                icon: const BigIconWithCompanion(mainIcon: Icons.person, companionIcon: Icons.plus_one),
+                                onPressed: () {
+                                  setState(() {
+                                    userRoleCreationType = UserRole.student;
+                                    form = const AddStudentWidget();
+                                  });
+                                },
+                              ),
+                              const SizedBox(height: 10),
+                              QuickAccessIconButton(
+                                text: context.localizations.adminQuickAccessAddTeacher,
+                                icon: const BigIconWithCompanion(mainIcon: Icons.school, companionIcon: Icons.plus_one),
+                                onPressed: () {
+                                  setState(() {
+                                    userRoleCreationType = UserRole.teacher;
+                                    form = const AddTeacherWidget();
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                          secondChild: SingleChildScrollView(
+                            padding: EdgeInsets.only(right: PlatformUtil.isWindows ? 31 : 0, top: 2),
+                            child: form ?? const SizedBox(),
+                          ),
+                          duration: Durations.medium1,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -155,13 +158,13 @@ class _AdminAddUserState extends ConsumerState<AdminAddUser> {
 void _handleErrorSnackBarCommonUser(BuildContext context, Exception e) {
   switch (e.toString()) {
     case String error when error.contains("409") && error.contains("government_id_is_unique"):
-      return context.showSnackBar(context.localizations.adminAddUserConflictGovId);
+      return context.showTextSnackBar(context.localizations.adminAddUserConflictGovId);
     case String error when error.contains("409") && error.contains("username_is_unique"):
-      return context.showSnackBar(context.localizations.adminAddUserConflictUsername);
+      return context.showTextSnackBar(context.localizations.adminAddUserConflictUsername);
     case String error when error.contains("409") && error.contains("email_is_unique"):
-      return context.showSnackBar(context.localizations.adminAddUserConflictEmail);
+      return context.showTextSnackBar(context.localizations.adminAddUserConflictEmail);
   }
-  context.showSnackBar(context.localizations.verboseErrorTryAgain);
+  context.showTextSnackBar(context.localizations.verboseErrorTryAgain);
 }
 
 class AddStudentWidget extends ConsumerWidget {

@@ -13,8 +13,9 @@ final class UniSystemRequest {
   final Map<String, String>? query;
   final String endpoint;
   final UniSysApiRequestType type;
+  final bool includeResponseBodyOnException;
 
-  const UniSystemRequest({required this.endpoint, required this.type, this.query, this.body});
+  const UniSystemRequest({required this.endpoint, required this.type, this.query, this.body, this.includeResponseBodyOnException = false});
 
   @override
   String toString() {

@@ -77,6 +77,7 @@ class _AdminCurriculumDetailState extends ConsumerState<AdminCurriculumDetail> {
                       alignment: WrapAlignment.spaceEvenly,
                       children: [
                         QuickActionButton(
+                            height: 40,
                             text: context.localizations.adminCurriculumDetailQuickActAddSubject,
                             onPressed: () {
                               showGeneralDialog(
@@ -109,7 +110,7 @@ class _AdminCurriculumDetailState extends ConsumerState<AdminCurriculumDetail> {
                                             (value) {
                                               if (context.mounted) {
                                                 context.popFromDialog();
-                                                showLocalSnackBar(_scaffoldMessengerKey,
+                                                _scaffoldMessengerKey.showTextSnackBar(
                                                     context.localizations.curriculumDetailAddSubjectModalSuccess);
                                               }
                                             },
@@ -123,6 +124,7 @@ class _AdminCurriculumDetailState extends ConsumerState<AdminCurriculumDetail> {
                             },
                             icon: const Icon(Icons.add)),
                         QuickActionButton(
+                            height: 40,
                             text: context.localizations.adminCurriculumDetailQuickActRemoveSubject,
                             onPressed: () {
                               showGeneralDialog(
@@ -153,7 +155,7 @@ class _AdminCurriculumDetailState extends ConsumerState<AdminCurriculumDetail> {
                                             (value) {
                                               if (context.mounted) {
                                                 context.popFromDialog();
-                                                showLocalSnackBar(_scaffoldMessengerKey,
+                                                _scaffoldMessengerKey.showTextSnackBar(
                                                     context.localizations.curriculumDetailRemoveSubjectModalSuccess);
                                               }
                                             },
@@ -168,7 +170,6 @@ class _AdminCurriculumDetailState extends ConsumerState<AdminCurriculumDetail> {
                             icon: const Icon(Icons.remove)),
                       ],
                     ),
-                    const SizedBox(height: 10),
                   ],
                 ),
               ),

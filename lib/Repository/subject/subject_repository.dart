@@ -71,6 +71,23 @@ class _SubjectRepositoryImpl implements SubjectRepository {
   }
 
   @override
+  Future<List<Subject>> getAllSubjectsByStudentId(int studentId) async {
+    final request = UniSystemRequest(
+      type: UniSysApiRequestType.get,
+      endpoint: 'subject/getAllSubjectsForStudent',
+      query: {
+        "studentId": studentId.toString(),
+      },
+    );
+    List<dynamic> response = await _uniSystemApiService.makeRequest(request);
+    List<Subject> list = [];
+    for (var subjectJson in response) {
+      list.add(Subject.fromMap(subjectJson));
+    }
+    return list;
+  }
+
+  @override
   Future<List<Subject>> getAllSubjects() async {
     const request = UniSystemRequest(type: UniSysApiRequestType.get, endpoint: 'subject/getAllSubjects');
     List<dynamic> response = await _uniSystemApiService.makeRequest(request);
@@ -109,8 +126,32 @@ class _SubjectRepositoryImpl implements SubjectRepository {
   }
 
   @override
+  Future<List<Subject>> getAllSubjectsByTeacherId(int teacherId) async {
+    final request = UniSystemRequest(
+      type: UniSysApiRequestType.get,
+      endpoint: 'subject/getAllSubjectsByTeacherId',
+      query: {
+        "teacherId": teacherId.toString(),
+      },
+    );
+    List<dynamic> response = await _uniSystemApiService.makeRequest(request);
+    List<Subject> list = [];
+    for (var subjectJson in response) {
+      list.add(Subject.fromMap(subjectJson));
+    }
+    return list;
+  }
+
+  @override
   Future<Subject> getSubject(String name) async {
     final request = UniSystemRequest(type: UniSysApiRequestType.get, query: {"name": name}, endpoint: 'subject/getSubject');
+    Json response = await _uniSystemApiService.makeRequest(request);
+    return Subject.fromMap(response);
+  }
+
+  @override
+  Future<Subject> getSubjectById(int id) async {
+    final request = UniSystemRequest(type: UniSysApiRequestType.get, query: {"id": "$id"}, endpoint: 'subject/getSubjectById');
     Json response = await _uniSystemApiService.makeRequest(request);
     return Subject.fromMap(response);
   }

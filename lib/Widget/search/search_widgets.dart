@@ -58,6 +58,7 @@ class _UniSystemSearchBarState extends State<UniSystemSearchBar> {
                       child: SearchAnchor(
                         builder: (context, controller) {
                           return SearchBar(
+                            key: ValueKey(widget.hintText),
                             controller: _editingController,
                             onChanged: (value) async {
                               int thisRequestNumber = (_searchRequestKeyStrokeNumber += 1);

@@ -2,26 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
-import 'package:university_system_front/Controller/curriculum/admin_curriculum_widget_controller.dart';
+import 'package:university_system_front/Controller/subject/admin_subjects_widget_controller.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
-import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:university_system_front/Util/platform_utils.dart';
+import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:university_system_front/Widget/common_components/infinite_list_widgets.dart';
 import 'package:university_system_front/Widget/common_components/loading_widgets.dart';
 import 'package:university_system_front/Widget/common_components/background_decoration_widget.dart';
-import 'package:university_system_front/Widget/curriculums/curriculum_list_item_widget.dart';
 import 'package:university_system_front/Widget/navigation/animated_status_bar_color.dart';
 import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
 import 'package:university_system_front/Widget/search/search_widgets.dart';
+import 'package:university_system_front/Widget/subjects/subject_list_item_widget.dart';
 
-class AdminCurriculumsWidget extends ConsumerStatefulWidget {
-  const AdminCurriculumsWidget({super.key});
+class AdminSubjectListWidget extends ConsumerStatefulWidget {
+  const AdminSubjectListWidget({super.key});
 
   @override
-  ConsumerState<AdminCurriculumsWidget> createState() => _AdminCurriculumsWidgetState();
+  ConsumerState<AdminSubjectListWidget> createState() => _AdminSubjectWidgetState();
 }
 
-class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget> with AnimationMixin {
+class _AdminSubjectWidgetState extends ConsumerState<AdminSubjectListWidget> with AnimationMixin {
   final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   late final ScrollController scrollController;
   late final TextEditingController searchTextController;
@@ -54,7 +54,7 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: () => ref.refresh(paginatedCurriculumInfiniteListProvider.future),
+      onRefresh: () => ref.refresh(paginatedSubjectInfiniteListProvider.future),
       edgeOffset: 150,
       displacement: 10,
       child: AnimatedStatusBarColor(
@@ -68,7 +68,7 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
               floatingActionButton: FloatingActionButton(
                 child: const Icon(Icons.add),
                 onPressed: () {
-                  GoRouter.of(context).goNamed(GoRouterRoutes.adminAddCurriculum.routeName);
+                  GoRouter.of(context).goNamed(GoRouterRoutes.adminAddSubject.routeName);
                 },
               ),
               body: UniSystemBackgroundDecoration(
@@ -79,8 +79,8 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
                     if (!context.isWindows) const UniSystemSliverAppBar(),
                     PinnedHeaderSliver(
                       child: UniSystemSearchBar(
-                          hintText: context.localizations.adminCurriculumSearchBoxHint,
-                          onRefreshCallback: () => ref.refresh(paginatedCurriculumInfiniteListProvider.future),
+                          hintText: context.localizations.adminSubjectSearchBoxHint,
+                          onRefreshCallback: () => ref.refresh(paginatedSubjectInfiniteListProvider.future),
                           searchTextController: searchTextController),
                     ),
                     FutureSelfAwareListBuilder(
@@ -91,15 +91,15 @@ class _AdminCurriculumsWidgetState extends ConsumerState<AdminCurriculumsWidget>
                           maxCrossAxisCount: getCrossAxisCountForList(list),
                           itemConstraints: fixedExtentItemConstraints,
                           list: list,
-                          selfAwareItemFuture: (index) => ref.watch(selfAwareCurriculumListItemProvider.call(index).future),
+                          selfAwareItemFuture: (index) => ref.watch(selfAwareSubjectListItemProvider.call(index).future),
                           loadingShimmerItem: (itemConstraints) => LoadingShimmerItem(itemConstraints: itemConstraints),
                           errorItem: (itemConstraints) => GenericErrorItem(itemConstraints: itemConstraints),
-                          itemWidget: (data, itemConstraints) => CurriculumListItem(data: data, itemConstraints: itemConstraints),
+                          itemWidget: (data, itemConstraints) => SubjectListItem(data: data, itemConstraints: itemConstraints),
                         );
                       },
                       loadingWidget: GenericSliverLoadingShimmer(fixedExtentItemConstraints: fixedExtentItemConstraints),
                       errorWidget: GenericSliverWarning(errorMessage: context.localizations.verboseError),
-                      noDataWidget: GenericSliverWarning(errorMessage: context.localizations.adminCurriculumListFetchNoData),
+                      noDataWidget: GenericSliverWarning(errorMessage: context.localizations.adminSubjectListFetchNoData),
                     ),
                   ],
                 ),

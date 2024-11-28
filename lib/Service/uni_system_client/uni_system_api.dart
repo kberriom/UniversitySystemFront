@@ -58,9 +58,12 @@ class UniSystemApiService {
       throw Exception("request_invalid");
     }
     if (response.statusCode >= 400 && response.statusCode <= 499) {
-      throw Exception("request_${response.statusCode}");
+      String errorMessage = "request_${response.statusCode}";
+      if (request.includeResponseBodyOnException) {
+        errorMessage = "$errorMessage => ${response.body}";
+      }
+      throw Exception(errorMessage);
     }
-
     return response.body.isNotEmpty ? _jsonDecoder.convert(response.body) : null;
   }
 }
@@ -104,7 +107,11 @@ class UniSystemApiServiceIsolate {
       throw Exception("request_invalid");
     }
     if (response.statusCode >= 400 && response.statusCode <= 499) {
-      throw Exception("request_${response.statusCode}");
+      String errorMessage = "request_${response.statusCode}";
+      if (request.includeResponseBodyOnException) {
+        errorMessage = "$errorMessage => ${response.body}";
+      }
+      throw Exception(errorMessage);
     }
     return response.body.isNotEmpty ? _jsonDecoder.convert(response.body) : null;
   }

@@ -108,12 +108,12 @@ void main() {
 
       final router = getGoRouter(widgetTester, filledButtonFinder);
 
-      final textFormFieldEmailFinder = find.ancestor(
-          of: find.text(AppLocalizations.of(widgetTester.element(textFormFieldFinder.first))!.loginEmailHint),
-          matching: textFormFieldFinder);
-      final textFormFieldPasswordFinder = find.ancestor(
-          of: find.text(AppLocalizations.of(widgetTester.element(textFormFieldFinder.first))!.loginPasswordHint),
-          matching: textFormFieldFinder);
+      final appLocalizations = AppLocalizations.of(widgetTester.element(textFormFieldFinder.first))!;
+
+      final textFormFieldEmailFinder =
+          find.ancestor(of: find.text(appLocalizations.loginEmailHint), matching: textFormFieldFinder);
+      final textFormFieldPasswordFinder =
+          find.ancestor(of: find.text(appLocalizations.loginPasswordHint), matching: textFormFieldFinder);
 
       await widgetTester.tap(textFormFieldEmailFinder);
       await widgetTester.enterText(textFormFieldEmailFinder, const String.fromEnvironment("INTEG_TEST_USER_MAIL"));
@@ -140,9 +140,8 @@ void main() {
       await widgetTester.tap(menuAnchorFinder);
       await widgetTester.pump();
 
-      final popupMenuItemFinder = find.ancestor(
-          of: find.text(AppLocalizations.of(widgetTester.element(menuAnchorFinder))!.signOutPopupMenu),
-          matching: find.byType(MenuItemButton));
+      final popupMenuItemFinder =
+          find.ancestor(of: find.text(appLocalizations.signOutPopupMenu), matching: find.byType(MenuItemButton));
       expect(popupMenuItemFinder, findsOne);
 
       await widgetTester.tap(popupMenuItemFinder);

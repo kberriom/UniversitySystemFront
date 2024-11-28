@@ -16,16 +16,17 @@ import 'go_router_routes.dart';
 ///
 /// has [state.extra] in [widgetBuilder]
 ///
-///Includes a [UniSystemCloseButton]
+///Includes a [UniSystemCustomBackButton] if [leadingBuilder] is null
 ///
 /// [T] _MUST_ be a [MappableClass] implementation and have its mapper initialized.
 ///
 /// All fields in [T] _MUST_ also comply with the former requirement.
-GoRoute buildCloseButtonChildSubRoute<T>({
+GoRoute buildChildSubRoute<T extends Object?>({
   required Ref ref,
   required GoRouterRoutes childSubRoute,
   required GoRouterRoutes parentSubRoute,
-  required Widget Function(T item) widgetBuilder,
+  required Widget Function(T? item) widgetBuilder,
+  UniSystemSmartLeadButton Function(T? item)? leadingBuilder,
 }) {
   assert(childSubRoute.parent == parentSubRoute, "parentSubRoute must be the parent of childSubRoute");
   assert(parentSubRoute.parent != null, "parentSubRoute must have a root '/' parent defined");
@@ -40,10 +41,17 @@ GoRoute buildCloseButtonChildSubRoute<T>({
       return true;
     },
     pageBuilder: (context, state) {
-      T item = getExtra<T>(state, errorMsg: "invalid extra arg in ${T.toString()} edit route builder");
+      T? item;
+      if (null is! T) {
+        item = getExtra<T>(state, errorMsg: "invalid extra arg in ${T.toString()} edit route builder");
+      }
+      UniSystemSmartLeadButton? leadingButton;
+      if (leadingBuilder != null) {
+        leadingButton = leadingBuilder(item);
+      }
       return NoTransitionPage(
         child: setLeadingOnWindows(
-          leading: UniSystemCloseButton(
+          leading: leadingButton ?? UniSystemCustomBackButton(
             route: '${parentSubRoute.parent!.routeName}/${parentSubRoute.routeName}',
             extra: item,
           ),

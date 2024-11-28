@@ -89,6 +89,8 @@ class DialogModal extends StatelessWidget {
       appBar: PlatformUtil.isWindows
           ? const DynamicUniSystemAppBar(
               isInLogin: true,
+              forceShowUserIcon: true,
+              enableUserIconMenu: false,
               forceShowLogo: true,
             )
           : null,
@@ -144,10 +146,16 @@ class ItemSelectionModal extends StatelessWidget {
           children: [
             Row(
               children: [
-                IconButton(onPressed: () => Navigator.of(context, rootNavigator: true).pop(), icon: const Icon(Icons.close)),
+                IconButton(
+                  onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+                  icon: const Icon(Icons.close),
+                  color: Colors.white70,
+                ),
                 Flexible(
                   child: AnimatedTextTitle(
                     text: title,
+                    color: Colors.white70,
+                    maxLines: 2,
                     widthFactor: 0.9,
                     fontSize: 27,
                   ),

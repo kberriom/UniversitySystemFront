@@ -23,7 +23,7 @@ abstract interface class RemoteConfig {
     } else if (PlatformUtil.isWindows) {
       return RemoteConfigWindowsAdapter();
     } else {
-      throw Exception("Platform is not supported currently");
+      throw Exception("Platform is not currently supported");
     }
   }
 }

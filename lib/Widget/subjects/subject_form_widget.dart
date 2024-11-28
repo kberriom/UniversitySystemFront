@@ -70,7 +70,7 @@ class _SubjectFormWidgetState extends State<SubjectFormWidget> {
             spacing: 16,
             children: [
               SizedBox(
-                width: 210,
+                width: 260,
                 child: UniSysCheckbox(
                   defaultValue: widget.existingSubject?.remote ?? false,
                   text: context.localizations.adminAddSubjectFormItemIsRemote,
@@ -79,7 +79,7 @@ class _SubjectFormWidgetState extends State<SubjectFormWidget> {
                 ),
               ),
               SizedBox(
-                width: 210,
+                width: 260,
                 child: UniSysCheckbox(
                   defaultValue: widget.existingSubject?.onSite ?? false,
                   text: context.localizations.adminAddSubjectFormItemIsOnSite,

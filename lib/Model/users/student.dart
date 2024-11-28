@@ -1,6 +1,7 @@
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Model/grade.dart';
+import 'package:university_system_front/Model/subject.dart';
 import 'package:university_system_front/Model/uni_system_model.dart';
 import 'package:university_system_front/Model/users/user.dart';
 
@@ -33,6 +34,7 @@ class Student extends User with StudentMappable {
   bool hasStringMatch(String search) {
     return bestMatch(search: search, stringList: [
       super.name.toLowerCase(),
+      super.email.toLowerCase(),
       super.lastName.toLowerCase(),
       super.governmentId.toLowerCase(),
     ]);
@@ -89,13 +91,22 @@ class StudentCreationDto with StudentCreationDtoMappable {
 class StudentSubjectRegistration with StudentSubjectRegistrationMappable {
   StudentSubjectRegistrationId id;
   String registrationDate;
-  double? finalGrade;
+  String? finalGrade;
   Set<Grade>? subjectGrades;
+
+  ///Internal attribute only
+  Subject? subject;
 
   static const fromMap = StudentSubjectRegistrationMapper.fromMap;
   static const fromJson = StudentSubjectRegistrationMapper.fromJson;
 
-  StudentSubjectRegistration({required this.id, required this.registrationDate, this.finalGrade, this.subjectGrades});
+  StudentSubjectRegistration({
+    required this.id,
+    required this.registrationDate,
+    this.finalGrade,
+    this.subjectGrades,
+    this.subject,
+  });
 }
 
 @MappableClass()

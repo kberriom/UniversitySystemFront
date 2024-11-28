@@ -36,13 +36,23 @@ class QuickAccessIconButton extends StatelessWidget {
 }
 
 class BigIconWithCompanion extends StatefulWidget {
+  final Size bigIconSize;
   final IconData mainIcon;
+  final double mainIconSize;
   final IconData? companionIcon;
+  final double companionIconSize;
+  final Color? mainIconColor;
+  final Color? companionIconColor;
 
   const BigIconWithCompanion({
     super.key,
     required this.mainIcon,
     this.companionIcon,
+    this.bigIconSize = const Size(90, 65),
+    this.mainIconSize = 42,
+    this.companionIconSize = 32,
+    this.mainIconColor,
+    this.companionIconColor,
   });
 
   @override
@@ -57,31 +67,39 @@ class _BigIconWithCompanionState extends State<BigIconWithCompanion> {
   @override
   void didChangeDependencies() {
     _currentThemeMode = Theme.of(context).brightness;
-    _mainIconColor = switch (_currentThemeMode) {
-      Brightness.dark => null,
-      Brightness.light => Theme.of(context).colorScheme.onSecondaryFixed,
-    };
-    _companionColor = switch (_currentThemeMode) {
-      Brightness.dark => MaterialTheme.darkFilledButton.value,
-      Brightness.light => Theme.of(context).colorScheme.onSecondaryFixed,
-    };
+    if (widget.mainIconColor == null) {
+      _mainIconColor = switch (_currentThemeMode) {
+        Brightness.dark => null,
+        Brightness.light => Theme.of(context).colorScheme.onSecondaryFixed,
+      };
+    } else {
+      _mainIconColor = widget.mainIconColor;
+    }
+    if (widget.companionIconColor == null) {
+      _companionColor = switch (_currentThemeMode) {
+        Brightness.dark => MaterialTheme.darkFilledButton.value,
+        Brightness.light => Theme.of(context).colorScheme.onSecondaryFixed,
+      };
+    } else {
+      _companionColor = widget.companionIconColor!;
+    }
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 65,
-      width: 90,
+      height: widget.bigIconSize.height,
+      width: widget.bigIconSize.width,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Icon(widget.mainIcon, size: 42, color: _mainIconColor),
+          Icon(widget.mainIcon, size: widget.mainIconSize, color: _mainIconColor),
           if (widget.companionIcon != null)
             Positioned(
               bottom: 0,
               right: 0,
-              child: Icon(widget.companionIcon, size: 32, color: _companionColor),
+              child: Icon(widget.companionIcon, size: widget.companionIconSize, color: _companionColor),
             ),
         ],
       ),

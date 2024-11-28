@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:university_system_front/Model/users/teacher.dart';
+import 'package:university_system_front/Model/users/user.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:university_system_front/Widget/common_components/form_widgets.dart';
 
@@ -8,8 +9,15 @@ class TeacherFormWidget extends StatefulWidget {
   final Widget buttonContent;
   final void Function(Object teacherDto) onSubmitCallback;
   final Teacher? existingTeacher;
+  final ScrollController? scrollController;
 
-  const TeacherFormWidget({super.key, this.existingTeacher, required this.onSubmitCallback, required this.buttonContent});
+  const TeacherFormWidget({
+    super.key,
+    this.existingTeacher,
+    required this.onSubmitCallback,
+    required this.buttonContent,
+    this.scrollController,
+  });
 
   @override
   State<TeacherFormWidget> createState() => _TeacherFormWidgetState();
@@ -28,6 +36,7 @@ class _TeacherFormWidgetState extends State<TeacherFormWidget> {
   late final TextEditingController _departmentTextController;
   late final TextEditingController _passwordTextController = TextEditingController();
   late final TextEditingController _confirmPasswordTextController = TextEditingController();
+  bool adminPasswordEditMode = false;
 
   @override
   void initState() {
@@ -66,39 +75,54 @@ class _TeacherFormWidgetState extends State<TeacherFormWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (widget.existingTeacher != null)
+            SwitchListTile(
+              title: Text(context.localizations.adminPassEditMode),
+              value: adminPasswordEditMode,
+              onChanged: (stateValue) {
+                if (stateValue) {
+                  widget.scrollController?.animateTo(999, duration: Durations.short4, curve: Curves.easeInCubic);
+                }
+                setState(() => adminPasswordEditMode = !adminPasswordEditMode);
+              },
+            ),
           TextFormField(
+            enabled: !adminPasswordEditMode,
             controller: _nameTextController,
             validator: FormBuilderValidators.required(),
             decoration: buildUniSysInputDecoration(
                 context.localizations.adminAddFormItemName, Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           TextFormField(
+            enabled: !adminPasswordEditMode,
             controller: _lastNameTextController,
             validator: FormBuilderValidators.required(),
             decoration: buildUniSysInputDecoration(
                 context.localizations.adminAddFormItemLastName, Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           TextFormField(
+            enabled: !adminPasswordEditMode,
             controller: _departmentTextController,
             validator: FormBuilderValidators.required(),
             decoration: buildUniSysInputDecoration(
                 context.localizations.adminAddFormItemDepartment, Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           TextFormField(
-            enabled: widget.existingTeacher == null,
+            enabled: widget.existingTeacher == null && !adminPasswordEditMode,
             controller: _governmentIdTextController,
             validator: FormBuilderValidators.numeric(),
             decoration: buildUniSysInputDecoration(
                 context.localizations.adminAddFormItemGovId, Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           TextFormField(
-            enabled: widget.existingTeacher == null,
+            enabled: widget.existingTeacher == null && !adminPasswordEditMode,
             controller: _emailTextController,
             validator: FormBuilderValidators.email(),
             decoration: buildUniSysInputDecoration(
                 context.localizations.adminAddFormItemEmail, Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           TextFormField(
+            enabled: !adminPasswordEditMode,
             keyboardType: TextInputType.phone,
             controller: _mobilePhoneTextController,
             validator: FormBuilderValidators.aggregate([
@@ -115,6 +139,7 @@ class _TeacherFormWidgetState extends State<TeacherFormWidget> {
                 context.localizations.adminAddFormItemCellPhone, Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           TextFormField(
+            enabled: !adminPasswordEditMode,
             keyboardType: TextInputType.phone,
             controller: _landPhoneTextController,
             validator: FormBuilderValidators.aggregate([
@@ -131,30 +156,30 @@ class _TeacherFormWidgetState extends State<TeacherFormWidget> {
                 context.localizations.adminAddFormItemLandline, Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           UniSysDateSelector(
-            enabled: widget.existingTeacher == null,
+            enabled: widget.existingTeacher == null && !adminPasswordEditMode,
             requireDateNowOrFuture: false,
             textEditingController: _birthdateTextController,
             label: context.localizations.adminAddFormItemBirthdate,
             validator: FormBuilderValidators.datePast(),
           ),
           TextFormField(
-            enabled: widget.existingTeacher == null,
+            enabled: widget.existingTeacher == null && !adminPasswordEditMode,
             controller: _usernameTextController,
             validator: FormBuilderValidators.username(allowNumbers: true, allowSpecialChar: true),
             decoration: buildUniSysInputDecoration(
                 context.localizations.adminAddFormItemUsername, Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           UniSysPasswordInput(
-            enabled: widget.existingTeacher == null,
+            enabled: widget.existingTeacher == null || adminPasswordEditMode,
             textEditingController: _passwordTextController,
             validator: FormBuilderValidators.aggregate([
-              if (widget.existingTeacher == null) FormBuilderValidators.required(),
-              if (widget.existingTeacher == null) FormBuilderValidators.password(checkNullOrEmpty: false),
+              if (widget.existingTeacher == null || adminPasswordEditMode) FormBuilderValidators.required(),
+              FormBuilderValidators.password(checkNullOrEmpty: false),
             ]),
             label: context.localizations.adminAddFormItemPassword,
           ),
           UniSysPasswordInput(
-            enabled: widget.existingTeacher == null,
+            enabled: widget.existingTeacher == null || adminPasswordEditMode,
             textEditingController: _confirmPasswordTextController,
             label: context.localizations.adminAddFormItemConfirmPassword,
             validator: (input) {
@@ -184,6 +209,14 @@ class _TeacherFormWidgetState extends State<TeacherFormWidget> {
                       ),
                     );
                   } else {
+                    if (adminPasswordEditMode) {
+                      widget.onSubmitCallback.call(
+                        AdminPasswordUpdateDto(
+                          email: widget.existingTeacher!.email,
+                          newPassword: _passwordTextController.value.text,
+                        ),
+                      );
+                    }
                     widget.onSubmitCallback.call(
                       TeacherUpdateDto(
                         name: _nameTextController.value.text,

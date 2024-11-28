@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Model/page_info.dart';
 import 'package:university_system_front/Model/users/student.dart';
+import 'package:university_system_front/Model/users/user.dart';
 import 'package:university_system_front/Repository/users/user_repository_interface.dart';
 import 'package:university_system_front/Service/uni_system_client/uni_system_api.dart';
 import 'package:university_system_front/Service/uni_system_client/uni_system_api_request.dart';
@@ -94,5 +95,15 @@ class StudentRepository implements UserRepository<Student, StudentUpdateDto> {
     );
     Json response = await _uniSystemApiService.makeRequest(request);
     return Student.fromMap(response);
+  }
+
+  @override
+  Future<void> adminUpdatePassword(AdminPasswordUpdateDto dto) async {
+    final request = UniSystemRequest(
+      type: UniSysApiRequestType.post,
+      endpoint: 'auth/adminUpdatePassword',
+      body: {"email": dto.email, "newPassword": dto.newPassword},
+    );
+    return await _uniSystemApiService.makeRequest(request);
   }
 }

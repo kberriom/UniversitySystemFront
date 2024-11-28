@@ -113,7 +113,7 @@ class _LoginWidgetFormState extends ConsumerState<LoginWidgetForm> {
                 }, onError: (e) {
                   //Error callback
                   if (context.mounted) {
-                    context.showSnackBar(context.localizations.veryVerboseErrorTryAgain);
+                    context.showTextSnackBar(context.localizations.veryVerboseErrorTryAgain);
                   }
                   _pendingLogin = null;
                 });

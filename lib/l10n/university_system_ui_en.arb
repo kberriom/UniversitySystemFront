@@ -161,5 +161,41 @@
   "adminAddTeacherFormSubmitButton": "Add Teacher",
   "adminAddUserConflictGovId": "Government ID is already registered, could not create User",
   "adminAddUserConflictUsername": "Username is already assigned to another user, could not create User",
-  "adminAddUserConflictEmail": "Email is already associated to another user, could not create User"
+  "adminAddUserConflictEmail": "Email is already associated to another user, could not create User",
+  "refreshButtonTooltip": "Refresh",
+  "gradeDescriptionName": "Grade description / Name",
+  "gradeValueFieldName": "Grade value",
+  "gradePercentageValueFieldName" : "Grade percentage value",
+  "editFinalGrade": "Edit Final Grade",
+  "studentSubjectProgress": "Student Subject progress",
+  "studentNameSubjectProgress": "{userName}'s Subject Progress",
+  "@studentNameSubjectProgress" : {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "setFinalGrade": "Set final grade",
+  "addNewGrade": "Add new grade",
+  "finalGrade": "Final Grade",
+  "addGradeSuccess": "Grade added successfully",
+  "gradeValidationValueConstraints": "Grade value must be between 0.0 and 5.0",
+  "gradeValidationPercentageConstraints": "Total subject grade percentage sum cannot exceed 100%",
+  "invalidGrade": "Invalid grade",
+  "addGrade": "Add grade",
+  "setGrade": "Set grade",
+  "autoFinalGrade": "Auto final grade",
+  "autoGradeSuccess": "Auto grade set successfully",
+  "deleteFinalGrade": "Delete final grade",
+  "deleteFinalGradeSuccess": "Final grade deleted successfully",
+  "approxFinalGrade": "Approximated final grade",
+  "deleteGrade": "Delete Grade",
+  "deleteGradeSuccess": "Grade deleted successfully",
+  "deleteGradeError": "Could not delete grade",
+  "noGradesRegistered": "No Grades registered",
+  "setLang": "Set language",
+  "adminPassEditMode": "Password edit mode",
+  "passwordChangeSuccess": "Password changed successfully",
+  "registeredSubjectsForUser": "Assigned Subjects"
 }

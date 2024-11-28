@@ -25,6 +25,7 @@ enum GoRouterRoutes {
   //Admin subjects subtree
   adminSubjects(routeName: '/adminSubjects', userRole: UserRole.admin),
   adminSubjectDetail(routeName: 'subjectDetail', userRole: UserRole.admin, parent: GoRouterRoutes.adminSubjects),
+  adminSubjectStudentGrade(routeName: 'studentGrades', userRole: UserRole.admin, parent: GoRouterRoutes.adminSubjectDetail),
   adminAddSubject(routeName: 'addSubject', userRole: UserRole.admin, parent: GoRouterRoutes.adminSubjects),
   adminEditSubject(routeName: 'editSubject', userRole: UserRole.admin, parent: GoRouterRoutes.adminSubjectDetail),
   //Admin curriculums subtree

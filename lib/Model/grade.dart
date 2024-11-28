@@ -8,8 +8,8 @@ part 'grade.mapper.dart';
 class Grade with GradeMappable implements UniSystemModel<int> {
   @override
   int id;
-  double gradeValue;
-  double percentageOfFinalGrade;
+  String gradeValue;
+  String percentageOfFinalGrade;
   StudentSubjectRegistrationId registrationId;
   String description;
 
@@ -20,7 +20,7 @@ class Grade with GradeMappable implements UniSystemModel<int> {
 
   @override
   bool hasNumberMatch(num search) {
-    return search == gradeValue || search == percentageOfFinalGrade;
+    return search.toStringAsFixed(2) == gradeValue || search.toStringAsFixed(2) == percentageOfFinalGrade;
   }
 
   @override
@@ -33,8 +33,8 @@ class Grade with GradeMappable implements UniSystemModel<int> {
 
 @MappableClass()
 class GradeDto with GradeDtoMappable {
-  double? gradeValue;
-  double? percentageOfFinalGrade;
+  String? gradeValue;
+  String? percentageOfFinalGrade;
   String? description;
 
   static const fromMap = GradeDtoMapper.fromMap;

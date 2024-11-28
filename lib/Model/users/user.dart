@@ -41,3 +41,17 @@ abstract class User with UserMappable implements UniSystemModel<int> {
     role = userRole.name;
   }
 }
+
+@MappableClass()
+class AdminPasswordUpdateDto with AdminPasswordUpdateDtoMappable {
+  String email;
+  String newPassword;
+
+  AdminPasswordUpdateDto({
+    required this.email,
+    required this.newPassword,
+  });
+
+  static const fromMap = AdminPasswordUpdateDtoMapper.fromMap;
+  static const fromJson = AdminPasswordUpdateDtoMapper.fromJson;
+}

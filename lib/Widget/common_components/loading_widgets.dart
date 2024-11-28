@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 import 'package:university_system_front/Theme/dimensions.dart';
+import 'package:university_system_front/Util/localization_utils.dart';
 
 import 'infinite_list_widgets.dart';
 
@@ -18,17 +19,20 @@ class AnimatedRefreshButton extends StatefulWidget {
 class _AnimatedRefreshState extends State<AnimatedRefreshButton> with AnimationMixin {
   @override
   Widget build(BuildContext context) {
-    return RotationTransition(
-      turns: Tween(begin: 0.0, end: 1.0).animate(controller),
-      child: IconButton(
-          onPressed: () {
-            final Future future = widget.onPressed.call();
-            controller.repeat();
-            future.whenComplete(() => controller
-              ..stop(canceled: true)
-              ..reset());
-          },
-          icon: const Icon(Icons.refresh)),
+    return Tooltip(
+      message: context.localizations.refreshButtonTooltip,
+      child: RotationTransition(
+        turns: Tween(begin: 0.0, end: 1.0).animate(controller),
+        child: IconButton(
+            onPressed: () {
+              final Future future = widget.onPressed.call();
+              controller.repeat();
+              future.whenComplete(() => controller
+                ..stop(canceled: true)
+                ..reset());
+            },
+            icon: const Icon(Icons.refresh)),
+      ),
     );
   }
 

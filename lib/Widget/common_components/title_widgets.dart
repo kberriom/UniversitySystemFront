@@ -8,10 +8,14 @@ class AnimatedTextTitle extends StatefulWidget {
   final TextOverflow textOverflow;
   final double widthFactor;
   final BoxConstraints constraints;
+  final int maxLines;
+  final Color? color;
 
   const AnimatedTextTitle({
     super.key,
     required this.text,
+    this.color,
+    this.maxLines = 1,
     this.fontSize = 32,
     this.textOverflow = TextOverflow.ellipsis,
     this.widthFactor = 0.7,
@@ -44,16 +48,21 @@ class _AnimatedTextTitleState extends State<AnimatedTextTitle> with AnimationMix
                   padding: const EdgeInsets.only(top: 10, left: 16),
                   child: Text(
                     overflow: widget.textOverflow,
-                    maxLines: 1,
+                    maxLines: widget.maxLines,
                     widget.text,
-                    style: TextStyle(fontFamily: 'blazma', fontStyle: FontStyle.italic, fontSize: widget.fontSize),
+                    style: TextStyle(
+                      fontFamily: 'blazma',
+                      fontStyle: FontStyle.italic,
+                      fontSize: widget.fontSize,
+                      color: widget.color,
+                    ),
                   ),
                 ),
               ),
             ),
             SlideTransition(
               position: controller.drive(slideTween),
-              child: Divider(color: Theme.of(context).colorScheme.onSurface),
+              child: Divider(color: widget.color ?? Theme.of(context).colorScheme.onSurface),
             ),
           ]),
         ),
@@ -76,6 +85,9 @@ class _AnimatedTextTitleState extends State<AnimatedTextTitle> with AnimationMix
     }
   }
 }
+
+const upTextStyle = TextStyle(fontFamily: 'blazma', fontStyle: FontStyle.italic, fontSize: 20);
+const downTextStyle = TextStyle(fontFamily: 'blazma', fontStyle: FontStyle.italic, fontSize: 32, height: 1);
 
 class AnimatedComboTextTitle extends StatefulWidget {
   final Widget? upWidget;
@@ -121,7 +133,7 @@ class _AnimatedComboTextTitleState extends State<AnimatedComboTextTitle> with An
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                               widget.upText!,
-                              style: const TextStyle(fontFamily: 'blazma', fontStyle: FontStyle.italic, fontSize: 20),
+                              style: upTextStyle,
                             ),
                           ),
                         if (widget.upWidget != null) widget.upWidget!
@@ -135,7 +147,7 @@ class _AnimatedComboTextTitleState extends State<AnimatedComboTextTitle> with An
                               overflow: TextOverflow.ellipsis,
                               maxLines: 3,
                               widget.downText!,
-                              style: const TextStyle(fontFamily: 'blazma', fontStyle: FontStyle.italic, fontSize: 32, height: 1),
+                              style: downTextStyle,
                             ),
                           ),
                         if (widget.downWidget != null) widget.downWidget!

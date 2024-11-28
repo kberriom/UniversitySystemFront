@@ -42,7 +42,7 @@ class _AdminAddCurriculumWidgetState extends ConsumerState<AdminAddCurriculumWid
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      AnimatedTextTitle(text: context.localizations.adminAddCurriculumTitle),
+                      AnimatedTextTitle(text: context.localizations.adminAddCurriculumTitle, widthFactor: 0.9),
                       const SizedBox(height: 10),
                       CurriculumFormWidget(
                         onSubmitCallback: (formCurriculum) {
@@ -71,11 +71,11 @@ class _AdminAddCurriculumWidgetState extends ConsumerState<AdminAddCurriculumWid
                             }
                           }, onError: (e) {
                             if (context.mounted) {
-                              showLocalSnackBar(
-                                  _scaffoldMessengerKey,
-                                  e is ArgumentError
-                                      ? context.localizations.curriculumNameAlreadyExist
-                                      : context.localizations.couldNotUpdateCurriculum);
+                              _scaffoldMessengerKey.showTextSnackBar(
+                                e is ArgumentError
+                                    ? context.localizations.curriculumNameAlreadyExist
+                                    : context.localizations.couldNotUpdateCurriculum,
+                              );
                             }
                           });
                         },

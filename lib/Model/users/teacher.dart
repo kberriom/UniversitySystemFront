@@ -36,6 +36,7 @@ class Teacher extends User with TeacherMappable {
     return bestMatch(search: search, stringList: [
       super.name.toLowerCase(),
       super.lastName.toLowerCase(),
+      super.email.toLowerCase(),
       super.governmentId.toLowerCase(),
       department.toLowerCase(),
     ]);

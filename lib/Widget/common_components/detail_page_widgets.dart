@@ -7,10 +7,12 @@ class QuickActionButton extends StatelessWidget {
     required this.text,
     required this.onPressed,
     required this.icon,
+    this.height = 60,
   });
 
   final String text;
-  final Icon icon;
+  final Widget icon;
+  final double height;
   final VoidCallback onPressed;
 
   @override
@@ -20,7 +22,7 @@ class QuickActionButton extends StatelessWidget {
       icon: icon,
       label: Text(text),
       style: ButtonStyle(
-        fixedSize: const WidgetStatePropertyAll(Size.fromHeight(60)),
+        fixedSize: WidgetStatePropertyAll(Size.fromHeight(height)),
         shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall))),
         backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.surfaceContainer),
       ),
@@ -32,17 +34,21 @@ class UniSystemDetailHeader extends StatelessWidget {
   const UniSystemDetailHeader({
     super.key,
     required this.header,
+    this.alignment = Alignment.topCenter,
+    this.backgroundColor,
   });
 
   final Widget header;
+  final Alignment alignment;
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      alignment: Alignment.topCenter,
+      alignment: alignment,
       padding: const EdgeInsets.symmetric(horizontal: kBodyHorizontalPadding),
       width: double.infinity,
-      color: Theme.of(context).colorScheme.surfaceContainerLow,
+      color: backgroundColor ?? Theme.of(context).colorScheme.surfaceContainerLow,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1000, minWidth: 300),
         child: Row(
@@ -60,10 +66,12 @@ class UniSystemDetailHeader extends StatelessWidget {
 
 class UniSystemDetailBody extends StatelessWidget {
   final List<Widget> children;
+  final EdgeInsetsGeometry padding;
 
   const UniSystemDetailBody({
     super.key,
     required this.children,
+    this.padding = const EdgeInsets.symmetric(horizontal: kBodyHorizontalPadding),
   });
 
   @override
@@ -72,7 +80,7 @@ class UniSystemDetailBody extends StatelessWidget {
       child: SingleChildScrollView(
         child: Container(
           alignment: Alignment.topCenter,
-          padding: const EdgeInsets.symmetric(horizontal: kBodyHorizontalPadding),
+          padding: padding,
           width: double.infinity,
           child: Column(
             children: children,

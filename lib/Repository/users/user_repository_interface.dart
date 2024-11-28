@@ -3,7 +3,7 @@ import 'package:university_system_front/Model/page_info.dart';
 import 'package:university_system_front/Model/users/user.dart';
 
 ///[T] Student or teacher
-///[TDTO] DTO class of selected user type
+///[UDTO] DTO class of selected user type
 abstract interface class UserRepository<T extends User, UDTO extends Object> {
   Future<T> getUserTypeInfo(BearerToken selfIdentityToken);
 
@@ -20,4 +20,6 @@ abstract interface class UserRepository<T extends User, UDTO extends Object> {
   Future<T> updateUserTypeInfo(UDTO updateDto);
 
   Future<T> updateUserTypeInfoById(int id, UDTO updateDto);
+
+  Future<void> adminUpdatePassword(AdminPasswordUpdateDto dto);
 }

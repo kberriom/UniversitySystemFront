@@ -98,11 +98,13 @@ class GenericSliverLoadingShimmer extends StatelessWidget {
 class GenericSliverWarning extends StatelessWidget {
   final IconData icon;
   final String errorMessage;
+  final Widget? bottomWidget;
 
   const GenericSliverWarning({
     super.key,
     required this.errorMessage,
     this.icon = Icons.error,
+    this.bottomWidget,
   });
 
   @override
@@ -117,6 +119,7 @@ class GenericSliverWarning extends StatelessWidget {
             child: Icon(icon, size: 80, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           Text(errorMessage),
+          if (bottomWidget != null) bottomWidget!
         ],
       ),
     );
