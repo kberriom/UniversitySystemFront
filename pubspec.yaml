@@ -2,7 +2,7 @@ name: university_system_front
 description: "Flutter Frontend for UniversitySystem"
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.0
 
 environment:
   sdk: '>=3.3.3 <4.0.0'
@@ -42,6 +42,7 @@ dev_dependencies:
     sdk: flutter
   test: ^1.25.2
   flutter_native_splash: ^2.4.0
+  flutter_launcher_icons: ^0.14.1
   dart_jsonwebtoken: ^2.14.0
   mockito: ^5.4.4
   # Linters
@@ -86,3 +87,15 @@ flutter_native_splash:
   ios: false
   web: false
   android_screen_orientation: portrait
+
+flutter_launcher_icons:
+  image_path: "assets/icon.png"
+  android: true
+  min_sdk_android: 23
+  adaptive_icon_foreground: "assets/icon_nobg.png"
+  adaptive_icon_background: "#FF404942"
+  adaptive_icon_foreground_inset: 16
+  ios: false
+  windows:
+    generate: true
+    icon_size: 256
