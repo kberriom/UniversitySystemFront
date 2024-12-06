@@ -5,6 +5,7 @@ import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:university_system_front/Util/router_utils.dart';
 import 'package:university_system_front/Util/string_utils.dart';
+import 'package:university_system_front/Widget/common_components/animated_text_overflow.dart';
 import 'package:university_system_front/Widget/common_components/infinite_list_widgets.dart';
 
 class SubjectListItem extends StatelessWidget {
@@ -53,7 +54,13 @@ class SubjectListItem extends StatelessWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(top: 16),
-                        child: Text(data.name, overflow: TextOverflow.ellipsis),
+                        child: AnimatedTextOverFlow(
+                          child: Text(
+                            data.name,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
                       ),
                       const Spacer(),
                       Padding(

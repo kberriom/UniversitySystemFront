@@ -15,6 +15,7 @@ import 'package:university_system_front/Widget/common_components/back_button_red
 import 'package:university_system_front/Widget/common_components/background_decoration_widget.dart';
 import 'package:university_system_front/Widget/common_components/button_widgets.dart';
 import 'package:university_system_front/Widget/common_components/detail_page_widgets.dart';
+import 'package:university_system_front/Widget/common_components/dynamic_text_size.dart';
 import 'package:university_system_front/Widget/common_components/infinite_list_widgets.dart';
 import 'package:university_system_front/Widget/common_components/loading_widgets.dart';
 import 'package:university_system_front/Widget/common_components/modal_widgets.dart';
@@ -238,28 +239,51 @@ class GradeListDetailHeader extends ConsumerWidget {
     return UniSystemDetailHeader(
       header: AnimatedComboTextTitle(
         widthFactor: 0.9,
-        upWidget: AnimatedSwitcher(
-          duration: Durations.medium1,
-          child: FutureBuilder(
-            future: ref.watch(studentRepositoryProvider).getUserTypeInfoById(studentSubjectRegistration.id.studentUserId),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Text(context.localizations.studentNameSubjectProgress(snapshot.data!.name), style: upTextStyle);
-              } else {
-                return Text(context.localizations.studentSubjectProgress, style: upTextStyle);
-              }
-            },
+        upWidget: Flexible(
+          child: AnimatedSwitcher(
+            duration: Durations.medium1,
+            child: FutureBuilder(
+              future: ref.watch(studentRepositoryProvider).getUserTypeInfoById(studentSubjectRegistration.id.studentUserId),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return DynamicTextSize(
+                    child: Text(
+                      context.localizations.studentNameSubjectProgress(snapshot.data!.name),
+                      style: upTextStyle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  );
+                } else {
+                  return Text(
+                    context.localizations.studentSubjectProgress,
+                    style: upTextStyle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  );
+                }
+              },
+            ),
           ),
         ),
-        downWidget: Row(
-          children: [
-            Icon(Icons.book_outlined),
-            SizedBox(width: 3),
-            Text(
-              subject.name,
-              style: downTextStyle,
-            ),
-          ],
+        downWidget: Flexible(
+          child: Row(
+            children: [
+              Icon(Icons.book_outlined),
+              SizedBox(width: 3),
+              Flexible(
+                child: DynamicTextSize(
+                  minSize: 12,
+                  child: Text(
+                    subject.name,
+                    style: downTextStyle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
+import 'package:university_system_front/Widget/common_components/dynamic_text_size.dart';
 
 ///Requires a [Flexible] or [Expanded] if it shares width with other widgets
 class AnimatedTextTitle extends StatefulWidget {
@@ -129,11 +130,13 @@ class _AnimatedComboTextTitleState extends State<AnimatedComboTextTitle> with An
                       children: [
                         if (widget.upText != null)
                           Expanded(
-                            child: Text(
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              widget.upText!,
-                              style: upTextStyle,
+                            child: DynamicTextSize(
+                              child: Text(
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                widget.upText!,
+                                style: upTextStyle,
+                              ),
                             ),
                           ),
                         if (widget.upWidget != null) widget.upWidget!
@@ -143,11 +146,13 @@ class _AnimatedComboTextTitleState extends State<AnimatedComboTextTitle> with An
                       children: [
                         if (widget.downText != null)
                           Expanded(
-                            child: Text(
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 3,
-                              widget.downText!,
-                              style: downTextStyle,
+                            child: DynamicTextSize(
+                              child: Text(
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 3,
+                                widget.downText!,
+                                style: downTextStyle,
+                              ),
                             ),
                           ),
                         if (widget.downWidget != null) widget.downWidget!

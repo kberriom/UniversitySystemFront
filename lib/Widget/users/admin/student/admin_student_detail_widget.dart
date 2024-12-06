@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:university_system_front/Controller/users/admin_student_detail_controller.dart';
 import 'package:university_system_front/Model/users/student.dart';
+import 'package:university_system_front/Repository/grade/grade_repository.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:university_system_front/Util/router_utils.dart';
+import 'package:university_system_front/Util/snackbar_utils.dart';
 import 'package:university_system_front/Widget/common_components/background_decoration_widget.dart';
 import 'package:university_system_front/Widget/common_components/loading_widgets.dart';
+import 'package:university_system_front/Widget/common_components/modal_widgets.dart';
 import 'package:university_system_front/Widget/common_components/title_widgets.dart';
 import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
 import 'package:university_system_front/Widget/subjects/subject_for_result_widget.dart';
@@ -73,8 +76,25 @@ class _AdminStudentDetailWidgetState extends ConsumerState<AdminStudentDetailWid
                   listCallback: () {
                     return subjectListFuture;
                   },
-                  onResultCallback: (subject) {
-                    context.goDetailPage(GoRouterRoutes.adminSubjectDetail, subject);
+                  onResultCallback: (subject) async {
+                    final registrationFuture =
+                        ref.read(gradeRepositoryProvider).getStudentSubjectRegistration(subject.id, widget.student.id);
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return BackgroundWaitModal(future: registrationFuture);
+                        });
+                    registrationFuture.then((registration) {
+                      if (context.mounted) {
+                        registration.subject = subject;
+                        context.goDetailPage(GoRouterRoutes.adminSubjectDetail, registration.subject);
+                        context.goEditPage(GoRouterRoutes.adminSubjectStudentGrade, registration);
+                      }
+                    }, onError: (e) {
+                      if (context.mounted) {
+                        ref.showTextSnackBar(context.localizations.veryVerboseErrorTryAgain);
+                      }
+                    });
                   },
                 ),
               ),

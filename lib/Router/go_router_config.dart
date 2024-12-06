@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
+import 'package:university_system_front/Router/router_error_widget.dart';
 import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:university_system_front/Widget/home/student_home_widget.dart';
@@ -22,6 +23,9 @@ class GoRouterInstance extends _$GoRouterInstance {
     return GoRouter(
       navigatorKey: GlobalKey<NavigatorState>(debugLabel: 'rootNavigator'),
       initialLocation: GoRouterRoutes.loginSplash.routeName,
+      errorBuilder: (context, state) {
+        return RouterErrorWidget();
+      },
       routes: [
         GoRoute(
             path: GoRouterRoutes.loginSplash.routeName,

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:university_system_front/Model/grade.dart';
 import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
+import 'package:university_system_front/Widget/common_components/animated_text_overflow.dart';
 import 'package:university_system_front/Widget/common_components/infinite_list_widgets.dart';
 import 'package:university_system_front/Widget/common_components/title_widgets.dart' as title;
 
@@ -53,30 +54,37 @@ class GradeListItem extends StatelessWidget {
             child: SizedBox.expand(
               child: Row(
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (subjectName != null)
-                        Text(
-                          toBeginningOfSentenceCase(subjectName!),
-                          style: title.upTextStyle.copyWith(fontSize: 24, color: Theme.of(context).colorScheme.onSurface),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (subjectName != null)
+                          AnimatedTextOverFlow(
+                            child: Text(
+                              toBeginningOfSentenceCase(subjectName!),
+                              maxLines: 1,
+                              style: title.upTextStyle.copyWith(fontSize: 24, color: Theme.of(context).colorScheme.onSurface),
+                            ),
+                          ),
+                        AnimatedTextOverFlow(
+                          child: Text(
+                            toBeginningOfSentenceCase(data.description),
+                            maxLines: 1,
+                            style: title.upTextStyle.copyWith(fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
+                          ),
                         ),
-                      Text(
-                        toBeginningOfSentenceCase(data.description),
-                        style: title.upTextStyle.copyWith(fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
-                      ),
-                      Text(
-                        data.gradeValue.toString(),
-                        style: title.downTextStyle.copyWith(fontSize: 24, color: _getGradeColor(data, Theme.of(context))),
-                      ),
-                      Text(
-                        "${data.percentageOfFinalGrade}%",
-                        style: title.upTextStyle.copyWith(fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
-                      )
-                    ],
+                        Text(
+                          data.gradeValue.toString(),
+                          style: title.downTextStyle.copyWith(fontSize: 24, color: _getGradeColor(data, Theme.of(context))),
+                        ),
+                        Text(
+                          "${data.percentageOfFinalGrade}%",
+                          style: title.upTextStyle.copyWith(fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
+                        )
+                      ],
+                    ),
                   ),
-                  const Spacer(),
                   if (onDeleteCallback != null)
                     Tooltip(
                       message: context.localizations.deleteGrade,

@@ -37,13 +37,17 @@ class Subject extends UniSystemModel<int> with SubjectMappable{
 
   @override
   bool hasStringMatch(String search) {
-    return bestMatch(search: search, stringList: [
-      name.toLowerCase(),
-      description.toLowerCase(),
-      'remote = $remote',
-      'onSite = $onSite',
-      if (roomLocation != null) roomLocation!.toLowerCase(),
-    ]);
+    return bestMatch(
+      search: search,
+      stringList: [
+        name.toLowerCase(),
+        description.toLowerCase(),
+        'remote = $remote',
+        'onSite = $onSite',
+        if (roomLocation != null) roomLocation!.toLowerCase(),
+      ],
+      threshold: 0.2,
+    );
   }
 }
 

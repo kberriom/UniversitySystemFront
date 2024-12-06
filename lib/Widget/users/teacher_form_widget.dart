@@ -108,13 +108,16 @@ class _TeacherFormWidgetState extends State<TeacherFormWidget> {
                 context.localizations.adminAddFormItemDepartment, Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           TextFormField(
+            keyboardType: TextInputType.number,
             enabled: widget.existingTeacher == null && !adminPasswordEditMode,
             controller: _governmentIdTextController,
+            onChanged: (value) => _governmentIdTextController.text = value.replaceAll(" ", "").replaceAll("-", "").replaceAll(".", ""),
             validator: FormBuilderValidators.numeric(),
             decoration: buildUniSysInputDecoration(
                 context.localizations.adminAddFormItemGovId, Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           TextFormField(
+            keyboardType: TextInputType.emailAddress,
             enabled: widget.existingTeacher == null && !adminPasswordEditMode,
             controller: _emailTextController,
             validator: FormBuilderValidators.email(),
@@ -165,7 +168,7 @@ class _TeacherFormWidgetState extends State<TeacherFormWidget> {
           TextFormField(
             enabled: widget.existingTeacher == null && !adminPasswordEditMode,
             controller: _usernameTextController,
-            validator: FormBuilderValidators.username(allowNumbers: true, allowSpecialChar: true),
+            validator: FormBuilderValidators.username(allowNumbers: true, allowSpecialChar: true, allowDots: true),
             decoration: buildUniSysInputDecoration(
                 context.localizations.adminAddFormItemUsername, Theme.of(context).colorScheme.onSurfaceVariant),
           ),

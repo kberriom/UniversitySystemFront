@@ -101,6 +101,7 @@ class _StudentFormWidgetState extends State<StudentFormWidget> {
             keyboardType: TextInputType.number,
             enabled: widget.existingStudent == null && !adminPasswordEditMode,
             controller: _governmentIdTextController,
+            onChanged: (value) => _governmentIdTextController.text = value.replaceAll(" ", "").replaceAll("-", "").replaceAll(".", ""),
             validator: FormBuilderValidators.numeric(),
             decoration: buildUniSysInputDecoration(
                 context.localizations.adminAddFormItemGovId, Theme.of(context).colorScheme.onSurfaceVariant),
@@ -157,7 +158,7 @@ class _StudentFormWidgetState extends State<StudentFormWidget> {
           TextFormField(
             enabled: widget.existingStudent == null && !adminPasswordEditMode,
             controller: _usernameTextController,
-            validator: FormBuilderValidators.username(allowNumbers: true, allowSpecialChar: true),
+            validator: FormBuilderValidators.username(allowNumbers: true, allowSpecialChar: true, allowDots: true),
             decoration: buildUniSysInputDecoration(
                 context.localizations.adminAddFormItemUsername, Theme.of(context).colorScheme.onSurfaceVariant),
           ),

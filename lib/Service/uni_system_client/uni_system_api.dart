@@ -64,7 +64,7 @@ class UniSystemApiService {
       }
       throw Exception(errorMessage);
     }
-    return response.body.isNotEmpty ? _jsonDecoder.convert(response.body) : null;
+    return response.body.isNotEmpty ? _jsonDecoder.convert(utf8.decode(response.bodyBytes)) : null;
   }
 }
 
@@ -113,6 +113,6 @@ class UniSystemApiServiceIsolate {
       }
       throw Exception(errorMessage);
     }
-    return response.body.isNotEmpty ? _jsonDecoder.convert(response.body) : null;
+    return response.body.isNotEmpty ?  _jsonDecoder.convert(utf8.decode(response.bodyBytes)) : null;
   }
 }
