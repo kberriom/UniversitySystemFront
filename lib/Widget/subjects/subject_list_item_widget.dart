@@ -82,7 +82,7 @@ class SubjectListItem extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      const Icon(Icons.location_on),
+                      const Icon(Icons.location_on, size: 24),
                       Text(
                         replaceOnEmptyOrNull(data.roomLocation, context.localizations.adminSubjectListNoRoomAssigned),
                         maxLines: 1,

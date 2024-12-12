@@ -55,6 +55,7 @@ class _GradeFormWidgetState extends ConsumerState<GradeFormWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
+        spacing: 16,
         children: [
           TextFormField(
             enabled: !widget.editOnlyGradeValue,
@@ -103,14 +104,7 @@ class _GradeFormWidgetState extends ConsumerState<GradeFormWidget> {
                 minimumSize: const Size(100, 50),
               ),
               child: widget.buttonContent),
-        ]
-            .map(
-              (e) => Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: e,
-              ),
-            )
-            .toList(),
+        ],
       ),
     );
   }

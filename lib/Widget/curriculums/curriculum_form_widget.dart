@@ -48,6 +48,7 @@ class _CurriculumFormWidgetState extends State<CurriculumFormWidget> {
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 16,
         children: [
           TextFormField(
             controller: _nameTextController,
@@ -100,14 +101,7 @@ class _CurriculumFormWidgetState extends State<CurriculumFormWidget> {
                 minimumSize: const Size(100, 50),
               ),
               child: widget.buttonContent),
-        ]
-            .map(
-              (e) => Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: e,
-              ),
-            )
-            .toList(),
+        ],
       ),
     );
   }

@@ -15,11 +15,12 @@ import 'package:university_system_front/Theme/dimensions.dart';
 import 'package:university_system_front/Util/localization_utils.dart';
 import 'package:university_system_front/Util/router_utils.dart';
 import 'package:university_system_front/Util/snackbar_utils.dart';
-import 'package:university_system_front/Widget/common_components/title_widgets.dart';
+import 'package:university_system_front/Widget/common_components/animated_text_overflow.dart';
+import 'package:university_system_front/Widget/common_components/background_decoration_widget.dart';
 import 'package:university_system_front/Widget/common_components/carousel_widgets.dart';
 import 'package:university_system_front/Widget/common_components/detail_page_widgets.dart';
 import 'package:university_system_front/Widget/common_components/modal_widgets.dart';
-import 'package:university_system_front/Widget/common_components/background_decoration_widget.dart';
+import 'package:university_system_front/Widget/common_components/title_widgets.dart';
 import 'package:university_system_front/Widget/navigation/uni_system_appbars.dart';
 import 'package:university_system_front/Widget/subjects/admin/admin_user_for_subject_selectors.dart';
 
@@ -190,15 +191,23 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                               } else {
                                 name = context.localizations.teacherItemName;
                               }
-                              return Text(
-                                name,
-                                maxLines: 1,
+                              return AnimatedTextOverFlow(
+                                key: ValueKey(name.hashCode),
+                                child: Text(
+                                  name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               );
                             },
                           ),
-                          Text(
-                            "${context.localizations.carouselUserItemTeacherRole}: ${data.roleInClass}",
-                            maxLines: 1,
+                          AnimatedTextOverFlow(
+                            key: ValueKey(data.roleInClass.hashCode),
+                            child: Text(
+                              "${context.localizations.carouselUserItemTeacherRole}: ${data.roleInClass}",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                       );
@@ -257,9 +266,13 @@ class _SubjectDetailWidgetState extends ConsumerState<AdminSubjectDetailWidget> 
                               } else {
                                 name = context.localizations.studentItemName;
                               }
-                              return Text(
-                                name,
-                                maxLines: 1,
+                              return AnimatedTextOverFlow(
+                                key: ValueKey(name.hashCode),
+                                child: Text(
+                                  name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               );
                             },
                           ),
@@ -438,6 +451,7 @@ class SubjectDetailLocationsIndicator extends StatelessWidget {
     return Wrap(
       spacing: 10,
       children: [
+        if (subject.remote || subject.onSite) const SizedBox(width: 4),
         if (subject.remote) Tooltip(message: context.localizations.subjectItemIsRemote, child: const Icon(Icons.laptop)),
         if (subject.onSite) Tooltip(message: context.localizations.subjectItemIsOnSite, child: const Icon(Icons.home_work)),
       ],

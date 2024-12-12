@@ -71,6 +71,7 @@ class _StudentFormWidgetState extends State<StudentFormWidget> {
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 16,
         children: [
           if (widget.existingStudent != null)
             SwitchListTile(
@@ -101,7 +102,8 @@ class _StudentFormWidgetState extends State<StudentFormWidget> {
             keyboardType: TextInputType.number,
             enabled: widget.existingStudent == null && !adminPasswordEditMode,
             controller: _governmentIdTextController,
-            onChanged: (value) => _governmentIdTextController.text = value.replaceAll(" ", "").replaceAll("-", "").replaceAll(".", ""),
+            onChanged: (value) =>
+                _governmentIdTextController.text = value.replaceAll(" ", "").replaceAll("-", "").replaceAll(".", ""),
             validator: FormBuilderValidators.numeric(),
             decoration: buildUniSysInputDecoration(
                 context.localizations.adminAddFormItemGovId, Theme.of(context).colorScheme.onSurfaceVariant),
@@ -224,14 +226,8 @@ class _StudentFormWidgetState extends State<StudentFormWidget> {
                 minimumSize: const Size(100, 50),
               ),
               child: widget.buttonContent),
-        ]
-            .map(
-              (e) => Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: e,
-              ),
-            )
-            .toList(),
+          const SizedBox(height: 16),
+        ],
       ),
     );
   }

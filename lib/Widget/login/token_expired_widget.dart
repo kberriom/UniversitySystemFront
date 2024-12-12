@@ -17,7 +17,7 @@ class TokenExpiredWidget extends ConsumerWidget {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: MaterialTheme.fixedPrimary.value.withOpacity(0.75),
+        backgroundColor: MaterialTheme.fixedPrimary.value.withValues(alpha: 0.75),
         appBar: context.isWindows ? const DynamicUniSystemAppBar(isInLogin: true) : null,
         body: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 5.5, sigmaY: 5.5),

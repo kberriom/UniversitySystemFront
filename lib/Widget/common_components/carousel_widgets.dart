@@ -52,6 +52,8 @@ class _UniSystemBaseCarouselState extends State<UniSystemBaseCarousel> with Anim
       child: ScrollConfiguration(
         behavior: _AllDeviceScrollBehavior(),
         child: CarouselView(
+          enableSplash: false,
+          shrinkExtent: widget.size.width + (kBodyHorizontalPadding - 4),
           itemExtent: widget.size.width + (kBodyHorizontalPadding - 4),
           padding: const EdgeInsets.only(left: kBodyHorizontalPadding, right: 4, top: 4, bottom: 4),
           itemSnapping: true,

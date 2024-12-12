@@ -105,16 +105,17 @@ class UserListItem extends StatelessWidget {
                     ],
                   ),
                 ),
+                const SizedBox(width: 4),
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     if (data.role == UserRole.student.roleName) ...[
-                      const Icon(Icons.school),
+                      const Icon(Icons.school, size: 24),
                       Text(context.localizations.userTypeNameStudent(1)),
                     ],
                     if (data.role == UserRole.teacher.roleName) ...[
-                      const Icon(Icons.hail),
+                      const Icon(Icons.hail, size: 24),
                       Text(context.localizations.userTypeNameTeacher(1)),
                     ],
                   ],

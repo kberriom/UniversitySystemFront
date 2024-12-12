@@ -137,7 +137,7 @@ class _AdminAddUserState extends ConsumerState<AdminAddUser> {
                             ],
                           ),
                           secondChild: SingleChildScrollView(
-                            padding: EdgeInsets.only(right: PlatformUtil.isWindows ? 31 : 0, top: 2),
+                            padding: EdgeInsets.only(right: PlatformUtil.isWindows ? kBodyHorizontalPadding : 0, top: 2),
                             child: form ?? const SizedBox(),
                           ),
                           duration: Durations.medium1,

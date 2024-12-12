@@ -58,6 +58,7 @@ class _SubjectFormWidgetState extends State<SubjectFormWidget> {
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 16,
         children: [
           TextFormField(
             controller: _nameTextController,
@@ -139,14 +140,8 @@ class _SubjectFormWidgetState extends State<SubjectFormWidget> {
                 minimumSize: const Size(100, 50),
               ),
               child: widget.buttonContent),
-        ]
-            .map(
-              (e) => Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: e,
-              ),
-            )
-            .toList(),
+          const SizedBox(height: 16),
+        ],
       ),
     );
   }
