@@ -15,7 +15,8 @@ class StudentRegistration extends _$StudentRegistration {
   }
 
   Future<List<Grade>> getGradeList() {
-    return Future.value(state.value!.subjectGrades!.toList(growable: false));
+    final list = state.value!.subjectGrades!.toList(growable: false)..sort();
+    return Future.value(list);
   }
 }
 
@@ -39,16 +40,19 @@ class CurrentFinalGrade extends _$CurrentFinalGrade {
         }
 
         double sum = 0;
-        double currentPercentage = 0;
+        double totalCurrentPercentage = 0;
 
         for (Grade grade in list) {
-          sum += double.parse(grade.gradeValue);
-          currentPercentage += double.parse(grade.percentageOfFinalGrade);
+          final currentGradePercentage = double.parse(grade.percentageOfFinalGrade);
+          totalCurrentPercentage += currentGradePercentage;
+          sum += double.parse(grade.gradeValue) * currentGradePercentage;
         }
 
+        double approximatedFinalGradePercentage = sum / 100;
+
         return GradeDto(
-          gradeValue: (sum / list.length).toStringAsFixed(2),
-          percentageOfFinalGrade: currentPercentage.toStringAsFixed(2),
+          gradeValue: approximatedFinalGradePercentage.toStringAsFixed(2),
+          percentageOfFinalGrade: totalCurrentPercentage.toStringAsFixed(2),
           description: null,
         );
       },

@@ -5,7 +5,7 @@ import 'package:university_system_front/Model/users/student.dart';
 part 'grade.mapper.dart';
 
 @MappableClass()
-class Grade with GradeMappable implements UniSystemModel<int> {
+class Grade with GradeMappable implements UniSystemModel<int>, Comparable<Grade> {
   @override
   int id;
   String gradeValue;
@@ -28,6 +28,11 @@ class Grade with GradeMappable implements UniSystemModel<int> {
     return bestMatch(search: search, stringList: [
       description.toLowerCase(),
     ]);
+  }
+
+  @override
+  int compareTo(Grade other) {
+    return id.compareTo(other.id);
   }
 }
 
