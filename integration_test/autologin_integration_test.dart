@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:university_system_front/Adapter/secure_storage_adapter.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
-import 'package:university_system_front/Provider/login_provider.dart';
+import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
 import 'package:flutter_gen/gen_l10n/university_system_ui_localizations.dart';
 
@@ -17,7 +16,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
-    registerGoRouterForIntegrationTest();
+    GetIt.instance.allowReassignment = true;
   });
 
   tearDown(() async {
@@ -26,14 +25,14 @@ void main() {
 
   group('JWT autoLogin integration test', () {
     testWidgets('login / freshLoggedInInstanceHelper test', (widgetTester) async {
-      expect(await SecureStorageAdapter().readValue(BearerTokenType.jwt.name), isNull,
+      expect(await SecureStorageAdapter().readValue(BearerTokenType.jwt.name), anyOf(isNull, InternalTokenMessage.signOut.name),
           reason: 'Test must be run with no valid JWT saved, do not run this test group randomized');
 
       await freshLoggedInInstanceHelper(widgetTester, newJwt: true, keepJwt: true, autoLogin: true);
       await widgetTester.pumpAndSettle();
 
-      final currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
-      expect(currentRute, GoRouterRoutes.home.routeName);
+      final currentRute = getGoRouter(widgetTester, find.byType(AppBar)).routeInformationProvider.value.uri.path;
+      expect(currentRute, GoRouterRoutes.adminHome.routeName);
 
       final storedBearerToken = await SecureStorageAdapter().readValue(BearerTokenType.jwt.name);
       expect(storedBearerToken, isNotEmpty);
@@ -47,8 +46,8 @@ void main() {
 
       await widgetTester.pumpAndSettle();
 
-      final currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
-      expect(currentRute, GoRouterRoutes.home.routeName);
+      final currentRute = getGoRouter(widgetTester, find.byType(Image)).routeInformationProvider.value.uri.path;
+      expect(currentRute, GoRouterRoutes.adminHome.routeName);
       expect(await SecureStorageAdapter().readValue(BearerTokenType.jwt.name), isNotEmpty);
     });
 
@@ -62,7 +61,7 @@ void main() {
 
       await widgetTester.pumpAndSettle();
 
-      expect(GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path, GoRouterRoutes.home.routeName);
+      expect(getGoRouter(widgetTester, find.byType(AppBar)).routeInformationProvider.value.uri.path, GoRouterRoutes.adminHome.routeName);
       expect(await SecureStorageAdapter().readValue(BearerTokenType.jwt.name), isNotEmpty);
 
       await widgetTester.pumpAndSettle(JwtDecoder.getRemainingTime(currentJwt)); //Wait for JWT expiration
@@ -70,7 +69,7 @@ void main() {
       await widgetTester.pumpAndSettle(); //Wait for animations
 
       //_RouterState is private in GoRouter, but it's serializable
-      Map goRouterState = GetIt.instance.get<GoRouter>().routeInformationProvider.value.state as Map<dynamic, dynamic>;
+      Map goRouterState = getGoRouter(widgetTester, find.byType(AppBar)).routeInformationProvider.value.state as Map<dynamic, dynamic>;
 
       expect(((goRouterState['imperativeMatches'] as List<Map<dynamic, dynamic>>).first['location'] as String),
           GoRouterRoutes.tokenExpiredInfo.routeName);
@@ -90,9 +89,10 @@ void main() {
 
       await widgetTester.pumpAndSettle();
 
-      expect(GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path, GoRouterRoutes.login.routeName);
-      final providerContainer = ProviderScope.containerOf(widgetTester.element(find.byType(FilledButton)));
-      expect(await providerContainer.read(loginProvider.future), const BearerToken(token: "", mustRedirectLogin: true));
+      final filledButtonFinder = find.byType(FilledButton);
+      expect(getGoRouter(widgetTester, filledButtonFinder).routeInformationProvider.value.uri.path, GoRouterRoutes.login.routeName);
+      final providerContainer = ProviderScope.containerOf(widgetTester.element(filledButtonFinder));
+      expect(await providerContainer.read(loginServiceProvider.future), const BearerToken(token: "", mustRedirectTokenExpired: true));
     });
   });
 }

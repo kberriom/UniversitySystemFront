@@ -1,12 +1,11 @@
-import 'dart:io';
-
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:university_system_front/Util/platform_utils.dart';
 
 class SecureStorageAdapter {
   late FlutterSecureStorage _storage;
 
   SecureStorageAdapter() {
-    if (Platform.isAndroid || Platform.isWindows) {
+    if (PlatformUtil.isAndroid || PlatformUtil.isWindows) {
       _storage = const FlutterSecureStorage(aOptions: AndroidOptions(encryptedSharedPreferences: true));
     } else {
       throw Exception("Platform is not supported currently");

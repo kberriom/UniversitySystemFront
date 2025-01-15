@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/university_system_ui_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:university_system_front/Adapter/secure_storage_adapter.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
 import 'package:university_system_front/Router/go_router_config.dart';
-import 'package:university_system_front/Util/provider_logger.dart';
+import 'package:university_system_front/Util/provider_utils.dart';
 import 'package:university_system_front/main.dart';
 
 Future<void> freshLoggedInInstanceHelper(WidgetTester widgetTester,
@@ -48,8 +47,6 @@ Future<void> freshLoggedInInstanceHelper(WidgetTester widgetTester,
   }
 }
 
-final class _IntegrationTestUniversitySystemUiGoRouter extends GoRouterConfig {}
-
-GoRouter registerGoRouterForIntegrationTest() {
-  return GetIt.instance.registerSingleton<GoRouter>(_IntegrationTestUniversitySystemUiGoRouter().router);
+GoRouter getGoRouter(WidgetTester widgetTester, Finder finder) {
+  return ProviderScope.containerOf(widgetTester.element(finder)).read(goRouterInstanceProvider);
 }

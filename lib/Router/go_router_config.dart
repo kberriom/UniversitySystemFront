@@ -1,68 +1,97 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:university_system_front/Model/credentials/bearer_token.dart';
-import 'package:university_system_front/Provider/login_provider.dart';
+import 'package:university_system_front/Router/router_error_widget.dart';
+import 'package:university_system_front/Service/login_service.dart';
 import 'package:university_system_front/Router/go_router_routes.dart';
+import 'package:university_system_front/Widget/home/student_home_widget.dart';
+import 'package:university_system_front/Widget/home/teacher_home_widget.dart';
 import 'package:university_system_front/Widget/login/animated_login_widget.dart';
-import 'package:university_system_front/Widget/home_widget.dart';
 import 'package:university_system_front/Widget/login/login_splash_widget.dart';
 import 'package:university_system_front/Widget/login/login_widget.dart';
 import 'package:university_system_front/Widget/login/token_expired_widget.dart';
+import 'admin_router.dart';
 
 part 'go_router_config.g.dart';
 
-///Class to get the configured router instance, Use [GetIt.instance.get] to get the registered router instance
-abstract base class GoRouterConfig {
-  final GoRouter router = GoRouter(
-    initialLocation: GoRouterRoutes.loginSplash.routeName,
-    routes: [
-      GoRoute(
-          path: GoRouterRoutes.loginSplash.routeName,
-          name: GoRouterRoutes.loginSplash.routeName,
-          builder: (context, state) => const LoginSplashWidget()),
-      GoRoute(
-        path: GoRouterRoutes.animatedLogin.routeName,
-        name: GoRouterRoutes.animatedLogin.routeName,
-        pageBuilder: (context, state) {
-          return CustomTransitionPage(
-            transitionDuration: AnimatedLoginTimers.heroAnimation.duration,
-            key: ValueKey(GoRouterRoutes.animatedLogin.routeName),
-            child: const AnimatedLoginWidget(),
-            transitionsBuilder: _fadeTransition,
-          );
-        },
-      ),
-      GoRoute(
-        path: GoRouterRoutes.login.routeName,
-        name: GoRouterRoutes.login.routeName,
-        pageBuilder: (context, state) {
-          return CustomTransitionPage(
-            key: ValueKey(GoRouterRoutes.login.routeName),
-            child: const LoginWidget(),
-            transitionsBuilder: _fadeTransition,
-          );
-        },
-      ),
-      GoRoute(
-        path: GoRouterRoutes.tokenExpiredInfo.routeName,
-        name: GoRouterRoutes.tokenExpiredInfo.routeName,
-        pageBuilder: (context, state) => CustomTransitionPage(
-            key: ValueKey(GoRouterRoutes.tokenExpiredInfo.routeName),
-            fullscreenDialog: true,
-            opaque: false,
-            child: const TokenExpiredWidget(),
-            transitionsBuilder: _fadeTransition),
-      ),
-      GoRoute(
-          path: GoRouterRoutes.home.routeName,
-          name: GoRouterRoutes.home.routeName,
-          builder: (context, state) => const HomeWidget()),
-    ],
-  );
+@Riverpod(keepAlive: true)
+class GoRouterInstance extends _$GoRouterInstance {
+  @override
+  GoRouter build() {
+    return GoRouter(
+      navigatorKey: GlobalKey<NavigatorState>(debugLabel: 'rootNavigator'),
+      initialLocation: GoRouterRoutes.loginSplash.routeName,
+      errorBuilder: (context, state) {
+        return RouterErrorWidget();
+      },
+      routes: [
+        GoRoute(
+            path: GoRouterRoutes.loginSplash.routeName,
+            name: GoRouterRoutes.loginSplash.routeName,
+            builder: (context, state) => const LoginSplashWidget()),
+        GoRoute(
+          path: GoRouterRoutes.animatedLogin.routeName,
+          name: GoRouterRoutes.animatedLogin.routeName,
+          pageBuilder: (context, state) {
+            return CustomTransitionPage(
+              transitionDuration: AnimatedLoginTimers.heroAnimation.duration,
+              key: ValueKey(GoRouterRoutes.animatedLogin.routeName),
+              child: const AnimatedLoginWidget(),
+              transitionsBuilder: _fadeTransition,
+            );
+          },
+        ),
+        GoRoute(
+          path: GoRouterRoutes.login.routeName,
+          name: GoRouterRoutes.login.routeName,
+          pageBuilder: (context, state) {
+            return CustomTransitionPage(
+              key: ValueKey(GoRouterRoutes.login.routeName),
+              child: const LoginWidget(),
+              transitionsBuilder: _fadeTransition,
+            );
+          },
+        ),
+        GoRoute(
+          path: GoRouterRoutes.tokenExpiredInfo.routeName,
+          name: GoRouterRoutes.tokenExpiredInfo.routeName,
+          pageBuilder: (context, state) => CustomTransitionPage(
+              key: ValueKey(GoRouterRoutes.tokenExpiredInfo.routeName),
+              fullscreenDialog: true,
+              opaque: false,
+              child: const TokenExpiredWidget(),
+              transitionsBuilder: _fadeTransition),
+        ),
+        getAdminRouteTree(ref),
+        GoRoute(
+          path: GoRouterRoutes.studentHome.routeName,
+          name: GoRouterRoutes.studentHome.routeName,
+          pageBuilder: (context, state) {
+            return CustomTransitionPage(
+              key: ValueKey(GoRouterRoutes.studentHome.routeName),
+              child: const StudentHomeWidget(),
+              transitionsBuilder: _fadeTransition,
+            );
+          },
+        ),
+        GoRoute(
+          path: GoRouterRoutes.teacherHome.routeName,
+          name: GoRouterRoutes.teacherHome.routeName,
+          pageBuilder: (context, state) {
+            return CustomTransitionPage(
+              key: ValueKey(GoRouterRoutes.teacherHome.routeName),
+              child: const TeacherHomeWidget(),
+              transitionsBuilder: _fadeTransition,
+            );
+          },
+        ),
+      ],
+    );
+  }
 
-  static Widget _fadeTransition(context, animation, secondaryAnimation, child) {
+  Widget _fadeTransition(Object _, Animation<double> animation, Object __, Widget child) {
     return FadeTransition(
       opacity: CurveTween(curve: Curves.easeOutCubic).animate(animation),
       child: child,
@@ -70,24 +99,53 @@ abstract base class GoRouterConfig {
   }
 }
 
+///Redirects the user for login related events such as token expired, sign out or unexpected token expiration from server
+///only evaluates on a update event of [loginServiceProvider]
 @riverpod
-void loginRedirection(LoginRedirectionRef ref) async {
-  ref.listen(loginProvider, (previous, next) {
+void loginRedirection(Ref ref) async {
+  ref.listen(loginServiceProvider, (previous, next) {
     switch (next) {
       case AsyncValue<BearerToken>(:final value?):
         {
-          if (value.mustRedirectLogin ?? false) {
-            final sessionExpiredRoute = GoRouterRoutes.tokenExpiredInfo.routeName;
-            var currentRute = GetIt.instance.get<GoRouter>().routeInformationProvider.value.uri.path;
+          final goRouter = ref.read(goRouterInstanceProvider);
+          if (value.mustRedirectTokenExpired ?? false) {
+            var currentRute = goRouter.routeInformationProvider.value.uri.path;
             //Redirect only if user is on a screen that's not login / animatedLogin, sessionExpired or the initial loading splash
-            if (((currentRute != sessionExpiredRoute) &&
-                (currentRute != GoRouterRoutes.login.routeName) &&
-                (currentRute != GoRouterRoutes.animatedLogin.routeName) &&
-                (currentRute != GoRouterRoutes.loginSplash.routeName))) {
-              GetIt.instance.get<GoRouter>().pushNamed(sessionExpiredRoute);
+            if (_isNotLocatedInLoginRelatedRute(currentRute)) {
+              goRouter.pushNamed(GoRouterRoutes.tokenExpiredInfo.routeName);
+            }
+          }
+          if (value.token.isNotEmpty && value.token == InternalTokenMessage.signOut.name) {
+            var currentRute = goRouter.routeInformationProvider.value.uri.path;
+            if (_isNotLocatedInLoginRelatedRute(currentRute)) {
+              goRouter.goNamed(GoRouterRoutes.login.routeName);
             }
           }
         }
     }
   });
+}
+
+bool _isNotLocatedInLoginRelatedRute(String currentRute) {
+  return ((currentRute != GoRouterRoutes.tokenExpiredInfo.routeName) &&
+      (currentRute != GoRouterRoutes.login.routeName) &&
+      (currentRute != GoRouterRoutes.animatedLogin.routeName) &&
+      (currentRute != GoRouterRoutes.loginSplash.routeName));
+}
+
+///Redirects the user to the appropriate nav tree, can be seen as the "entry point" to the application
+///If a bearer token has a role it implies that the token is valid
+@riverpod
+void userRoleRedirection(Ref ref, BearerToken bearerToken) async {
+  final goRouter = ref.read(goRouterInstanceProvider);
+  switch (bearerToken.role) {
+    case UserRole.admin:
+      goRouter.goNamed(GoRouterRoutes.adminHome.routeName);
+    case UserRole.teacher:
+      goRouter.goNamed(GoRouterRoutes.teacherHome.routeName);
+    case UserRole.student:
+      goRouter.goNamed(GoRouterRoutes.studentHome.routeName);
+    case null:
+      goRouter.goNamed(GoRouterRoutes.animatedLogin.routeName);
+  }
 }

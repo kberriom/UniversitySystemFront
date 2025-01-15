@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/university_system_ui_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:university_system_front/Model/credentials/login_credentials.dart';
-import 'package:university_system_front/Provider/login_provider.dart';
-import 'package:university_system_front/Theme/theme.dart' show MaterialTheme;
-import 'package:university_system_front/Theme/theme_utils.dart';
+import 'package:university_system_front/Service/login_service.dart';
+import 'package:university_system_front/Theme/theme.dart';
+import 'package:university_system_front/Util/localization_utils.dart';
+import 'package:university_system_front/Util/snackbar_utils.dart';
+import 'package:university_system_front/Widget/common_components/form_widgets.dart';
 
 class LoginWidgetForm extends ConsumerStatefulWidget {
   const LoginWidgetForm({super.key});
@@ -15,7 +17,6 @@ class LoginWidgetForm extends ConsumerStatefulWidget {
 }
 
 class _LoginWidgetFormState extends ConsumerState<LoginWidgetForm> {
-
   final _emailFormKey = GlobalKey<FormFieldState>();
   final _emailValidationRegex = RegExp(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}');
 
@@ -42,112 +43,104 @@ class _LoginWidgetFormState extends ConsumerState<LoginWidgetForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 85),
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _emailTextController,
-                key: _emailFormKey,
-                autocorrect: false,
-                focusNode: _emailFocusNode,
-                onEditingComplete: () => _passwordFocusNode.requestFocus(),
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  fillColor: ThemeUtils.colorByBrightness(
-                      context, MaterialTheme.lightScheme().surfaceVariant, MaterialTheme.darkTextField.value),
-                  helperText: "",
-                  hintText: AppLocalizations.of(context)!.loginEmailHint,
-                  filled: true,
-                  contentPadding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
-                ),
-                validator: (String? value) => _validateEmailOrErrorString(value, context),
-              ),
-              const SizedBox(height: 32),
-              TextFormField(
-                controller: _passwordTextController,
-                obscureText: _isPasswordObscured,
-                enableSuggestions: false,
-                autocorrect: false,
-                onEditingComplete: () => _loginButtonFocusNode.requestFocus(),
-                focusNode: _passwordFocusNode,
-                decoration: InputDecoration(
-                  fillColor: ThemeUtils.colorByBrightness(
-                      context, MaterialTheme.lightScheme().surfaceVariant, MaterialTheme.darkTextField.value),
-                  suffixIcon: IconButton(
-                    icon: _getPasswordVisibilityIcon(),
-                    onPressed: () => setState(() {
-                      _isPasswordObscured = !_isPasswordObscured;
-                    }),
+    return Theme(
+      data: const MaterialTheme().dark(),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 85),
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _emailTextController,
+                  key: _emailFormKey,
+                  autocorrect: false,
+                  focusNode: _emailFocusNode,
+                  onEditingComplete: () => _passwordFocusNode.requestFocus(),
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: buildUniSysInputDecoration(
+                          context.localizations.loginEmailHint, Theme.of(context).colorScheme.onSurfaceVariant)
+                      .copyWith(
+                    contentPadding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
                   ),
-                  helperText: "",
-                  hintText: AppLocalizations.of(context)!.loginPasswordHint,
-                  filled: true,
-                  contentPadding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
+                  validator: (String? value) => _validateEmailOrErrorString(value, context),
                 ),
-              ),
-            ],
+                const SizedBox(height: 32),
+                TextFormField(
+                  controller: _passwordTextController,
+                  obscureText: _isPasswordObscured,
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  onEditingComplete: () => _loginButtonFocusNode.requestFocus(),
+                  focusNode: _passwordFocusNode,
+                  decoration: buildUniSysInputDecoration(
+                          context.localizations.loginPasswordHint, Theme.of(context).colorScheme.onSurfaceVariant)
+                      .copyWith(
+                    suffixIcon: IconButton(
+                      icon: _getPasswordVisibilityIcon(),
+                      onPressed: () => setState(() {
+                        _isPasswordObscured = !_isPasswordObscured;
+                      }),
+                    ),
+                    contentPadding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        FilledButton(
-          focusNode: _loginButtonFocusNode,
-          //Flutter framework bug workaround (github.com/flutter/flutter/issues/136745)
-          onFocusChange: (gainedFocus) {
-            if (gainedFocus) {
-              SystemChannels.textInput.invokeMethod('TextInput.hide');
-            }
-          },
-          onPressed: () {
-            _isLoginIncorrect = false;
-            if (_emailFormKey.currentState!.validate() && _pendingLogin == null) {
-              final loginCredentials =
-                  LoginCredentials(email: _emailTextController.text, password: _passwordTextController.text);
-              final Future<bool> futureLogin = ref.read(loginProvider.notifier).setJWT(loginCredentials);
-
-              futureLogin.then((result) {
-                //Success callback
-                _isLoginIncorrect = !result;
-                _emailFormKey.currentState!.validate();
-                _pendingLogin = null;
-              }, onError: (e) {
-                //Error callback
-                _getLoginErrorSnackBar(context);
-                _pendingLogin = null;
-              });
-              setState(() {
-                _pendingLogin = futureLogin;
-              });
-            }
-          },
-          style: FilledButton.styleFrom(
-            minimumSize: const Size(286, 67),
-            backgroundColor: ThemeUtils.colorByBrightness(
-                context, MaterialTheme.lightScheme().primary, MaterialTheme.darkFilledButton.seed),
-          ),
-          child: FutureBuilder(
-            future: _pendingLogin,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return SizedBox(
-                    height: 45,
-                    width: 45,
-                    child: CircularProgressIndicator(color: Theme.of(context).colorScheme.inversePrimary));
+          FilledButton(
+            focusNode: _loginButtonFocusNode,
+            //Flutter framework bug workaround (github.com/flutter/flutter/issues/136745)
+            onFocusChange: (gainedFocus) {
+              if (gainedFocus) {
+                SystemChannels.textInput.invokeMethod('TextInput.hide');
               }
-              return Text(AppLocalizations.of(context)!.loginButton);
             },
-          ),
-        ),
-      ],
-    );
-  }
+            onPressed: () {
+              _isLoginIncorrect = false;
+              if (_emailFormKey.currentState!.validate() && _pendingLogin == null) {
+                final loginCredentials =
+                    LoginCredentials(email: _emailTextController.text, password: _passwordTextController.text);
+                final Future<bool> futureLogin = ref.read(loginServiceProvider.notifier).signIn(loginCredentials);
 
-  void _getLoginErrorSnackBar(BuildContext context) {
-    final snackBar = SnackBar(content: Text(AppLocalizations.of(context)!.loginServerError));
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) => ScaffoldMessenger.of(context).showSnackBar(snackBar));
+                futureLogin.then((result) {
+                  //Success callback
+                  _isLoginIncorrect = !result;
+                  _emailFormKey.currentState!.validate();
+                  _pendingLogin = null;
+                }, onError: (e) {
+                  //Error callback
+                  if (context.mounted) {
+                    context.showTextSnackBar(context.localizations.veryVerboseErrorTryAgain);
+                  }
+                  _pendingLogin = null;
+                });
+                setState(() {
+                  _pendingLogin = futureLogin;
+                });
+              }
+            },
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(286, 67),
+            ),
+            child: FutureBuilder(
+              future: _pendingLogin,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return SizedBox(
+                      height: 45,
+                      width: 45,
+                      child: CircularProgressIndicator(color: Theme.of(context).colorScheme.inversePrimary));
+                }
+                return Text(AppLocalizations.of(context)!.loginButton);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   String? _validateEmailOrErrorString(String? value, BuildContext context) {
@@ -155,9 +148,9 @@ class _LoginWidgetFormState extends ConsumerState<LoginWidgetForm> {
       return null;
     } else {
       if (_isLoginIncorrect) {
-        return AppLocalizations.of(context)!.loginError;
+        return context.localizations.loginError;
       }
-      return AppLocalizations.of(context)!.loginEmailError;
+      return context.localizations.loginEmailError;
     }
   }
 

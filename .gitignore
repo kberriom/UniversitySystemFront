@@ -31,11 +31,13 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+/windows/flutter/
 
 # Flutter generated files
 *.g.dart
 *.freezed.dart
 *.mocks.dart
+*.mapper.dart
 
 # Symbolication related
 app.*.symbols
