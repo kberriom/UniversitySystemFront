@@ -197,5 +197,8 @@
   "setLang": "Set language",
   "adminPassEditMode": "Password edit mode",
   "passwordChangeSuccess": "Password changed successfully",
-  "registeredSubjectsForUser": "Assigned Subjects"
+  "registeredSubjectsForUser": "Assigned Subjects",
+  "requestModeREST": "REST requests only",
+  "requestModeGraphQl": "GraphQl requests enabled",
+  "toggleRequestMode": "API mode"
 }

@@ -197,5 +197,8 @@
   "setLang": "Cambiar lenguaje",
   "adminPassEditMode": "Modo editar contraseña",
   "passwordChangeSuccess": "Cambio de contraseña realizado exitosamente",
-  "registeredSubjectsForUser": "Materias asignadas"
+  "registeredSubjectsForUser": "Materias asignadas",
+  "requestModeREST": "Solo REST",
+  "requestModeGraphQl": "GraphQl Activado",
+  "toggleRequestMode": "Modo API"
 }

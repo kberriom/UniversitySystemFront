@@ -23,7 +23,7 @@ class StudentRepository implements UserRepository<Student, StudentUpdateDto> {
   }
 
   Future<Student> createStudent(StudentCreationDto dto) async {
-    final request = UniSystemRequest(type: UniSysApiRequestType.post, body: dto.toMap(), endpoint: 'auth/createStudent');
+    final request = UniSystemRequest(type: UniSysApiRestRequestType.post, body: dto.toMap(), endpoint: 'auth/createStudent');
     Json response = await _uniSystemApiService.makeRequest(request);
     return Student.fromMap(response);
   }
@@ -37,7 +37,7 @@ class StudentRepository implements UserRepository<Student, StudentUpdateDto> {
   @override
   Future<void> deleteUserTypeInfoById(int id) async {
     final request = UniSystemRequest(
-      type: UniSysApiRequestType.delete,
+      type: UniSysApiRestRequestType.delete,
       endpoint: 'student/deleteStudentInfo/$id',
     );
     return await _uniSystemApiService.makeRequest(request);
@@ -45,7 +45,7 @@ class StudentRepository implements UserRepository<Student, StudentUpdateDto> {
 
   @override
   Future<List<Student>> getAllUserTypeInfo() async {
-    const request = UniSystemRequest(type: UniSysApiRequestType.get, endpoint: 'student/getAllStudentInfo');
+    const request = UniSystemRequest(type: UniSysApiRestRequestType.get, endpoint: 'student/getAllStudentInfo');
     List<dynamic> response = await _uniSystemApiService.makeRequest(request);
     List<Student> list = response.map((studentJson) => Student.fromMap(studentJson)).toList(growable: false);
     return list;
@@ -54,7 +54,7 @@ class StudentRepository implements UserRepository<Student, StudentUpdateDto> {
   @override
   Future<PaginatedList<Student>> getAllUserTypeInfoPaged(int page, int size) async {
     final request = UniSystemRequest(
-        type: UniSysApiRequestType.get,
+        type: UniSysApiRestRequestType.get,
         query: {"page": page.toString(), "size": size.toString()},
         endpoint: 'student/getAllStudentInfo/paged');
     List<dynamic> response = await _uniSystemApiService.makeRequest(request);
@@ -75,7 +75,7 @@ class StudentRepository implements UserRepository<Student, StudentUpdateDto> {
 
   @override
   Future<Student> getUserTypeInfoById(int id) async {
-    final request = UniSystemRequest(type: UniSysApiRequestType.get, endpoint: 'student/getStudentInfo/$id');
+    final request = UniSystemRequest(type: UniSysApiRestRequestType.get, endpoint: 'student/getStudentInfo/$id');
     Json response = await _uniSystemApiService.makeRequest(request);
     return Student.fromMap(response);
   }
@@ -89,7 +89,7 @@ class StudentRepository implements UserRepository<Student, StudentUpdateDto> {
   @override
   Future<Student> updateUserTypeInfoById(int id, StudentUpdateDto updateDto) async {
     final request = UniSystemRequest(
-      type: UniSysApiRequestType.patch,
+      type: UniSysApiRestRequestType.patch,
       body: updateDto.toMap(),
       endpoint: 'student/updateStudentInfo/$id',
     );
@@ -100,7 +100,7 @@ class StudentRepository implements UserRepository<Student, StudentUpdateDto> {
   @override
   Future<void> adminUpdatePassword(AdminPasswordUpdateDto dto) async {
     final request = UniSystemRequest(
-      type: UniSysApiRequestType.post,
+      type: UniSysApiRestRequestType.post,
       endpoint: 'auth/adminUpdatePassword',
       body: {"email": dto.email, "newPassword": dto.newPassword},
     );

@@ -38,11 +38,11 @@ class UniSystemApiService {
     final uri = Uri.http(RemoteConfig().getServerAddress(), '/${request.endpoint}', request.query);
 
     Future<http.Response> futureResponse = switch (request.type) {
-      UniSysApiRequestType.get => httpClient.get(uri, headers: headers),
-      UniSysApiRequestType.post => httpClient.post(uri, body: jsonBody, headers: headers),
-      UniSysApiRequestType.put => httpClient.put(uri, body: jsonBody, headers: headers),
-      UniSysApiRequestType.patch => httpClient.patch(uri, body: jsonBody, headers: headers),
-      UniSysApiRequestType.delete => httpClient.delete(uri, body: jsonBody, headers: headers)
+      UniSysApiRestRequestType.get => httpClient.get(uri, headers: headers),
+      UniSysApiRestRequestType.post => httpClient.post(uri, body: jsonBody, headers: headers),
+      UniSysApiRestRequestType.put => httpClient.put(uri, body: jsonBody, headers: headers),
+      UniSysApiRestRequestType.patch => httpClient.patch(uri, body: jsonBody, headers: headers),
+      UniSysApiRestRequestType.delete => httpClient.delete(uri, body: jsonBody, headers: headers)
     }
       ..whenComplete(() => httpClient.close());
 
@@ -92,11 +92,11 @@ class UniSystemApiServiceIsolate {
     final uri = Uri.http(config.getServerAddress(), '/${request.endpoint}', request.query);
 
     Future<http.Response> futureResponse = switch (request.type) {
-      UniSysApiRequestType.get => httpClient.get(uri, headers: headers),
-      UniSysApiRequestType.post => httpClient.post(uri, body: jsonBody, headers: headers),
-      UniSysApiRequestType.put => httpClient.put(uri, body: jsonBody, headers: headers),
-      UniSysApiRequestType.patch => httpClient.patch(uri, body: jsonBody, headers: headers),
-      UniSysApiRequestType.delete => httpClient.delete(uri, body: jsonBody, headers: headers)
+      UniSysApiRestRequestType.get => httpClient.get(uri, headers: headers),
+      UniSysApiRestRequestType.post => httpClient.post(uri, body: jsonBody, headers: headers),
+      UniSysApiRestRequestType.put => httpClient.put(uri, body: jsonBody, headers: headers),
+      UniSysApiRestRequestType.patch => httpClient.patch(uri, body: jsonBody, headers: headers),
+      UniSysApiRestRequestType.delete => httpClient.delete(uri, body: jsonBody, headers: headers)
     }
       ..whenComplete(() => httpClient?.close());
 

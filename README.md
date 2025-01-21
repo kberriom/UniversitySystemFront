@@ -53,10 +53,17 @@ UI Showcase
   <source media="(prefers-color-scheme: dark)" srcset="./assets/readme/grades_dark_mode.png">
   <img alt="" src="./assets/readme/grades_light_mode.png">
 </picture>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/readme/graphql_dark_mode.png">
+  <img alt="" src="./assets/readme/graphql_light_mode.png">
+</picture>
 
 Technology Stack
 ---
 University System UI is a backend agnostic front end that implements a OpenAPI (Swagger) contract over a REST API.
+
+A GraphQL implementation is available for the Curriculum repository.
+
 The complete project stack includes:
 - Flutter
 - Riverpod

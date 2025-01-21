@@ -27,7 +27,7 @@ class _SubjectRepositoryImpl implements SubjectRepository {
   @override
   Future<StudentSubjectRegistration> addStudent(int studentId, String subjectName) async {
     final request = UniSystemRequest(
-        type: UniSysApiRequestType.post,
+        type: UniSysApiRestRequestType.post,
         query: {"subjectName": subjectName, "studentId": studentId.toString()},
         endpoint: 'subject/addStudent');
     Json response = await _uniSystemApiService.makeRequest(request);
@@ -37,7 +37,7 @@ class _SubjectRepositoryImpl implements SubjectRepository {
   @override
   Future<TeacherAssignation> addTeacher(int teacherId, String subjectName, String roleInClass) async {
     final request = UniSystemRequest(
-        type: UniSysApiRequestType.put,
+        type: UniSysApiRestRequestType.put,
         query: {"subjectName": subjectName, "teacherId": teacherId.toString(), "roleInClass": roleInClass},
         endpoint: 'subject/addTeacher');
     Json response = await _uniSystemApiService.makeRequest(request);
@@ -47,7 +47,7 @@ class _SubjectRepositoryImpl implements SubjectRepository {
   @override
   Future<Subject> createSubject(SubjectDto subjectDto) async {
     final request =
-        UniSystemRequest(type: UniSysApiRequestType.post, body: subjectDto.toMap(), endpoint: 'subject/createSubject');
+        UniSystemRequest(type: UniSysApiRestRequestType.post, body: subjectDto.toMap(), endpoint: 'subject/createSubject');
     Json response = await _uniSystemApiService.makeRequest(request);
     return Subject.fromMap(response);
   }
@@ -55,13 +55,13 @@ class _SubjectRepositoryImpl implements SubjectRepository {
   @override
   Future<void> deleteSubject(String subjectName) async {
     final request =
-        UniSystemRequest(type: UniSysApiRequestType.delete, query: {"name": subjectName}, endpoint: 'subject/deleteSubject');
+        UniSystemRequest(type: UniSysApiRestRequestType.delete, query: {"name": subjectName}, endpoint: 'subject/deleteSubject');
     return _uniSystemApiService.makeRequest(request);
   }
 
   @override
   Future<List<StudentSubjectRegistration>> getAllRegisteredStudents(String subjectName) async {
-    final request = UniSystemRequest(type: UniSysApiRequestType.get, endpoint: 'subject/getAllRegisteredStudents/$subjectName');
+    final request = UniSystemRequest(type: UniSysApiRestRequestType.get, endpoint: 'subject/getAllRegisteredStudents/$subjectName');
     List<dynamic> response = await _uniSystemApiService.makeRequest(request);
     List<StudentSubjectRegistration> list = [];
     for (var registrationJson in response) {
@@ -73,7 +73,7 @@ class _SubjectRepositoryImpl implements SubjectRepository {
   @override
   Future<List<Subject>> getAllSubjectsByStudentId(int studentId) async {
     final request = UniSystemRequest(
-      type: UniSysApiRequestType.get,
+      type: UniSysApiRestRequestType.get,
       endpoint: 'subject/getAllSubjectsForStudent',
       query: {
         "studentId": studentId.toString(),
@@ -89,7 +89,7 @@ class _SubjectRepositoryImpl implements SubjectRepository {
 
   @override
   Future<List<Subject>> getAllSubjects() async {
-    const request = UniSystemRequest(type: UniSysApiRequestType.get, endpoint: 'subject/getAllSubjects');
+    const request = UniSystemRequest(type: UniSysApiRestRequestType.get, endpoint: 'subject/getAllSubjects');
     List<dynamic> response = await _uniSystemApiService.makeRequest(request);
     List<Subject> list = [];
     for (var subjectJson in response) {
@@ -101,7 +101,7 @@ class _SubjectRepositoryImpl implements SubjectRepository {
   @override
   Future<PaginatedList<Subject>> getAllSubjectsPaged(int page, int size) async {
     final request = UniSystemRequest(
-        type: UniSysApiRequestType.get,
+        type: UniSysApiRestRequestType.get,
         query: {"page": page.toString(), "size": size.toString()},
         endpoint: 'subject/getAllSubjects/paged');
     List<dynamic> response = await _uniSystemApiService.makeRequest(request);
@@ -116,7 +116,7 @@ class _SubjectRepositoryImpl implements SubjectRepository {
 
   @override
   Future<List<TeacherAssignation>> getAllTeachers(String subjectName) async {
-    final request = UniSystemRequest(type: UniSysApiRequestType.get, endpoint: 'subject/getAllTeachers/$subjectName');
+    final request = UniSystemRequest(type: UniSysApiRestRequestType.get, endpoint: 'subject/getAllTeachers/$subjectName');
     List<dynamic> response = await _uniSystemApiService.makeRequest(request);
     List<TeacherAssignation> list = [];
     for (var assignationJson in response) {
@@ -128,7 +128,7 @@ class _SubjectRepositoryImpl implements SubjectRepository {
   @override
   Future<List<Subject>> getAllSubjectsByTeacherId(int teacherId) async {
     final request = UniSystemRequest(
-      type: UniSysApiRequestType.get,
+      type: UniSysApiRestRequestType.get,
       endpoint: 'subject/getAllSubjectsByTeacherId',
       query: {
         "teacherId": teacherId.toString(),
@@ -144,14 +144,14 @@ class _SubjectRepositoryImpl implements SubjectRepository {
 
   @override
   Future<Subject> getSubject(String name) async {
-    final request = UniSystemRequest(type: UniSysApiRequestType.get, query: {"name": name}, endpoint: 'subject/getSubject');
+    final request = UniSystemRequest(type: UniSysApiRestRequestType.get, query: {"name": name}, endpoint: 'subject/getSubject');
     Json response = await _uniSystemApiService.makeRequest(request);
     return Subject.fromMap(response);
   }
 
   @override
   Future<Subject> getSubjectById(int id) async {
-    final request = UniSystemRequest(type: UniSysApiRequestType.get, query: {"id": "$id"}, endpoint: 'subject/getSubjectById');
+    final request = UniSystemRequest(type: UniSysApiRestRequestType.get, query: {"id": "$id"}, endpoint: 'subject/getSubjectById');
     Json response = await _uniSystemApiService.makeRequest(request);
     return Subject.fromMap(response);
   }
@@ -164,7 +164,7 @@ class _SubjectRepositoryImpl implements SubjectRepository {
   @override
   Future<void> removeStudent(int studentId, String subjectName) {
     final request = UniSystemRequest(
-        type: UniSysApiRequestType.delete,
+        type: UniSysApiRestRequestType.delete,
         query: {"studentId": studentId.toString(), "subjectName": subjectName},
         endpoint: 'subject/removeStudent');
     return _uniSystemApiService.makeRequest(request);
@@ -173,7 +173,7 @@ class _SubjectRepositoryImpl implements SubjectRepository {
   @override
   Future<void> removeTeacher(int teacherId, String subjectName) {
     final request = UniSystemRequest(
-        type: UniSysApiRequestType.delete,
+        type: UniSysApiRestRequestType.delete,
         query: {"teacherId": teacherId.toString(), "subjectName": subjectName},
         endpoint: 'subject/removeTeacher');
     return _uniSystemApiService.makeRequest(request);
@@ -182,7 +182,7 @@ class _SubjectRepositoryImpl implements SubjectRepository {
   @override
   Future<Subject> updateSubject(SubjectDto subjectDto, String oldName) async {
     final request =
-        UniSystemRequest(type: UniSysApiRequestType.patch, body: subjectDto.toMap(), endpoint: 'subject/updateSubject/$oldName');
+        UniSystemRequest(type: UniSysApiRestRequestType.patch, body: subjectDto.toMap(), endpoint: 'subject/updateSubject/$oldName');
     Json response = await _uniSystemApiService.makeRequest(request);
     return Subject.fromMap(response);
   }

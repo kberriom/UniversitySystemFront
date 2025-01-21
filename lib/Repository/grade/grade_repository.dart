@@ -26,7 +26,7 @@ class _GradeRepositoryImpl implements GradeRepository {
   @override
   Future<StudentSubjectRegistration> addStudentGrade(int subjectId, int studentId, GradeDto gradeDto) async {
     final request = UniSystemRequest(
-      type: UniSysApiRequestType.post,
+      type: UniSysApiRestRequestType.post,
       body: gradeDto.toMap(),
       query: {"subjectId": subjectId.toString(), "studentId": studentId.toString()},
       endpoint: 'grade/addStudentGrade',
@@ -57,7 +57,7 @@ class _GradeRepositoryImpl implements GradeRepository {
   @override
   Future<List<Grade>> getOneStudentGrades(int subjectId, int studentId) async {
     final request = UniSystemRequest(
-      type: UniSysApiRequestType.get,
+      type: UniSysApiRestRequestType.get,
       endpoint: 'grade/getOneStudentGrades',
       query: {
         "subjectId": subjectId.toString(),
@@ -81,7 +81,7 @@ class _GradeRepositoryImpl implements GradeRepository {
   @override
   Future<StudentSubjectRegistration> getStudentSubjectRegistration(int subjectId, int studentId) async {
     final request = UniSystemRequest(
-      type: UniSysApiRequestType.get,
+      type: UniSysApiRestRequestType.get,
       query: {
         "subjectId": subjectId.toString(),
         "studentId": studentId.toString(),
@@ -95,7 +95,7 @@ class _GradeRepositoryImpl implements GradeRepository {
   @override
   Future<void> removeStudentGrade(int subjectId, int studentId, int gradeId) async {
     final request = UniSystemRequest(
-      type: UniSysApiRequestType.delete,
+      type: UniSysApiRestRequestType.delete,
       query: {
         "subjectId": subjectId.toString(),
         "studentId": studentId.toString(),
@@ -109,7 +109,7 @@ class _GradeRepositoryImpl implements GradeRepository {
   @override
   Future<StudentSubjectRegistration> setStudentFinalGrade(int subjectId, int studentId, String finalGrade) async {
     final request = UniSystemRequest(
-      type: UniSysApiRequestType.put,
+      type: UniSysApiRestRequestType.put,
       query: {
         "subjectId": subjectId.toString(),
         "studentId": studentId.toString(),
@@ -124,7 +124,7 @@ class _GradeRepositoryImpl implements GradeRepository {
   @override
   Future<StudentSubjectRegistration> setStudentFinalGradeAuto(int subjectId, int studentId) async {
     final request = UniSystemRequest(
-      type: UniSysApiRequestType.put,
+      type: UniSysApiRestRequestType.put,
       query: {
         "subjectId": subjectId.toString(),
         "studentId": studentId.toString(),
@@ -138,7 +138,7 @@ class _GradeRepositoryImpl implements GradeRepository {
   @override
   Future<void> deleteStudentFinalGrade(int subjectId, int studentId) async {
     final request = UniSystemRequest(
-      type: UniSysApiRequestType.delete,
+      type: UniSysApiRestRequestType.delete,
       query: {
         "subjectId": subjectId.toString(),
         "studentId": studentId.toString(),
